@@ -15,7 +15,7 @@
 // Assumes analog reference is default and is at value specified by ISensor::DEFAULT_ADC_ANALOG_REFERENCE
 class SensorVoltage : public ISensor
 {
- public:
+public:
 	 SensorVoltage(const char * name, int analogPin, long resistorToGround, long resistorToVoltage);
 	 int getValueInt(); // return in mV
 	 float getValueFloat(); // return in V

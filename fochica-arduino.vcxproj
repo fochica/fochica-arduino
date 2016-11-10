@@ -122,8 +122,10 @@
     <ClInclude Include="ISensor.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="SensorFreeRAM.h" />
+    <ClInclude Include="SensorQtouch.h" />
     <ClInclude Include="SensorVcc.h" />
     <ClInclude Include="SensorVoltage.h" />
+    <ClInclude Include="SoundManager.h" />
     <ClInclude Include="__vm\.fochica-arduino.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
@@ -131,8 +133,10 @@
     <ClCompile Include="ISensor.cpp" />
     <ClCompile Include="Manager.cpp" />
     <ClCompile Include="SensorFreeRAM.cpp" />
+    <ClCompile Include="SensorQtouch.cpp" />
     <ClCompile Include="SensorVcc.cpp" />
     <ClCompile Include="SensorVoltage.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
