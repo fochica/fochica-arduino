@@ -130,6 +130,7 @@
     <ClInclude Include="PacketSensorData.h" />
     <ClInclude Include="PacketTechnicalData.h" />
     <ClInclude Include="PacketTime.h" />
+    <ClInclude Include="SensorDigital.h" />
     <ClInclude Include="SensorFreeRAM.h" />
     <ClInclude Include="SensorQtouch.h" />
     <ClInclude Include="SensorVcc.h" />
@@ -149,6 +150,7 @@
     <ClCompile Include="PacketSensorData.cpp" />
     <ClCompile Include="PacketTechnicalData.cpp" />
     <ClCompile Include="PacketTime.cpp" />
+    <ClCompile Include="SensorDigital.cpp" />
     <ClCompile Include="SensorFreeRAM.cpp" />
     <ClCompile Include="SensorQtouch.cpp" />
     <ClCompile Include="SensorVcc.cpp" />

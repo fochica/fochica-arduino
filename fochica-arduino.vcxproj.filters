@@ -72,6 +72,9 @@
     <ClInclude Include="PacketSensorData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SensorDigital.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -120,6 +123,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PacketSensorData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SensorDigital.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

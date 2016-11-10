@@ -1,10 +1,8 @@
-// Includes of libraries for the sake of visual micro and IntelliSense
+// our classes
+#include "SensorDigital.h"
 #include "PacketSensorData.h"
 #include "PacketTechnicalData.h"
 #include "PacketHeader.h"
-#include <SoftwareSerial.h>
-
-// our classes
 #include "GenericBLEModuleClient.h"
 #include "SensorQtouch.h"
 #include "SoundManager.h"
@@ -14,6 +12,9 @@
 #include "ISensor.h"
 #include "Manager.h"
 #include "DebugStream.h"
+
+// Includes of libraries for the sake of visual micro and IntelliSense
+#include <SoftwareSerial.h>
 
 // settings
 const int SERIAL_BAUD = 9600;
@@ -29,7 +30,7 @@ const int CAPACITANCE_REF_PIN = 3;
 
 const int LOOP_DELAY = 1000;
 
-// HC-05 Bluetooth
+// Bluetooth Low Energy (HC-05 module)
 const int BLE_RX_PIN = 8; // yellow
 const int BLE_TX_PIN = 9; // orange
 const int BLE_SENSE_PIN = 5; // gray
@@ -39,6 +40,7 @@ SensorFreeRAM ram("SRAM");
 SensorVcc vcc("Vcc");
 SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND, BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE);
 SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
+SensorDigital digital("Test", BLE_SENSE_PIN); // just a test, reuse existing pin
 GenericBLEModuleClient ble(BLE_RX_PIN, BLE_TX_PIN, BLE_SENSE_PIN);
 
 void setup()
@@ -64,6 +66,7 @@ void loop()
 	DebugStream->println(capSense.getValueInt());
 	DebugStream->println(ram.getValueInt());
 	DebugStream->println(ble.isConnected());
+	DebugStream->println(digital.getValueInt());
 
 	// send technical packet
 	PacketTechnicalData packet;
