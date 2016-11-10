@@ -1,0 +1,55 @@
+// GenericBLEModuleClient.h
+
+#ifndef _GENERICBLEMODULECLIENT_h
+#define _GENERICBLEMODULECLIENT_h
+
+#if defined(ARDUINO) && ARDUINO >= 100
+	#include "arduino.h"
+#else
+	#include "WProgram.h"
+#endif
+
+#include <SoftwareSerial.h>
+#include "IClientDevice.h"
+
+struct PacketType {
+	enum e {
+		Time='t'
+	};
+};
+
+// Implements a client using a HM-10 BLE module, or a clone.
+// Supports any BLE module with a single characteristic.
+// Serializes and deserializes the packets.
+class GenericBLEModuleClient : public IClientDevice
+{
+public:
+	GenericBLEModuleClient(int rxPin, int txPin, int sensePin);
+
+	// sending packets
+	bool sendTime(const PacketTime& packet);
+
+	// receiving logic
+	bool processIncomingIfAvailable();
+
+	// state
+	void begin();
+	bool isConnected();
+
+private:
+	SoftwareSerial mBLE;
+	int mSensePin;
+
+	const int DELAY_AFTER_PACKET_SENT = 100; // ms
+	const int PACKET_RECEIVE_TIMEOUT = 10; // ms
+	const int BAUD_RATE = 9600; // default baud rate for HM-10. This is not a high throughput link, so keep slow for lower performance impact
+	const int MAX_BLE_PACKET_LENGTH = 20; // max due to BLE restrictions
+	const int HEADER_LENGTH = 3;
+	const int MIN_PACKET_LENGTH = HEADER_LENGTH+1; // min due to our protocol definition (header size)
+	const byte PROTOCOL_VERSION = 'a';
+
+	bool writePacket(PacketType::e type, const byte * buf, byte size);
+};
+
+#endif
+
