@@ -3,10 +3,11 @@
 // 
 
 #include "Manager.h"
+#include "DebugStream.h"
 
-void Manager::init()
+bool Manager::receiveTime(const PacketTime & packet)
 {
-
-
+	DebugStream->print(F("Got time "));
+	DebugStream->println(packet.utcTime);
 }
 

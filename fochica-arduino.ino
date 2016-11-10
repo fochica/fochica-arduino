@@ -1,4 +1,7 @@
 // Includes of libraries for the sake of visual micro and IntelliSense
+#include "PacketSensorData.h"
+#include "PacketTechnicalData.h"
+#include "PacketHeader.h"
 #include <SoftwareSerial.h>
 
 // our classes
@@ -55,11 +58,20 @@ void setup()
 
 void loop()
 {
+	// debug
 	DebugStream->println(vcc.getValueFloat());
 	DebugStream->println(bat.getValueFloat());
 	DebugStream->println(capSense.getValueInt());
 	DebugStream->println(ram.getValueInt());
 	DebugStream->println(ble.isConnected());
+
+	// send technical packet
+	PacketTechnicalData packet;
+	packet.carBatteryCurrent = 0;
+	packet.carBatteryVoltage = bat.getValueFloat();
+	packet.freeRAM = ram.getValueInt();
+	packet.vcc = vcc.getValueFloat();
+	ble.sendTechnicalData(packet);
 
 	delay(LOOP_DELAY);
 }

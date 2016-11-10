@@ -10,37 +10,6 @@ GenericBLEModuleClient::GenericBLEModuleClient(int rxPin, int txPin, int sensePi
 	mSensePin = sensePin;
 }
 
-bool GenericBLEModuleClient::sendTime(const PacketTime & packet)
-{
-	return writePacket(PacketType::Time, (const byte *)&packet, sizeof(PacketTime));
-}
-
-bool GenericBLEModuleClient::processIncomingIfAvailable()
-{
-	if (mBLE.available() == false)
-		return false;
-
-	byte length=mBLE.peek();
-	if (length<MIN_PACKET_LENGTH || length>MAX_BLE_PACKET_LENGTH) {
-		DebugStream->println("Invalid data on BLE receiver");
-		return false;
-	}
-
-	byte payloadLength = length - HEADER_LENGTH;
-	
-	// read protocol version and verify
-
-	// read packet type and branch
-
-	// think how to read data, validate expected size, etc
-	// once have data
-
-	// temp:
-	PacketTime packet;
-	if (mServerCallback)
-		mServerCallback->receiveTime(packet);
-}
-
 void GenericBLEModuleClient::begin()
 {
 	// commands like pinMode should go in setup and not at a point where global cinstructors are called
@@ -48,7 +17,6 @@ void GenericBLEModuleClient::begin()
 	pinMode(mSensePin, INPUT);
 	mBLE.begin(BAUD_RATE);
 	mBLE.setTimeout(PACKET_RECEIVE_TIMEOUT);
-
 }
 
 bool GenericBLEModuleClient::isConnected()
@@ -72,3 +40,103 @@ bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, b
 
 	return true;
 }
+
+void GenericBLEModuleClient::flushIncomingBuffer()
+{
+	// read from input until we timeout
+	// assume timeout means packet boundaries
+	byte x;
+	while (mBLE.readBytes(&x,1) == 1); // on timeout we will get 0
+}
+
+bool GenericBLEModuleClient::sendTime(const PacketTime & packet)
+{
+	return writePacket(PacketType::Time, (const byte *)&packet, sizeof(PacketTime));
+}
+
+bool GenericBLEModuleClient::sendTechnicalData(const PacketTechnicalData& packet)
+{
+	return writePacket(PacketType::TechnicalData, (const byte *)&packet, sizeof(PacketTechnicalData));
+}
+
+bool GenericBLEModuleClient::sendSensorData(const PacketSensorData& packet)
+{
+	return writePacket(PacketType::SensorData, (const byte *)&packet, sizeof(PacketSensorData));
+}
+
+bool GenericBLEModuleClient::processIncomingIfAvailable()
+{
+	if (mBLE.available() == false)
+		return false;
+
+	// peek at length
+	byte length = mBLE.peek();
+	if (length<MIN_PACKET_LENGTH || length>MAX_BLE_PACKET_LENGTH) {
+		DebugStream->println(F("Invalid data in BLE receiver"));
+		return false;
+	}
+
+	byte payloadLength = length - HEADER_LENGTH;
+
+	// read header
+	PacketHeader header;
+	int count = mBLE.readBytes((uint8_t *)&header, sizeof(PacketHeader));
+	if (count != sizeof(PacketHeader) || header.length != length) {
+		DebugStream->println(F("Invalid header data in BLE receiver"));
+		flushIncomingBuffer();
+		return false;
+	}
+
+	// verify protocol version
+	if (header.protocolVersion != PROTOCOL_VERSION) {
+		DebugStream->println(F("Invalid protocol version in BLE receiver"));
+		flushIncomingBuffer();
+		return false;
+	}
+
+	// read packet type and validate expected size
+	PacketType::e type = (PacketType::e)header.packetType;
+	int expectedLength = getPacketLength(type);
+	if (expectedLength == -1) {
+		DebugStream->println(F("Invalid packet type in BLE receiver"));
+		flushIncomingBuffer(); // consider to just read expectedLength instead...
+		return false;
+	}
+	if (payloadLength != expectedLength) {
+		DebugStream->println(F("Invalid data length for packet type in BLE receiver"));
+		flushIncomingBuffer(); // consider to just read expectedLength instead...
+		return false;
+	}
+
+	// branch on packet types
+	// assume expectedLength == length of a packet of type "type"
+	switch (type) {
+	case PacketType::Time:
+		PacketTime packet;
+		count = mBLE.readBytes((uint8_t *)&packet, expectedLength);
+		if (mServerCallback && count==expectedLength)
+			mServerCallback->receiveTime(packet);
+		break;
+	default:
+		DebugStream->println(F("Unknown packet type in BLE receiver"));
+		flushIncomingBuffer();
+		return false;
+	}
+
+	// handle error in reading
+	if (count != expectedLength) {
+		DebugStream->println(F("Invalid data received for packet type in BLE receiver"));
+		flushIncomingBuffer();
+		return false;
+	}
+}
+
+int GenericBLEModuleClient::getPacketLength(PacketType::e type)
+{
+	switch (type) {
+	case PacketType::Time:
+		return sizeof(PacketTime);
+	}
+	return -1; // error, invalid or unknown packet type
+}
+

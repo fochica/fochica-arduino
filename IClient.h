@@ -11,14 +11,16 @@
 
 #include "Manager.h"
 #include "PacketTime.h"
+#include "PacketTechnicalData.h"
+#include "PacketSensorData.h"
 
 // Defines an interface to a client, which is typically a smartphone connected over BLE.
 class IClient
 {
 public:
 	virtual bool sendTime(const PacketTime& packet) = 0;
-	//virtual bool sendTechnicalData(float vcc, float carBatteryVoltage, float carBatteryCurrent, int freeRAM) = 0;
-	//virtual bool sendSensorData(uint8_t sensorId, uint8_t seatId, SensorLocation::e location, SensorType::e type, float value) = 0;
+	virtual bool sendTechnicalData(const PacketTechnicalData& packet) = 0;
+	virtual bool sendSensorData(const PacketSensorData& packet) = 0;
 };
 
 #endif

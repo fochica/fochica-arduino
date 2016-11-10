@@ -11,10 +11,13 @@
 
 #include <SoftwareSerial.h>
 #include "IClientDevice.h"
+#include "PacketHeader.h"
 
 struct PacketType {
 	enum e {
-		Time='t'
+		Time='t',
+		TechnicalData='d',
+		SensorData='s'
 	};
 };
 
@@ -28,6 +31,8 @@ public:
 
 	// sending packets
 	bool sendTime(const PacketTime& packet);
+	bool sendTechnicalData(const PacketTechnicalData& packet);
+	bool sendSensorData(const PacketSensorData& packet);
 
 	// receiving logic
 	bool processIncomingIfAvailable();
@@ -44,11 +49,14 @@ private:
 	const int PACKET_RECEIVE_TIMEOUT = 10; // ms
 	const int BAUD_RATE = 9600; // default baud rate for HM-10. This is not a high throughput link, so keep slow for lower performance impact
 	const int MAX_BLE_PACKET_LENGTH = 20; // max due to BLE restrictions
-	const int HEADER_LENGTH = 3;
-	const int MIN_PACKET_LENGTH = HEADER_LENGTH+1; // min due to our protocol definition (header size)
+
 	const byte PROTOCOL_VERSION = 'a';
+	const int HEADER_LENGTH = sizeof(PacketHeader);
+	const int MIN_PACKET_LENGTH = HEADER_LENGTH+1; // min due to our protocol definition (header size)
 
 	bool writePacket(PacketType::e type, const byte * buf, byte size);
+	void flushIncomingBuffer(); // if we have issues parsing incoming message, flush the stream
+	int getPacketLength(PacketType::e type);
 };
 
 #endif
