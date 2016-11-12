@@ -56,6 +56,8 @@ void setup()
 
 	SoundManager::getInstance().setPassiveBuzzer(BUZZER_PIN);
 	SoundManager::getInstance().playBeep(BeepType::Error);
+
+	ble.setReceiverCallback(&Manager::getInstance());
 }
 
 void loop()
@@ -75,6 +77,18 @@ void loop()
 	packet.freeRAM = ram.getValueInt();
 	packet.vcc = vcc.getValueFloat();
 	ble.sendTechnicalData(packet);
+
+	// send sensor packet
+	PacketSensorData packetSensor;
+	packetSensor.location = SensorLocation::UnderSeat;
+	packetSensor.seatId = 0;
+	packetSensor.sensorId = 0;
+	packetSensor.type = SensorType::Capacitance;
+	packetSensor.value = capSense.getValueInt();
+	ble.sendSensorData(packetSensor);
+
+	// get packets
+	ble.processIncomingIfAvailable();
 
 	delay(LOOP_DELAY);
 }

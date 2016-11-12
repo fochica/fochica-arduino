@@ -38,6 +38,9 @@ bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, b
 	// write the data
 	mBLE.write(buf, size);
 
+	// wait for data to flush so it is one whole packet for BLE modules
+	delay(DELAY_AFTER_PACKET_SENT);
+
 	return true;
 }
 
@@ -129,6 +132,8 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 		flushIncomingBuffer();
 		return false;
 	}
+
+	return true; // got (and processed?) something
 }
 
 int GenericBLEModuleClient::getPacketLength(PacketType::e type)
