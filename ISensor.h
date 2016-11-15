@@ -12,7 +12,7 @@
 // put the enum in a scope that a struct creates
 // http://stackoverflow.com/questions/482745/namespaces-for-enum-types-best-practices
 struct SensorType {
-	enum e { Vcc, Voltage, RAM, Capacitance, OnOff };
+	enum e { Vcc, Voltage, RAM, Capacitance, OnOff, Aggregative };
 };
 
 class ISensor

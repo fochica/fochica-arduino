@@ -18,6 +18,8 @@ void Manager::setRTC(IRTC * rtc)
 void Manager::work()
 {
 	mClientManager.work();
+	mSensorManager.work();
+	// TODO, send tech packet
 }
 
 bool Manager::receiveTime(const PacketTime & packet)

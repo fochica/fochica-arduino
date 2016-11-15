@@ -61,6 +61,12 @@ void setup()
 	DebugStream = &Serial;
 	DebugStream->println("Start");
 
+	// init sensors
+	manager.getSensorManager().setSeatCount(1);
+	manager.getSensorManager().setSensorCount(2);
+	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
+	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digital);
+
 	// init comms
 	ble.begin();
 	delay(10);
@@ -73,9 +79,10 @@ void setup()
 	rtc.begin();
 	manager.setRTC(&rtc);
 
+	// init buzzer and make start sound
+	// TODO, change to a fun tune
 	SoundManager::getInstance().setPassiveBuzzer(BUZZER_PIN);
 	SoundManager::getInstance().playBeep(BeepType::Error);
-
 }
 
 void loop()
@@ -96,6 +103,7 @@ void loop()
 	packet.vcc = vcc.getValueFloat();
 	ble.sendTechnicalData(packet);
 
+	/*
 	// send sensor packet
 	PacketSensorData packetSensor;
 	packetSensor.location = SensorLocation::UnderSeat;
@@ -104,6 +112,7 @@ void loop()
 	packetSensor.type = SensorType::Capacitance;
 	packetSensor.value = capSense.getValueInt();
 	manager.getClientManager().sendSensorData(packetSensor);
+	*/
 
 	// get packets
 	manager.work();
