@@ -1,4 +1,8 @@
 // our classes
+#include "SensorManager.h"
+#include "ClientManager.h"
+#include "RTCImpl_DS1307.h"
+#include "IRTC.h"
 #include "SensorDigital.h"
 #include "PacketSensorData.h"
 #include "PacketTechnicalData.h"
@@ -15,6 +19,7 @@
 
 // Includes of libraries for the sake of visual micro and IntelliSense
 #include <SoftwareSerial.h>
+#include <RTClib.h>
 
 // settings
 const int SERIAL_BAUD = 9600;
@@ -36,28 +41,41 @@ const int BLE_TX_PIN = 9; // orange
 const int BLE_SENSE_PIN = 5; // gray
 
 // objects
+// sensors
 SensorFreeRAM ram("SRAM");
 SensorVcc vcc("Vcc");
 SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND, BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE);
 SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
 SensorDigital digital("Test", BLE_SENSE_PIN); // just a test, reuse existing pin
+// communication
 GenericBLEModuleClient ble(BLE_RX_PIN, BLE_TX_PIN, BLE_SENSE_PIN);
+// misc
+RTCImpl_DS1307 rtc;
+Manager& manager = Manager::getInstance();
 
 void setup()
 {
+	// init serial
 	Serial.begin(SERIAL_BAUD);
-	ble.begin();
-	delay(10);
-
+	delay(10); // wait a little for dev env to connect before sending data
 	DebugStream = &Serial;
 	DebugStream->println("Start");
 
+	// init comms
+	ble.begin();
+	delay(10);
+	manager.getClientManager().setDeviceCount(1);
+	manager.getClientManager().addDevice(&ble);
+	manager.getClientManager().setReceiverCallback(&manager);
+
+	// misc
 	DebugStream->println(ram.getValueInt());
+	rtc.begin();
+	manager.setRTC(&rtc);
 
 	SoundManager::getInstance().setPassiveBuzzer(BUZZER_PIN);
 	SoundManager::getInstance().playBeep(BeepType::Error);
 
-	ble.setReceiverCallback(&Manager::getInstance());
 }
 
 void loop()
@@ -85,10 +103,10 @@ void loop()
 	packetSensor.sensorId = 0;
 	packetSensor.type = SensorType::Capacitance;
 	packetSensor.value = capSense.getValueInt();
-	ble.sendSensorData(packetSensor);
+	manager.getClientManager().sendSensorData(packetSensor);
 
 	// get packets
-	ble.processIncomingIfAvailable();
+	manager.work();
 
 	delay(LOOP_DELAY);
 }

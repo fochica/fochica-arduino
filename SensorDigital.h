@@ -14,14 +14,16 @@
 class SensorDigital : public ISensor
 {
 public:
-	SensorDigital(const char * name, int pin);
+	SensorDigital(const char * name, uint8_t pin, int8_t pinMode=-1); // can optionlly define pin mode (INPUT, INPUT_PULLUP or -1 for keep-as-is)
+	void begin();
+
 	int getValueInt();
 	float getValueFloat();
 	int getSamplingTime();
 
 private:
-	int mPin;
-
+	uint8_t mPin;
+	int8_t mPinMode;
 };
 
 #endif

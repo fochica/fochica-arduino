@@ -9,7 +9,6 @@
 	#include "WProgram.h"
 #endif
 
-#include "Manager.h"
 #include "PacketTime.h"
 #include "PacketTechnicalData.h"
 #include "PacketSensorData.h"

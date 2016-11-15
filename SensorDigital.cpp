@@ -4,9 +4,16 @@
 
 #include "SensorDigital.h"
 
-SensorDigital::SensorDigital(const char * name, int pin) : ISensor(name, SensorType::OnOff)
+SensorDigital::SensorDigital(const char * name, uint8_t pin, int8_t pinMode) : ISensor(name, SensorType::OnOff)
 {
 	mPin = pin;
+	mPinMode = pinMode;
+}
+
+void SensorDigital::begin()
+{
+	if(mPinMode!=-1)
+		pinMode(mPin, mPinMode);
 }
 
 int SensorDigital::getValueInt()

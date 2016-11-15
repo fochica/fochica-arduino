@@ -75,7 +75,7 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 	// peek at length
 	byte length = mBLE.peek();
 	if (length<MIN_PACKET_LENGTH || length>MAX_BLE_PACKET_LENGTH) {
-		DebugStream->println(F("Invalid data in BLE receiver"));
+		if (DebugStream != NULL) DebugStream->println(F("Invalid data in BLE receiver"));
 		return false;
 	}
 
@@ -85,14 +85,14 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 	PacketHeader header;
 	int count = mBLE.readBytes((uint8_t *)&header, sizeof(PacketHeader));
 	if (count != sizeof(PacketHeader) || header.length != length) {
-		DebugStream->println(F("Invalid header data in BLE receiver"));
+		if (DebugStream != NULL) DebugStream->println(F("Invalid header data in BLE receiver"));
 		flushIncomingBuffer();
 		return false;
 	}
 
 	// verify protocol version
 	if (header.protocolVersion != PROTOCOL_VERSION) {
-		DebugStream->println(F("Invalid protocol version in BLE receiver"));
+		if (DebugStream != NULL) DebugStream->println(F("Invalid protocol version in BLE receiver"));
 		flushIncomingBuffer();
 		return false;
 	}
@@ -101,12 +101,12 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 	PacketType::e type = (PacketType::e)header.packetType;
 	int expectedLength = getPacketLength(type);
 	if (expectedLength == -1) {
-		DebugStream->println(F("Invalid packet type in BLE receiver"));
+		if (DebugStream != NULL) DebugStream->println(F("Invalid packet type in BLE receiver"));
 		flushIncomingBuffer(); // consider to just read expectedLength instead...
 		return false;
 	}
 	if (payloadLength != expectedLength) {
-		DebugStream->println(F("Invalid data length for packet type in BLE receiver"));
+		if (DebugStream != NULL) DebugStream->println(F("Invalid data length for packet type in BLE receiver"));
 		flushIncomingBuffer(); // consider to just read expectedLength instead...
 		return false;
 	}
@@ -121,14 +121,14 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 			mServerCallback->receiveTime(packet);
 		break;
 	default:
-		DebugStream->println(F("Unknown packet type in BLE receiver"));
+		if (DebugStream != NULL) DebugStream->println(F("Unknown packet type in BLE receiver"));
 		flushIncomingBuffer();
 		return false;
 	}
 
 	// handle error in reading
 	if (count != expectedLength) {
-		DebugStream->println(F("Invalid data received for packet type in BLE receiver"));
+		if (DebugStream != NULL) DebugStream->println(F("Invalid data received for packet type in BLE receiver"));
 		flushIncomingBuffer();
 		return false;
 	}

@@ -20,6 +20,8 @@ class ISensor
  public:
 	 ISensor(const char * name, SensorType::e type);
 
+	 virtual void begin() {}
+
 	 const char * getName() { return mName.c_str(); }
 	 SensorType::e getType() { return mType; }
 	 

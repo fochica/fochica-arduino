@@ -9,7 +9,11 @@
 #include "WProgram.h"
 #endif
 
+#include <RTClib.h> // for DateTime classes
+
 #include "IServer.h"
+#include "IRTC.h"
+#include "ClientManager.h"
 
 struct SensorLocation {
 	enum e { Virtual, UnderSeat, Chest, Above };
@@ -20,20 +24,37 @@ struct SensorLocation {
 // http://stackoverflow.com/questions/13047526/difference-between-singleton-implemention-using-pointer-and-using-static-object
 class Manager : public IServer
 {
-private:
-	// protect constructors to prevent singleton modification
-	Manager() { }
-	Manager(const Manager &rhs);
-	Manager & operator=(const Manager &rhs);
-
-	bool receiveTime(const PacketTime& packet);
-
 public:
 	static Manager& getInstance() {
 		static Manager singleton;
 		return singleton;
 	}
 
+	void setRTC(IRTC * rtc);
+	ClientManager & getClientManager() { return mClientManager; }
+
+	void work();
+
+private:
+	// protect constructors to prevent singleton modification
+	Manager() { }
+	Manager(const Manager &rhs);
+	Manager & operator=(const Manager &rhs);
+
+	// incoming packets
+	bool receiveTime(const PacketTime& packet);
+
+	// sending packets
+	bool sendTime();
+
+	// sub/helper classes
+	IRTC * mRTC;
+	int16_t mTimeOffsetFromUtcToLocal; // store so we can do a calculation back to utc while the rtc keeps local time. ISSUE: think if this needs to be persistent.
+	ClientManager mClientManager;
+	// SensorManager
+
+	// helper function
+	void PrintDate(Print & out, const DateTime & d);
 };
 
 #endif
