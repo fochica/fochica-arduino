@@ -67,6 +67,16 @@ bool GenericBLEModuleClient::sendSensorData(const PacketSensorData& packet)
 	return writePacket(PacketType::SensorData, (const byte *)&packet, sizeof(PacketSensorData));
 }
 
+bool GenericBLEModuleClient::sendLogicalData(const PacketLogicalData & packet)
+{
+	return writePacket(PacketType::LogicalData, (const byte *)&packet, sizeof(PacketLogicalData));
+}
+
+bool GenericBLEModuleClient::sendCalibrationParams(const PacketCalibrationParams & packet)
+{
+	return writePacket(PacketType::CalibrationParams, (const byte *)&packet, sizeof(PacketCalibrationParams));
+}
+
 bool GenericBLEModuleClient::processIncomingIfAvailable()
 {
 	if (mBLE.available() == false)
@@ -119,6 +129,12 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 		count = mBLE.readBytes((uint8_t *)&packet, expectedLength);
 		if (mServerCallback && count==expectedLength)
 			mServerCallback->receiveTime(packet);
+		break;
+	case PacketType::SeatOperation:
+		PacketSeatOperation packetSO;
+		count = mBLE.readBytes((uint8_t *)&packet, expectedLength);
+		if (mServerCallback && count == expectedLength)
+			mServerCallback->receiveSeatOperation(packetSO);
 		break;
 	default:
 		if (DebugStream != NULL) DebugStream->println(F("Unknown packet type in BLE receiver"));

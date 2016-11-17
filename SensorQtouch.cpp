@@ -10,6 +10,8 @@ SensorQtouch::SensorQtouch(const char * name, int analogReadPin, int analogRefer
 	mRefPin = analogReferencePin;
 }
 
+// returns values between 0 and 1024, usually lower than max.
+// consider to add GAIN=10 to utilize int range best
 int SensorQtouch::getValueInt()
 {
 	// First measurement  
@@ -71,6 +73,6 @@ int SensorQtouch::makeMeasurement(bool dir, bool altRead)
 
 	// measure
 	if (altRead)
-		return analogRead(mRefPin); // why ref in one pass and not read pin both times? this also has a similar span, but about 400units lower... not sure how this works, but it is a hack to get the values closer... in some cases, this causes adc1>adc2
+		return analogRead(mRefPin); // why use reference-pin in one pass and use read-pin both times? this methond has a similar span, but about 400units lower... not sure how this works, against documentation.
 	return analogRead(mReadPin); // my change
 }

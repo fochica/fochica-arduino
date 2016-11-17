@@ -17,13 +17,15 @@ public:
 	SensorDigital(const char * name, uint8_t pin, int8_t pinMode=-1); // can optionlly define pin mode (INPUT, INPUT_PULLUP or -1 for keep-as-is)
 	void begin();
 
-	int getValueInt();
-	float getValueFloat();
+	int getValueInt(); // return 0 or 1*GAIN
+	float getValueFloat(); // return 0 or 1
 	int getSamplingTime();
 
 private:
 	uint8_t mPin;
 	int8_t mPinMode;
+
+	const int GAIN = 1000; // scale response to better use int range
 };
 
 #endif

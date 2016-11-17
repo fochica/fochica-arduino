@@ -51,6 +51,17 @@ bool Manager::receiveTime(const PacketTime & packet)
 	return true;
 }
 
+bool Manager::receiveSeatOperation(const PacketSeatOperation & packet)
+{
+	if (DebugStream != NULL) {
+		DebugStream->print(F("Got seat id "));
+		DebugStream->println(packet.seatId);
+		DebugStream->print(F("Got seat operation "));
+		DebugStream->println(packet.operationId);
+	}
+	return false;
+}
+
 bool Manager::sendTime()
 {
 	if (mRTC == NULL) {

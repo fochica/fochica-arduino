@@ -1,4 +1,8 @@
 // our classes
+#include "SeatOperation.h"
+#include "PacketSeatOperation.h"
+#include "PacketCalibrationParams.h"
+#include "PacketLogicalData.h"
 #include "SensorManager.h"
 #include "ClientManager.h"
 #include "RTCImpl_DS1307.h"
@@ -97,22 +101,11 @@ void loop()
 
 	// send technical packet
 	PacketTechnicalData packet;
-	packet.carBatteryCurrent = 0;
-	packet.carBatteryVoltage = bat.getValueFloat();
+	packet.carBatteryCurrent = 0; // sensor TBD
+	packet.carBatteryVoltage = bat.getValueInt();
 	packet.freeRAM = ram.getValueInt();
-	packet.vcc = vcc.getValueFloat();
+	packet.vcc = vcc.getValueInt();
 	ble.sendTechnicalData(packet);
-
-	/*
-	// send sensor packet
-	PacketSensorData packetSensor;
-	packetSensor.location = SensorLocation::UnderSeat;
-	packetSensor.seatId = 0;
-	packetSensor.sensorId = 0;
-	packetSensor.type = SensorType::Capacitance;
-	packetSensor.value = capSense.getValueInt();
-	manager.getClientManager().sendSensorData(packetSensor);
-	*/
 
 	// get packets
 	manager.work();

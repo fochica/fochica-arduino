@@ -16,8 +16,8 @@ class SensorFreeRAM : public ISensor
 {
  public:
 	 SensorFreeRAM(const char * name);
-	 int getValueInt();
-	 float getValueFloat();
+	 int getValueInt(); // return bytes
+	 float getValueFloat(); // return bytes
 	 int getSamplingTime();
 };
 

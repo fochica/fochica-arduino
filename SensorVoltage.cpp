@@ -10,6 +10,7 @@ SensorVoltage::SensorVoltage(const char * name, int analogPin, long resistorToGr
 	mDivider = (resistorToGround + resistorToVoltage) / resistorToGround;
 }
 
+// returns value in mV. don't use as-it-is now for measuring voltage over 32V
 int SensorVoltage::getValueInt()
 {
 	return getValueFloat() * 1000;

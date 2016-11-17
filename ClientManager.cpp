@@ -114,3 +114,23 @@ bool ClientManager::sendSensorData(const PacketSensorData & packet)
 	}
 	return ret;
 }
+
+bool ClientManager::sendLogicalData(const PacketLogicalData & packet)
+{
+	bool ret = true;
+	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++) {
+		if (mDevices[i]->isConnected())
+			ret &= mDevices[i]->sendLogicalData(packet);
+	}
+	return ret;
+}
+
+bool ClientManager::sendCalibrationParams(const PacketCalibrationParams & packet)
+{
+	bool ret = true;
+	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++) {
+		if (mDevices[i]->isConnected())
+			ret &= mDevices[i]->sendCalibrationParams(packet);
+	}
+	return ret;
+}

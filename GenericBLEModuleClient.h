@@ -11,15 +11,8 @@
 
 #include <SoftwareSerial.h>
 #include "IClientDevice.h"
+#include "PacketType.h"
 #include "PacketHeader.h"
-
-struct PacketType {
-	enum e {
-		Time='t',
-		TechnicalData='d',
-		SensorData='s'
-	};
-};
 
 // Implements a client using a HM-10 BLE module, or a clone.
 // Supports any BLE module with a single characteristic.
@@ -33,6 +26,8 @@ public:
 	bool sendTime(const PacketTime& packet);
 	bool sendTechnicalData(const PacketTechnicalData& packet);
 	bool sendSensorData(const PacketSensorData& packet);
+	bool sendLogicalData(const PacketLogicalData& packet);
+	bool sendCalibrationParams(const PacketCalibrationParams& packet);
 
 	// receiving logic
 	bool processIncomingIfAvailable();

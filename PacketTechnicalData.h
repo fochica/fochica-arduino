@@ -12,9 +12,9 @@
 #include "Packet.h"
 
 struct PacketTechnicalData {
-	float32_t vcc;
-	float32_t carBatteryVoltage;
-	float32_t carBatteryCurrent;
+	uint16_t vcc; // mV
+	uint16_t carBatteryVoltage; // mV
+	uint16_t carBatteryCurrent; // mA
 	uint16_t freeRAM;
 };
 

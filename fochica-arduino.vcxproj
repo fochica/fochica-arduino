@@ -74,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\libraries\RTClib;C:\Program Files (x86)\Arduino\libraries\RTClib\utility;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\SoftwareSerial\src;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\SoftwareSerial\src\utility;C:\Program Files (x86)\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\b5tkztcb.w3g\Micro Platforms\default\debuggers;C:\Users\arik\Documents\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\cores\arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\variants\standard;C:\Users\arik\Documents\Arduino\fochica-arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/avr/include/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2//avr/include/avr/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\libraries\RTClib;C:\Program Files (x86)\Arduino\libraries\RTClib\utility;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\SoftwareSerial\src;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\SoftwareSerial\src\utility;C:\Program Files (x86)\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\b5tkztcb.w3g\Micro Platforms\default\debuggers;C:\Users\arik\Documents\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\cores\arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\variants\standard;C:\Users\arik\Documents\Arduino\fochica-arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\cores\arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\variants\standard;C:\Program Files (x86)\Arduino\libraries\RTClib;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\Wire\src;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\SoftwareSerial\src;C:\Program Files (x86)\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\b5tkztcb.w3g\Micro Platforms\default\debuggers;C:\Users\arik\Documents\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/avr/include/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2//avr/include/avr/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>C:\Users\arik\Documents\Arduino\fochica-arduino\__vm\.fochica-arduino.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;F_CPU=16000000L;ARDUINO=10609;ARDUINO_AVR_UNO;ARDUINO_ARCH_AVR;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -128,11 +128,16 @@
     <ClInclude Include="IServer.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Packet.h" />
+    <ClInclude Include="PacketCalibrationParams.h" />
     <ClInclude Include="PacketHeader.h" />
+    <ClInclude Include="PacketLogicalData.h" />
+    <ClInclude Include="PacketSeatOperation.h" />
     <ClInclude Include="PacketSensorData.h" />
     <ClInclude Include="PacketTechnicalData.h" />
     <ClInclude Include="PacketTime.h" />
+    <ClInclude Include="PacketType.h" />
     <ClInclude Include="RTCImpl_DS1307.h" />
+    <ClInclude Include="SeatOperation.h" />
     <ClInclude Include="SensorDigital.h" />
     <ClInclude Include="SensorFreeRAM.h" />
     <ClInclude Include="SensorManager.h" />
@@ -152,11 +157,15 @@
     <ClCompile Include="ISensor.cpp" />
     <ClCompile Include="IServer.cpp" />
     <ClCompile Include="Manager.cpp" />
+    <ClCompile Include="PacketCalibrationParams.cpp" />
     <ClCompile Include="PacketHeader.cpp" />
+    <ClCompile Include="PacketLogicalData.cpp" />
+    <ClCompile Include="PacketSeatOperation.cpp" />
     <ClCompile Include="PacketSensorData.cpp" />
     <ClCompile Include="PacketTechnicalData.cpp" />
     <ClCompile Include="PacketTime.cpp" />
     <ClCompile Include="RTCImpl_DS1307.cpp" />
+    <ClCompile Include="SeatOperation.cpp" />
     <ClCompile Include="SensorDigital.cpp" />
     <ClCompile Include="SensorFreeRAM.cpp" />
     <ClCompile Include="SensorManager.cpp" />

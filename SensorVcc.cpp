@@ -8,11 +8,13 @@ SensorVcc::SensorVcc(const char * name) : ISensor(name, SensorType::Vcc)
 {
 }
 
+// value should be around 5000 (mV)
 int SensorVcc::getValueInt()
 {
 	return getValueFloat() * 1000;
 }
 
+// value should be around 5 (V)
 float SensorVcc::getValueFloat()
 {
 	// can't set mux to 14 with analogRead

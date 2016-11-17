@@ -33,6 +33,9 @@ public:
 	bool sendTime(const PacketTime& packet);
 	bool sendTechnicalData(const PacketTechnicalData& packet);
 	bool sendSensorData(const PacketSensorData& packet);
+	bool sendLogicalData(const PacketLogicalData& packet);
+	bool sendCalibrationParams(const PacketCalibrationParams& packet);
+
 
 private:
 	IClientDevice ** mDevices; // pointer to an array of pointers of devices

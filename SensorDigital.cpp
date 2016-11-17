@@ -16,11 +16,13 @@ void SensorDigital::begin()
 		pinMode(mPin, mPinMode);
 }
 
+// value is 0 or 1*GAIN
 int SensorDigital::getValueInt()
 {
-	return digitalRead(mPin);
+	return digitalRead(mPin)*GAIN;
 }
 
+// value is 0 or 1
 float SensorDigital::getValueFloat()
 {
 	return getValueInt();

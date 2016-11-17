@@ -87,6 +87,21 @@
     <ClInclude Include="SensorManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PacketLogicalData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketCalibrationParams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketSeatOperation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SeatOperation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -150,6 +165,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SensorManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketLogicalData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketCalibrationParams.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketSeatOperation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SeatOperation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
