@@ -8,6 +8,7 @@
 GenericBLEModuleClient::GenericBLEModuleClient(int rxPin, int txPin, int sensePin) : mBLE(rxPin, txPin)
 {
 	mSensePin = sensePin;
+	mConnected = false;
 }
 
 void GenericBLEModuleClient::begin()
@@ -75,6 +76,22 @@ bool GenericBLEModuleClient::sendLogicalData(const PacketLogicalData & packet)
 bool GenericBLEModuleClient::sendCalibrationParams(const PacketCalibrationParams & packet)
 {
 	return writePacket(PacketType::CalibrationParams, (const byte *)&packet, sizeof(PacketCalibrationParams));
+}
+
+void GenericBLEModuleClient::work()
+{
+	// manage changes in connection state
+	// connections and disconnections
+	bool conn = isConnected();
+	if (conn != mConnected) {
+		if (mServerCallback)
+			mServerCallback->onClientConnectionChange(conn); // notify about change
+		mConnected = conn;
+	}
+	// process incoming data
+	if (conn)
+		processIncomingIfAvailable(); 
+
 }
 
 bool GenericBLEModuleClient::processIncomingIfAvailable()
@@ -157,6 +174,8 @@ int GenericBLEModuleClient::getPacketLength(PacketType::e type)
 	switch (type) {
 	case PacketType::Time:
 		return sizeof(PacketTime);
+	case PacketType::SeatOperation:
+		return sizeof(PacketSeatOperation);
 	}
 	return -1; // error, invalid or unknown packet type
 }

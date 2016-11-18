@@ -13,20 +13,18 @@ SensorManager::SensorManager(IClient & client) : mClient(client)
 
 SensorManager::~SensorManager()
 {
-	if (mSensors)
-		delete[] mSensors;
+	releaseSensorMembers();
 }
 
 void SensorManager::setSeatCount(seatCount_t seatCount)
 {
 	mSeatCount = seatCount;
-	// consider validation of existing data...
+	// consider validation of existing data... for example that we are not left with sensors whose seatIds are above seatCount
 }
 
 void SensorManager::setSensorCount(sensorCount_t sensorCount)
 {
-	if (mSensors)
-		delete[] mSensors;
+	releaseSensorMembers();
 	mSensors = new SensorData[sensorCount];
 	mSensorCount = sensorCount;
 	mSensorAddedCount = 0;
@@ -38,9 +36,10 @@ bool SensorManager::addSensor(seatCount_t seatId, SensorLocation::e location, IS
 		if (DebugStream != NULL) DebugStream->println(F("SensorManager::addSensor, trying to add more sensors than declared"));
 		return false;
 	}
-	mSensors[mSensorAddedCount].sensor = sensor;
+	mSensors[mSensorAddedCount].sensorRaw = sensor;
 	mSensors[mSensorAddedCount].seatId = seatId;
 	mSensors[mSensorAddedCount].location = location;
+	mSensors[mSensorAddedCount].sensor = new CalibratedSensor(sensor);
 	mSensorAddedCount++;
 	return true;
 }
@@ -55,13 +54,13 @@ void SensorManager::work()
 			SensorData& sensor = mSensors[sensorId];
 			if (sensor.seatId == seatId) { // of current seat
 				// read calibrated sensor values (what does this mean?)
-				int sensorValue=sensor.sensor->getValueInt();
+				int sensorValue=sensor.sensorRaw->getValueInt();
 				// send individual sensor values
 				PacketSensorData packet;
 				packet.seatId = seatId;
 				packet.sensorId = sensorId;
 				packet.location = sensor.location;
-				packet.type = sensor.sensor->getType();
+				packet.type = sensor.sensorRaw->getType();
 				packet.value = sensorValue;
 				mClient.sendSensorData(packet);
 
@@ -80,5 +79,14 @@ void SensorManager::work()
 		packet.type = SensorType::Aggregative;
 		packet.value = aggregatedValue;
 		mClient.sendSensorData(packet);
+	}
+}
+
+void SensorManager::releaseSensorMembers()
+{
+	if (mSensors) {
+		for (int i = 0; i < mSensorAddedCount; i++)
+			delete mSensors[i].sensor; // delete the CalibratedSensor instance that we allocated
+		delete[] mSensors;
 	}
 }

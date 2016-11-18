@@ -102,6 +102,12 @@
     <ClInclude Include="PacketType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TechnicalManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CalibratedSensor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -177,6 +183,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SeatOperation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TechnicalManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CalibratedSensor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

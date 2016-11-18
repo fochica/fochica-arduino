@@ -18,21 +18,21 @@ struct SensorType {
 class ISensor
 {
  public:
-	 ISensor(const char * name, SensorType::e type);
+	ISensor(const char * name, SensorType::e type);
 
-	 virtual void begin() {}
+	virtual void begin() {}
 
-	 const char * getName() { return mName.c_str(); }
-	 SensorType::e getType() { return mType; }
+	const char * getName() { return mName.c_str(); }
+	SensorType::e getType() { return mType; }
 	 
-	 virtual int getValueInt() =0; // read sensor value
-	 virtual float getValueFloat() = 0; // read sensor value
-	 virtual int getSamplingTime() = 0; // get the time it takes to read a value (estimate) in microseconds
+	virtual int getValueInt() =0; // read sensor value
+	virtual float getValueFloat() = 0; // read sensor value
+	virtual int getSamplingTime() = 0; // get the time it takes to read a value (estimate) in microseconds
 
-	 const int DEFAULT_ADC_SAMPLING_TIME=100; // microseconds
-	 const int DEFAULT_DIGITAL_SAMPLING_TIME = 1; // microseconds
-	 const float DEFAULT_ADC_ANALOG_REFERENCE = 5;
-	 const int MAX_ADC_VALUE = 1023; // including this value
+	const int DEFAULT_ADC_SAMPLING_TIME=100; // microseconds
+	const int DEFAULT_DIGITAL_SAMPLING_TIME = 1; // microseconds
+	const float DEFAULT_ADC_ANALOG_REFERENCE = 5;
+	const int MAX_ADC_VALUE = 1023; // including this value
 
 private:
 	String mName;

@@ -4,13 +4,11 @@
 
 #include "ClientManager.h"
 #include "DebugStream.h"
-#include "SoundManager.h"
 
 ClientManager::ClientManager()
 {
 	mDeviceCount = 0;
 	mDevices = NULL;
-	mDeviceConnState = NULL;
 	mDeviceAddedCount = 0;
 	mCallback = NULL;
 }
@@ -24,8 +22,6 @@ ClientManager::~ClientManager()
 {
 	if (mDevices)
 		delete[] mDevices;
-	if (mDeviceConnState)
-		delete[] mDeviceConnState;
 }
 
 void ClientManager::setDeviceCount(deviceCount_t deviceCount)
@@ -33,12 +29,9 @@ void ClientManager::setDeviceCount(deviceCount_t deviceCount)
 	// release prev data, if exists
 	if (mDevices)
 		delete[] mDevices;
-	if (mDeviceConnState)
-		delete[] mDeviceConnState;
 	// allocate and update state
 	mDeviceCount = deviceCount;
 	mDevices = new IClientDevice*[deviceCount]();
-	mDeviceConnState = new bool[deviceCount]();
 	mDeviceAddedCount = 0;
 }
 
@@ -46,7 +39,7 @@ deviceCount_t ClientManager::getConnectedCount()
 {
 	deviceCount_t count = 0;
 	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++)
-		if (mDevices[i]->isConnected()) // consider using mDeviceConnState (previous known state)
+		if (mDevices[i]->isConnected())
 			count++;
 	return count;
 }
@@ -73,14 +66,7 @@ void ClientManager::setReceiverCallback(IServer * callback)
 void ClientManager::work()
 {
 	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++) {
-		bool conn = mDevices[i]->isConnected();
-		if(conn)
-			mDevices[i]->processIncomingIfAvailable();
-		// manage connections and disconnections
-		if (conn != mDeviceConnState[i]) {
-			SoundManager::getInstance().playBeep(conn ? BeepType::ClientConnected : BeepType::ClientDisconnected);
-			mDeviceConnState[i] = conn;
-		}
+		mDevices[i]->work();
 	}
 }
 

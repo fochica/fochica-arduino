@@ -30,7 +30,7 @@ public:
 	bool sendCalibrationParams(const PacketCalibrationParams& packet);
 
 	// receiving logic
-	bool processIncomingIfAvailable();
+	void work();
 
 	// state
 	void begin();
@@ -39,6 +39,7 @@ public:
 private:
 	SoftwareSerial mBLE;
 	int mSensePin;
+	bool mConnected; // last known connection state. true for connected.
 
 	const int DELAY_AFTER_PACKET_SENT = 100; // ms
 	const int PACKET_RECEIVE_TIMEOUT = 10; // ms
@@ -50,6 +51,8 @@ private:
 	const int MIN_PACKET_LENGTH = HEADER_LENGTH+1; // min due to our protocol definition (header size)
 
 	bool writePacket(PacketType::e type, const byte * buf, byte size);
+	// receiving logic
+	bool processIncomingIfAvailable();
 	void flushIncomingBuffer(); // if we have issues parsing incoming message, flush the stream
 	int getPacketLength(PacketType::e type);
 };

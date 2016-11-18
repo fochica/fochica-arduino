@@ -74,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\libraries\RTClib;C:\Program Files (x86)\Arduino\libraries\RTClib\utility;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\SoftwareSerial\src;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\SoftwareSerial\src\utility;C:\Program Files (x86)\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\b5tkztcb.w3g\Micro Platforms\default\debuggers;C:\Users\arik\Documents\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\cores\arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\variants\standard;C:\Users\arik\Documents\Arduino\fochica-arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\cores\arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\variants\standard;C:\Program Files (x86)\Arduino\libraries\RTClib;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\Wire\src;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\SoftwareSerial\src;C:\Program Files (x86)\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\b5tkztcb.w3g\Micro Platforms\default\debuggers;C:\Users\arik\Documents\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/avr/include/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2//avr/include/avr/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\libraries\RTClib;C:\Program Files (x86)\Arduino\libraries\RTClib\utility;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\SoftwareSerial\src;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries\SoftwareSerial\src\utility;C:\Program Files (x86)\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\b5tkztcb.w3g\Micro Platforms\default\debuggers;C:\Users\arik\Documents\Arduino\libraries;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\cores\arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.14\variants\standard;C:\Users\arik\Documents\Arduino\fochica-arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/avr/include/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2//avr/include/avr/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>C:\Users\arik\Documents\Arduino\fochica-arduino\__vm\.fochica-arduino.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;F_CPU=16000000L;ARDUINO=10609;ARDUINO_AVR_UNO;ARDUINO_ARCH_AVR;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -118,6 +118,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CalibratedSensor.h" />
     <ClInclude Include="ClientManager.h" />
     <ClInclude Include="DebugStream.h" />
     <ClInclude Include="GenericBLEModuleClient.h" />
@@ -145,9 +146,11 @@
     <ClInclude Include="SensorVcc.h" />
     <ClInclude Include="SensorVoltage.h" />
     <ClInclude Include="SoundManager.h" />
+    <ClInclude Include="TechnicalManager.h" />
     <ClInclude Include="__vm\.fochica-arduino.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CalibratedSensor.cpp" />
     <ClCompile Include="ClientManager.cpp" />
     <ClCompile Include="DebugStream.cpp" />
     <ClCompile Include="GenericBLEModuleClient.cpp" />
@@ -173,6 +176,7 @@
     <ClCompile Include="SensorVcc.cpp" />
     <ClCompile Include="SensorVoltage.cpp" />
     <ClCompile Include="SoundManager.cpp" />
+    <ClCompile Include="TechnicalManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

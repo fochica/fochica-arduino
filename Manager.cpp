@@ -4,6 +4,8 @@
 
 #include "Manager.h"
 #include "DebugStream.h"
+#include "SoundManager.h"
+
 
 void Manager::setRTC(IRTC * rtc)
 {
@@ -19,7 +21,21 @@ void Manager::work()
 {
 	mClientManager.work();
 	mSensorManager.work();
-	// TODO, send tech packet
+	mTechnicalManager.work(&mClientManager);
+}
+
+void Manager::onClientConnectionChange(bool isConnected)
+{
+	// beep
+	SoundManager::getInstance().playBeep(isConnected ? BeepType::ClientConnected : BeepType::ClientDisconnected);
+	// some data should be sent on connect
+	if (isConnected) {
+		// it is ok to send through the clientManager. system should be robust if some packets are resent even if not needed
+		// send logical data
+		sendLogicalData();
+		// send calibration params
+		sendCalibrationParams();
+	}
 }
 
 bool Manager::receiveTime(const PacketTime & packet)
@@ -72,6 +88,22 @@ bool Manager::sendTime()
 	packet.utcTime = mRTC->getUnixTime() - mTimeOffsetFromUtcToLocal;
 	packet.offsetToLocal = mTimeOffsetFromUtcToLocal;	
 	return getClientManager().sendTime(packet);
+}
+
+bool Manager::sendLogicalData()
+{
+	PacketLogicalData packet;
+	packet.clientCount = mClientManager.getDeviceCount();
+	packet.connectedClientCount = mClientManager.getConnectedCount();
+	packet.seatCount = mSensorManager.getSeatCount();
+	packet.sensorCount = mSensorManager.getSensorAddedCount();
+	return getClientManager().sendLogicalData(packet);
+}
+
+bool Manager::sendCalibrationParams()
+{
+	// TODO
+	return false;
 }
 
 void Manager::PrintDate(Print & out, const DateTime & d)

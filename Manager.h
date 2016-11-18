@@ -15,6 +15,7 @@
 #include "IRTC.h"
 #include "ClientManager.h"
 #include "SensorManager.h"
+#include "TechnicalManager.h"
 
 // This main class is a singleton
 // http://stackoverflow.com/questions/8811988/can-i-return-a-reference-to-a-static-class-singleton-instance-within-that-clas
@@ -30,6 +31,7 @@ public:
 	void setRTC(IRTC * rtc);
 	ClientManager & getClientManager() { return mClientManager; }
 	SensorManager & getSensorManager() { return mSensorManager; }
+	TechnicalManager & getTechnicalManager() { return mTechnicalManager; }
 
 	void work();
 
@@ -39,18 +41,23 @@ private:
 	Manager(const Manager &rhs);
 	Manager & operator=(const Manager &rhs);
 
+	// client notification
+	void onClientConnectionChange(bool isConnected);
 	// incoming packets
 	bool receiveTime(const PacketTime& packet);
 	bool receiveSeatOperation(const PacketSeatOperation& packet);
 
 	// sending packets
 	bool sendTime();
+	bool sendLogicalData();
+	bool sendCalibrationParams();
 
 	// sub/helper classes
 	IRTC * mRTC;
 	int16_t mTimeOffsetFromUtcToLocal; // store so we can do a calculation back to utc while the rtc keeps local time. ISSUE: think if this needs to be persistent.
 	ClientManager mClientManager;
 	SensorManager mSensorManager;
+	TechnicalManager mTechnicalManager;
 
 	// helper function
 	void PrintDate(Print & out, const DateTime & d);

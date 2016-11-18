@@ -16,6 +16,8 @@
 class IServer
 {
 public:
+	virtual void onClientConnectionChange(bool isConnected) = 0;
+
 	virtual bool receiveTime(const PacketTime& packet) = 0;
 	virtual bool receiveSeatOperation(const PacketSeatOperation& packet) = 0;
 };

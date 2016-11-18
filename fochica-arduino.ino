@@ -1,23 +1,14 @@
-// our classes
-#include "SeatOperation.h"
-#include "PacketSeatOperation.h"
-#include "PacketCalibrationParams.h"
-#include "PacketLogicalData.h"
-#include "SensorManager.h"
-#include "ClientManager.h"
-#include "RTCImpl_DS1307.h"
-#include "IRTC.h"
-#include "SensorDigital.h"
-#include "PacketSensorData.h"
-#include "PacketTechnicalData.h"
-#include "PacketHeader.h"
-#include "GenericBLEModuleClient.h"
-#include "SensorQtouch.h"
+// our classes, added here automatically on "add code" wizard
+// keep only what we need for the main file
+#include "CalibratedSensor.h"
 #include "SoundManager.h"
+#include "RTCImpl_DS1307.h"
+#include "GenericBLEModuleClient.h"
+#include "SensorDigital.h"
+#include "SensorQtouch.h"
 #include "SensorVoltage.h"
 #include "SensorVcc.h"
 #include "SensorFreeRAM.h"
-#include "ISensor.h"
 #include "Manager.h"
 #include "DebugStream.h"
 
@@ -45,13 +36,14 @@ const int BLE_TX_PIN = 9; // orange
 const int BLE_SENSE_PIN = 5; // gray
 
 // objects
-// sensors
+// technical sensors
 SensorFreeRAM ram("SRAM");
 SensorVcc vcc("Vcc");
 SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND, BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE);
+// occupancy (business logic) sensors
 SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
 SensorDigital digital("Test", BLE_SENSE_PIN); // just a test, reuse existing pin
-// communication
+// communication devices
 GenericBLEModuleClient ble(BLE_RX_PIN, BLE_TX_PIN, BLE_SENSE_PIN);
 // misc
 RTCImpl_DS1307 rtc;
@@ -70,6 +62,11 @@ void setup()
 	manager.getSensorManager().setSensorCount(2);
 	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
 	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digital);
+
+	// init tech sensors and params
+	manager.getTechnicalManager().setVccSensor(&vcc);
+	manager.getTechnicalManager().setCarBatteryVoltageSensor(&bat);
+	manager.getTechnicalManager().setFreeRAMSensor(&ram);
 
 	// init comms
 	ble.begin();
@@ -99,15 +96,7 @@ void loop()
 	DebugStream->println(ble.isConnected());
 	DebugStream->println(digital.getValueInt());
 
-	// send technical packet
-	PacketTechnicalData packet;
-	packet.carBatteryCurrent = 0; // sensor TBD
-	packet.carBatteryVoltage = bat.getValueInt();
-	packet.freeRAM = ram.getValueInt();
-	packet.vcc = vcc.getValueInt();
-	ble.sendTechnicalData(packet);
-
-	// get packets
+	// work
 	manager.work();
 
 	delay(LOOP_DELAY);

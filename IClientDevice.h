@@ -21,7 +21,7 @@ public:
 	virtual bool isConnected() = 0;
 	// receiving
 	virtual void setReceiverCallback(IServer * callback);
-	virtual bool processIncomingIfAvailable() = 0;
+	virtual void work() = 0;
 
 protected:
 	IServer * mServerCallback;
