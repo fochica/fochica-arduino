@@ -15,6 +15,8 @@ struct SensorType {
 	enum e { Vcc, Voltage, RAM, Capacitance, OnOff, Aggregative };
 };
 
+typedef int sensorVal_t;
+
 class ISensor
 {
  public:
@@ -25,7 +27,7 @@ class ISensor
 	const char * getName() { return mName.c_str(); }
 	SensorType::e getType() { return mType; }
 	 
-	virtual int getValueInt() =0; // read sensor value
+	virtual sensorVal_t getValueInt() =0; // read sensor value
 	virtual float getValueFloat() = 0; // read sensor value
 	virtual int getSamplingTime() = 0; // get the time it takes to read a value (estimate) in microseconds
 

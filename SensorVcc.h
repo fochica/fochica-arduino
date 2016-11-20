@@ -17,7 +17,7 @@ class SensorVcc : public ISensor
 {
 public:
 	SensorVcc(const char * name);
-	int getValueInt(); // return in mV
+	sensorVal_t getValueInt(); // return in mV
 	float getValueFloat(); // return in V
 	int getSamplingTime();
 

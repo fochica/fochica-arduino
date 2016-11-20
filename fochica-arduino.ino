@@ -1,6 +1,7 @@
 // our classes, added here automatically on "add code" wizard
 // keep only what we need for the main file
 #include "CalibratedSensor.h"
+
 #include "SoundManager.h"
 #include "RTCImpl_DS1307.h"
 #include "GenericBLEModuleClient.h"

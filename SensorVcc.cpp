@@ -9,7 +9,7 @@ SensorVcc::SensorVcc(const char * name) : ISensor(name, SensorType::Vcc)
 }
 
 // value should be around 5000 (mV)
-int SensorVcc::getValueInt()
+sensorVal_t SensorVcc::getValueInt()
 {
 	return getValueFloat() * 1000;
 }

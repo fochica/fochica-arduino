@@ -17,7 +17,7 @@ public:
 	SensorDigital(const char * name, uint8_t pin, int8_t pinMode=-1); // can optionlly define pin mode (INPUT, INPUT_PULLUP or -1 for keep-as-is)
 	void begin();
 
-	int getValueInt(); // return 0 or 1*GAIN
+	sensorVal_t getValueInt(); // return 0 or 1*GAIN
 	float getValueFloat(); // return 0 or 1
 	int getSamplingTime();
 

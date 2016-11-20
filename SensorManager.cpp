@@ -54,7 +54,7 @@ void SensorManager::work()
 			SensorData& sensor = mSensors[sensorId];
 			if (sensor.seatId == seatId) { // of current seat
 				// read calibrated sensor values (what does this mean?)
-				int sensorValue=sensor.sensorRaw->getValueInt();
+				sensorVal_t sensorValue=sensor.sensorRaw->getValueInt();
 				// send individual sensor values
 				PacketSensorData packet;
 				packet.seatId = seatId;

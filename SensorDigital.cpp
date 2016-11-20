@@ -17,7 +17,7 @@ void SensorDigital::begin()
 }
 
 // value is 0 or 1*GAIN
-int SensorDigital::getValueInt()
+sensorVal_t SensorDigital::getValueInt()
 {
 	return digitalRead(mPin)*GAIN;
 }

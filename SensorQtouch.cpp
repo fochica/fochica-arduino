@@ -12,7 +12,7 @@ SensorQtouch::SensorQtouch(const char * name, int analogReadPin, int analogRefer
 
 // returns values between 0 and 1024, usually lower than max.
 // consider to add GAIN=10 to utilize int range best
-int SensorQtouch::getValueInt()
+sensorVal_t SensorQtouch::getValueInt()
 {
 	// First measurement  
 	// this charges S&H and discharges read cap. then transfer happens to the read cap. new value is measured on S&H. gives adc1 which is subtracted from result!
@@ -22,7 +22,7 @@ int SensorQtouch::getValueInt()
 	// this discharges S&H and charges the read cap. then transfer happens to the S&H cap. new value is measured on S&H. gives adc2 which is added to the result!
 	int adc2 = makeMeasurement(OutToIn);
 
-	return adc2 - adc1; // return conversion result
+	return max(adc2 - adc1,0); // return conversion result
 }
 
 float SensorQtouch::getValueFloat()

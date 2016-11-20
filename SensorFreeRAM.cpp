@@ -9,7 +9,7 @@ SensorFreeRAM::SensorFreeRAM(const char * name) : ISensor(name, SensorType::RAM)
 }
 
 // should be around 1K-2K for Uno
-int SensorFreeRAM::getValueInt()
+sensorVal_t SensorFreeRAM::getValueInt()
 {
 	// based on https://learn.adafruit.com/memories-of-an-arduino/measuring-free-memory
 	// Possibly AVR specific

@@ -20,7 +20,7 @@ class SensorQtouch : public ISensor
 {
 public:
 	SensorQtouch(const char * name, int analogReadPin, int analogReferencePin);
-	int getValueInt(); // returns V*[internal coeff], higher when capacitance is higher
+	sensorVal_t getValueInt(); // returns V*[internal coeff], higher when capacitance is higher
 	float getValueFloat();
 	int getSamplingTime();
 

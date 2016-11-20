@@ -17,7 +17,7 @@ class SensorVoltage : public ISensor
 {
 public:
 	 SensorVoltage(const char * name, int analogPin, long resistorToGround, long resistorToVoltage);
-	 int getValueInt(); // return in mV
+	 sensorVal_t getValueInt(); // return in mV
 	 float getValueFloat(); // return in V
 	 int getSamplingTime();
 
