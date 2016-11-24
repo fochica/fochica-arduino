@@ -27,6 +27,8 @@ bool GenericBLEModuleClient::isConnected()
 
 bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, byte size)
 {
+	if (!isConnected()) // check if we are connected, otherwise we will send packet data in config mode (and not data/comm mode)
+		return false;
 	// write length. length is 3 header bytes and the payload
 	byte len = size + HEADER_LENGTH;
 	if (len > MAX_BLE_PACKET_LENGTH)

@@ -119,6 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CalibratedSensor.h" />
+    <ClInclude Include="CalibratedSensorTester.h" />
     <ClInclude Include="ClientManager.h" />
     <ClInclude Include="DebugStream.h" />
     <ClInclude Include="GenericBLEModuleClient.h" />
@@ -142,6 +143,7 @@
     <ClInclude Include="SensorDigital.h" />
     <ClInclude Include="SensorFreeRAM.h" />
     <ClInclude Include="SensorManager.h" />
+    <ClInclude Include="SensorMock.h" />
     <ClInclude Include="SensorQtouch.h" />
     <ClInclude Include="SensorVcc.h" />
     <ClInclude Include="SensorVoltage.h" />
@@ -151,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CalibratedSensor.cpp" />
+    <ClCompile Include="CalibratedSensorTester.cpp" />
     <ClCompile Include="ClientManager.cpp" />
     <ClCompile Include="DebugStream.cpp" />
     <ClCompile Include="GenericBLEModuleClient.cpp" />
@@ -172,6 +175,7 @@
     <ClCompile Include="SensorDigital.cpp" />
     <ClCompile Include="SensorFreeRAM.cpp" />
     <ClCompile Include="SensorManager.cpp" />
+    <ClCompile Include="SensorMock.cpp" />
     <ClCompile Include="SensorQtouch.cpp" />
     <ClCompile Include="SensorVcc.cpp" />
     <ClCompile Include="SensorVoltage.cpp" />
@@ -181,4 +185,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties arduino.upload.port="COM6" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

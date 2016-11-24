@@ -108,6 +108,12 @@
     <ClInclude Include="CalibratedSensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CalibratedSensorTester.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SensorMock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -189,6 +195,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CalibratedSensor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CalibratedSensorTester.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SensorMock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

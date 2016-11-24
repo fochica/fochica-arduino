@@ -5,7 +5,7 @@
 #include "Manager.h"
 #include "DebugStream.h"
 #include "SoundManager.h"
-
+#include "SeatOperation.h"
 
 void Manager::setRTC(IRTC * rtc)
 {
@@ -75,6 +75,19 @@ bool Manager::receiveSeatOperation(const PacketSeatOperation & packet)
 		DebugStream->print(F("Got seat operation "));
 		DebugStream->println(packet.operationId);
 	}
+
+	switch (packet.operationId)
+	{
+	case SeatOperation::StartCalibrationOccupied:
+		getSensorManager().calibrate(packet.seatId, SensorState::Occupied);
+		return true;
+	case SeatOperation::StartCalibrationEmpty:
+		getSensorManager().calibrate(packet.seatId, SensorState::Empty);
+		return true;
+	default:
+		break;
+	}
+	
 	return false;
 }
 
@@ -102,8 +115,7 @@ bool Manager::sendLogicalData()
 
 bool Manager::sendCalibrationParams()
 {
-	// TODO
-	return false;
+	return getSensorManager().sendCalibrationParams();
 }
 
 void Manager::PrintDate(Print & out, const DateTime & d)

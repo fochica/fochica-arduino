@@ -15,6 +15,7 @@ struct PacketSensorData {
 	uint8_t location; // SensorLocation::e
 	uint8_t type; // SensorType::e
 	uint16_t value;
+	uint8_t state; // SensorState::e
 };
 
 #endif

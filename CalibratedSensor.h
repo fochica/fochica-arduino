@@ -27,13 +27,32 @@ public:
 	CalibratedSensor(ISensor * raw, int expAlpha=0, sensorVal_t thLow=0, sensorVal_t thHigh=0); // must provide a valid raw sensor as source
 
 	// reading of value
-	CalibratedSensorState::e getValue();
+	CalibratedSensorState::e getValue(sensorVal_t * raw=NULL, sensorVal_t * debugFiltered=NULL);
 
 	// calibration
-	void Calibrate(CalibratedSensorState::e state);
+	void calibrate(CalibratedSensorState::e state);
+	void debugCalibrationState();
+	bool isCalibrated();
+	void resetCalibrationData();
+
+	long getExpMovingAverageAlpha() {
+		return mExpMovingAverageAlpha;
+	}
+	bool getStateAIsHigh() {
+		return mStateAIsHigh;
+	}
+	sensorVal_t getSchmittThresholdHigh() {
+		return mSchmittThresholdHigh;
+	}
+	sensorVal_t getSchmittThresholdLow() {
+		return mSchmittThresholdLow;
+	}
 
 	// persistence
 	// TODO
+
+	// consts
+	static const long MAX_EXP_ALPHA = 1000L;
 
 private:
 	ISensor * mRaw;
@@ -51,12 +70,18 @@ private:
 
 	// calibration process data
 	// min, max, avg for each state.
+	sensorVal_t mStateMin[CalibratedSensorState::Count];
+	sensorVal_t mStateMax[CalibratedSensorState::Count];
+	sensorVal_t mStateAvg[CalibratedSensorState::Count];
+	bool mStateDataCollected[CalibratedSensorState::Count];
 
 	// consts
-	static const CalibratedSensorState::e INITIAL_STATE=CalibratedSensorState::A;
-	static const sensorVal_t INITIAL_RAW_VALUE=0;
-	static const long MAX_EXP_ALPHA = 1000L;
-
+	static const CalibratedSensorState::e INITIAL_STATE = CalibratedSensorState::A; // the initial state of this sensor
+	static const sensorVal_t INITIAL_RAW_VALUE = 0; // the value to initialize our low pass filter with
+	static const int SAMPLES_FOR_STATE_CALIBRATION = 100; // how many samples to take to determine properties of a certain sensor state
+	static const int NO_INTERSECTION_THRESHOLD_PERCENTILE = 10; // where to place high/low thresholds in the gap (between states) if the states don't intersect
+	static const int INTERSECTION_THRESHOLD_PERCENTILE = 50; // where to place high/low thresholds in the span (of each state) if the states do intersect
+	static const int LIMITED_DYNAMIC_RANGE = 100; // dynamic range threshold across all states that is not optimal (too low)
 };
 
 #endif

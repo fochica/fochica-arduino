@@ -18,6 +18,4 @@ void TechnicalManager::work(IClient * client)
 	packet.carBatteryVoltage = mCarBatteryVoltageSensor ? mCarBatteryVoltageSensor->getValueInt() : 0;
 	packet.freeRAM = mFreeRAMSensor ? mFreeRAMSensor->getValueInt() : 0;
 	client->sendTechnicalData(packet);
-
-
 }

@@ -11,6 +11,7 @@
 
 struct BeepType {
 	enum e {
+		Start,
 		ClientConnected,
 		ClientDisconnected,
 		Error

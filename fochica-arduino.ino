@@ -1,6 +1,7 @@
 // our classes, added here automatically on "add code" wizard
 // keep only what we need for the main file
-#include "CalibratedSensor.h"
+#include "CalibratedSensorTester.h"
+//#include "CalibratedSensor.h"
 
 #include "SoundManager.h"
 #include "RTCImpl_DS1307.h"
@@ -18,7 +19,7 @@
 #include <RTClib.h>
 
 // settings
-const int SERIAL_BAUD = 9600;
+const long SERIAL_BAUD = 115200;
 
 const int BATTERY_VOLTAGE_SENSOR_PIN = 1;
 const long BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND = 10000;
@@ -55,20 +56,27 @@ void setup()
 	// init serial
 	Serial.begin(SERIAL_BAUD);
 	delay(10); // wait a little for dev env to connect before sending data
+	Serial.println("test");
+	delay(2000);
 	DebugStream = &Serial;
-	DebugStream->println("Start");
+	DebugStream->println(F("Start"));
+
+	// testing
+	//CalibratedSensorTester test;
+	//test.runTests();
+	//for (;;); // don't proceed to normal operation
 
 	// init sensors
 	manager.getSensorManager().setSeatCount(1);
 	manager.getSensorManager().setSensorCount(2);
 	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
 	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digital);
-
+	
 	// init tech sensors and params
 	manager.getTechnicalManager().setVccSensor(&vcc);
 	manager.getTechnicalManager().setCarBatteryVoltageSensor(&bat);
 	manager.getTechnicalManager().setFreeRAMSensor(&ram);
-
+	
 	// init comms
 	ble.begin();
 	delay(10);
@@ -77,6 +85,7 @@ void setup()
 	manager.getClientManager().setReceiverCallback(&manager);
 
 	// misc
+	DebugStream->println(F("Free RAM: "));
 	DebugStream->println(ram.getValueInt());
 	rtc.begin();
 	manager.setRTC(&rtc);
@@ -84,16 +93,17 @@ void setup()
 	// init buzzer and make start sound
 	// TODO, change to a fun tune
 	SoundManager::getInstance().setPassiveBuzzer(BUZZER_PIN);
-	SoundManager::getInstance().playBeep(BeepType::Error);
+	SoundManager::getInstance().playBeep(BeepType::Start);
 }
 
 void loop()
 {
 	// debug
+	DebugStream->println(F("Loop"));
+	DebugStream->println(ram.getValueInt());
 	DebugStream->println(vcc.getValueFloat());
 	DebugStream->println(bat.getValueFloat());
 	DebugStream->println(capSense.getValueInt());
-	DebugStream->println(ram.getValueInt());
 	DebugStream->println(ble.isConnected());
 	DebugStream->println(digital.getValueInt());
 
