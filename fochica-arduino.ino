@@ -32,10 +32,15 @@ const int CAPACITANCE_REF_PIN = 3;
 
 const int LOOP_DELAY = 1000;
 
-// Bluetooth Low Energy (HC-05 module)
+// Bluetooth Low Energy (HM-10 module)
 const int BLE_RX_PIN = 8; // yellow
 const int BLE_TX_PIN = 9; // orange
-const int BLE_SENSE_PIN = 5; // gray
+const int BLE_SENSE_PIN = 7; // gray
+
+// Bluetooth Low Energy (CC41 module)
+const int BLE2_RX_PIN = 2; // yellow
+const int BLE2_TX_PIN = 3; // orange
+const int BLE2_SENSE_PIN = 5; // gray
 
 // objects
 // technical sensors
@@ -47,6 +52,7 @@ SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
 SensorDigital digital("Test", BLE_SENSE_PIN); // just a test, reuse existing pin
 // communication devices
 GenericBLEModuleClient ble(BLE_RX_PIN, BLE_TX_PIN, BLE_SENSE_PIN);
+GenericBLEModuleClient ble2(BLE2_RX_PIN, BLE2_TX_PIN, BLE2_SENSE_PIN);
 // misc
 RTCImpl_DS1307 rtc;
 Manager& manager = Manager::getInstance();
@@ -80,8 +86,9 @@ void setup()
 	// init comms
 	ble.begin();
 	delay(10);
-	manager.getClientManager().setDeviceCount(1);
+	manager.getClientManager().setDeviceCount(2);
 	manager.getClientManager().addDevice(&ble);
+	manager.getClientManager().addDevice(&ble2);
 	manager.getClientManager().setReceiverCallback(&manager);
 
 	// misc

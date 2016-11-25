@@ -15,7 +15,7 @@ struct SensorType {
 	enum e { Vcc, Voltage, RAM, Capacitance, OnOff, Aggregative, Mock };
 };
 
-typedef int sensorVal_t;
+typedef int sensorVal_t; // define with typedef so if we want to change this to another type (i.e. an unsigned int) in the future, then we can.
 
 class ISensor
 {

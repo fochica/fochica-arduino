@@ -43,7 +43,7 @@ private:
 
 	const int DELAY_AFTER_PACKET_SENT = 100; // ms
 	const int PACKET_RECEIVE_TIMEOUT = 10; // ms
-	const int BAUD_RATE = 9600; // default baud rate for HM-10. This is not a high throughput link, so keep slow for lower performance impact
+	const long BAUD_RATE = 9600; // default baud rate for HM-10. This is not a high throughput link, so keep slow for lower performance impact
 	const int MAX_BLE_PACKET_LENGTH = 20; // max due to BLE restrictions
 
 	const byte PROTOCOL_VERSION = 'a';
