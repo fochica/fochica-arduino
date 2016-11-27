@@ -9,6 +9,7 @@ GenericBLEModuleClient::GenericBLEModuleClient(int rxPin, int txPin, int sensePi
 {
 	mSensePin = sensePin;
 	mConnected = false;
+	mLastSendTime = 0;
 }
 
 void GenericBLEModuleClient::begin()
@@ -29,6 +30,18 @@ bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, b
 {
 	if (!isConnected()) // check if we are connected, otherwise we will send packet data in config mode (and not data/comm mode)
 		return false;
+
+	// wait for previous data to flush so it considered as one whole packet for BLE modules.
+	// don't just do "delay(DELAY_AFTER_PACKET_SENT);" after sending,
+	// instead of a fixed delay every time, store time last sent and delay as little as needed to have DELAY_AFTER_PACKET_SENT since then
+	unsigned long now = millis();
+	unsigned long passed = now - mLastSendTime;
+	if (now < mLastSendTime) // if time wrapped
+		passed = 0; // force delay
+	if (passed < DELAY_AFTER_PACKET_SENT)
+		delay(DELAY_AFTER_PACKET_SENT - passed);
+	mLastSendTime = now;
+
 	// write length. length is 3 header bytes and the payload
 	byte len = size + HEADER_LENGTH;
 	if (len > MAX_BLE_PACKET_LENGTH)
@@ -40,9 +53,6 @@ bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, b
 	mBLE.write((byte)type);
 	// write the data
 	mBLE.write(buf, size);
-
-	// wait for data to flush so it is one whole packet for BLE modules
-	delay(DELAY_AFTER_PACKET_SENT);
 
 	return true;
 }
