@@ -20,7 +20,7 @@
 class GenericBLEModuleClient : public IClientDevice
 {
 public:
-	GenericBLEModuleClient(int rxPin, int txPin, int sensePin);
+	GenericBLEModuleClient(int rxPin, int txPin, int statePin);
 
 	// sending packets
 	bool sendTime(const PacketTime& packet);
@@ -38,7 +38,7 @@ public:
 
 private:
 	SoftwareSerial mBLE;
-	int mSensePin;
+	int mStatePin;
 	bool mConnected; // last known connection state. true for connected.
 	unsigned long mLastSendTime;
 

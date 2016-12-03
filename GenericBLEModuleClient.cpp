@@ -5,9 +5,9 @@
 #include "GenericBLEModuleClient.h"
 #include "DebugStream.h"
 
-GenericBLEModuleClient::GenericBLEModuleClient(int rxPin, int txPin, int sensePin) : mBLE(rxPin, txPin)
+GenericBLEModuleClient::GenericBLEModuleClient(int rxPin, int txPin, int statePin) : mBLE(rxPin, txPin)
 {
-	mSensePin = sensePin;
+	mStatePin = statePin;
 	mConnected = false;
 	mLastSendTime = 0;
 }
@@ -16,14 +16,14 @@ void GenericBLEModuleClient::begin()
 {
 	// commands like pinMode should go in setup and not at a point where global cinstructors are called
 	// http://forum.arduino.cc/index.php?topic=212844.0
-	pinMode(mSensePin, INPUT);
+	pinMode(mStatePin, INPUT);
 	mBLE.begin(BAUD_RATE);
 	mBLE.setTimeout(PACKET_RECEIVE_TIMEOUT);
 }
 
 bool GenericBLEModuleClient::isConnected()
 {
-	return digitalRead(mSensePin);
+	return digitalRead(mStatePin);
 }
 
 bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, byte size)
