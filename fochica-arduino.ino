@@ -1,8 +1,7 @@
 // our classes, added here automatically on "add code" wizard
 // keep only what we need for the main file
-#include "CalibratedSensorTester.h"
-//#include "CalibratedSensor.h"
 
+#include "CalibratedSensorTester.h"
 #include "SoundManager.h"
 #include "RTCImpl_DS1307.h"
 #include "GenericBLEModuleClient.h"
@@ -75,8 +74,8 @@ void setup()
 	// init sensors
 	manager.getSensorManager().setSeatCount(1);
 	manager.getSensorManager().setSensorCount(2);
-	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
-	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digital);
+	//manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
+	//manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digital);
 	
 	// init tech sensors and params
 	manager.getTechnicalManager().setVccSensor(&vcc);
@@ -84,10 +83,10 @@ void setup()
 	manager.getTechnicalManager().setFreeRAMSensor(&ram);
 	
 	// init comms
-	ble.begin();
-	delay(10);
 	manager.getClientManager().setDeviceCount(2);
+	ble.begin();
 	manager.getClientManager().addDevice(&ble);
+	ble2.begin();
 	manager.getClientManager().addDevice(&ble2);
 	manager.getClientManager().setReceiverCallback(&manager);
 

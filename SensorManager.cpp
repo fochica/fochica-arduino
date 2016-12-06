@@ -100,16 +100,18 @@ void SensorManager::work()
 					aggregatedValue = packet.state;
 				else {
 					if (aggregatedValue != packet.state) // sensor disagreement
-						aggregatedValue = 10;
+						aggregatedValue = 10; // TODO, change
 					// else, sensor agreement, keep aggregatedValue as-is
 				}
 			}
 		}
+		if (aggregatedValue == -1) // if no sensors
+			aggregatedValue = 11; //TODO, change
 		
 		// generate aggregated sensor (per seat) and send it
 		PacketSensorData packet;
 		packet.seatId = seatId;
-		packet.sensorId = mSensorCount+seatId; // generate unique ids above the existing ids
+		packet.sensorId = mSensorAddedCount + seatId; // generate unique ids above the existing ids
 		packet.location = SensorLocation::Virtual;
 		packet.type = SensorType::Aggregative;
 		packet.value = aggregatedValue;

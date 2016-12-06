@@ -14,7 +14,7 @@ GenericBLEModuleClient::GenericBLEModuleClient(int rxPin, int txPin, int statePi
 
 void GenericBLEModuleClient::begin()
 {
-	// commands like pinMode should go in setup and not at a point where global cinstructors are called
+	// commands like pinMode should go in setup and not at a point where global constructors are called
 	// http://forum.arduino.cc/index.php?topic=212844.0
 	pinMode(mStatePin, INPUT);
 	mBLE.begin(BAUD_RATE);
@@ -28,6 +28,13 @@ bool GenericBLEModuleClient::isConnected()
 
 bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, byte size)
 {
+	if (DebugStream) {
+		DebugStream->print("writePacket ");
+		DebugStream->print(mStatePin);
+		DebugStream->print(", ");
+		DebugStream->println((char)type);
+	}
+
 	if (!isConnected()) // check if we are connected, otherwise we will send packet data in config mode (and not data/comm mode)
 		return false;
 
@@ -108,6 +115,13 @@ void GenericBLEModuleClient::work()
 
 bool GenericBLEModuleClient::processIncomingIfAvailable()
 {
+	if (DebugStream) {
+		DebugStream->print("processIncomingIfAvailable ");
+		DebugStream->print(mStatePin);
+		DebugStream->print(", ");
+		DebugStream->println(mBLE.available());
+	}
+
 	if (mBLE.available() == false)
 		return false;
 
@@ -115,6 +129,7 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 	byte length = mBLE.peek();
 	if (length<MIN_PACKET_LENGTH || length>MAX_BLE_PACKET_LENGTH) {
 		if (DebugStream != NULL) DebugStream->println(F("Invalid data in BLE receiver"));
+		flushIncomingBuffer();
 		return false;
 	}
 
