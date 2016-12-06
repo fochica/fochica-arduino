@@ -40,7 +40,7 @@ bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, b
 		passed = 0; // force delay
 	if (passed < DELAY_AFTER_PACKET_SENT)
 		delay(DELAY_AFTER_PACKET_SENT - passed);
-	mLastSendTime = now;
+	mLastSendTime = millis(); // store correct time, after possible delay
 
 	// write length. length is 3 header bytes and the payload
 	byte len = size + HEADER_LENGTH;
