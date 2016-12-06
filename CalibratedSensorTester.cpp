@@ -5,6 +5,7 @@
 #include "CalibratedSensorTester.h"
 #include "DebugStream.h"
 #include "SensorMock.h"
+#include "RNGUtils.h"
 
 bool CalibratedSensorTester::runTests()
 {
@@ -14,7 +15,7 @@ bool CalibratedSensorTester::runTests()
 	DebugStream->println(F("CalibratedSensorTester start"));
 
 	// setup randomness
-	randomSeed(analogRead(0) + analogRead(1) + analogRead(2) + analogRead(3));
+	RNGUtils::seedWithAnalogInputs();
 
 	// test mock sources
 	DebugStream->println(F("Uniform source [100,200]"));

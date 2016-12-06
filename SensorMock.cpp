@@ -3,6 +3,7 @@
 // 
 
 #include "SensorMock.h"
+#include "RNGUtils.h"
 
 SensorMock::SensorMock(const char * name, SensorMockType::e type, sensorVal_t min, sensorVal_t max, sensorVal_t param) : ISensor(name, SensorType::Mock)
 {
@@ -30,7 +31,7 @@ sensorVal_t SensorMock::getValueInt()
 	switch (mType) {
 	case SensorMockType::Normal:
 	{
-		double r = getRandGaussian();
+		double r = RNGUtils::getGaussian();
 		sensorVal_t d = mMax - mMin;
 		r=constrain(r, -2, 2); // crop range to [-2,2], some long tail values will affect the extreme bins, not accurage but good enough for this purpose
 		r *= (d /2 /2); // scale distribution (2 to Max and -2 to Min to accomodate some long tail and not only use [-1,1]
@@ -38,7 +39,7 @@ sensorVal_t SensorMock::getValueInt()
 		return r;
 	}
 	case SensorMockType::Uniform:
-		return random(mMin, mMax);
+		return RNGUtils::getLong(mMin, mMax);
 	case SensorMockType::Saw:
 		if (mCurDirUp) {
 			mCurValue += mParam;
@@ -78,25 +79,4 @@ float SensorMock::getValueFloat()
 int SensorMock::getSamplingTime()
 {
 	return 0;
-}
-
-// get random gaussian distributed value
-// mean=0, sigma=1
-double SensorMock::getRandGaussian()
-{
-	// https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
-	double u, v, S;
-
-	do {
-		// The random() function computes a sequence of pseudo - random integers in the range of 0 to \c RANDOM_MAX
-		// Arduino's random actually uses this stdlin random function
-		u = (double)random() / RANDOM_MAX;
-		v = (double)random() / RANDOM_MAX;
-		u = 2.0*u - 1; // shift to [-1,1] range
-		v = 2.0*v - 1; // shift to [-1,1] range
-		S = u*u + v*v; // r^2
-	} while (S >= 1); // perform rejection sampling
-
-	// we will only use z1 here. consider to save z2 for next request...
-	return u * sqrt(-2.0 * log(S) / S);
 }

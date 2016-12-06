@@ -114,6 +114,9 @@
     <ClInclude Include="SensorMock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RNGUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -201,6 +204,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SensorMock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RNGUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

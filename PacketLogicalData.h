@@ -10,8 +10,9 @@
 #endif
 
 struct PacketLogicalData {
-	uint8_t clientCount; // number of receivers
-	uint8_t connectedClientCount; // number of receivers connected
+	uint32_t deviceUniqueId; // unique device id (not guaranteed to be persistent across boots)
+	uint8_t clientCount; // number of adapters
+	uint8_t connectedClientCount; // number of clients connected
 	uint8_t seatCount;
 	uint8_t sensorCount;
 };

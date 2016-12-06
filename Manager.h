@@ -37,7 +37,7 @@ public:
 
 private:
 	// protect constructors to prevent singleton modification
-	Manager() : mSensorManager(mClientManager) { }
+	Manager();
 	Manager(const Manager &rhs);
 	Manager & operator=(const Manager &rhs);
 
@@ -61,6 +61,10 @@ private:
 
 	// helper function
 	void PrintDate(Print & out, const DateTime & d);
+
+	// unique device id generation
+	unsigned long mDeviceUniqueId; // a unique id. re-generated per boot. generated at first use (at conection to client) which helps get better entropy.
+	unsigned long getDeviceUniqueId(); // returns an id, generates it if needed
 };
 
 #endif

@@ -42,9 +42,6 @@ private:
 
 	// const
 	static const int SINE_STEPS = 1000; // number of sine steps we take in 2pi rads
-
-	// private functions
-	static double getRandGaussian(); // TOOD, move to a more generic class
 };
 
 #endif

@@ -138,6 +138,7 @@
     <ClInclude Include="PacketTechnicalData.h" />
     <ClInclude Include="PacketTime.h" />
     <ClInclude Include="PacketType.h" />
+    <ClInclude Include="RNGUtils.h" />
     <ClInclude Include="RTCImpl_DS1307.h" />
     <ClInclude Include="SeatOperation.h" />
     <ClInclude Include="SensorDigital.h" />
@@ -170,6 +171,7 @@
     <ClCompile Include="PacketSensorData.cpp" />
     <ClCompile Include="PacketTechnicalData.cpp" />
     <ClCompile Include="PacketTime.cpp" />
+    <ClCompile Include="RNGUtils.cpp" />
     <ClCompile Include="RTCImpl_DS1307.cpp" />
     <ClCompile Include="SeatOperation.cpp" />
     <ClCompile Include="SensorDigital.cpp" />

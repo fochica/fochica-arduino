@@ -4,8 +4,14 @@
 
 #include "Manager.h"
 #include "DebugStream.h"
+#include "RNGUtils.h"
 #include "SoundManager.h"
 #include "SeatOperation.h"
+
+Manager::Manager() : mSensorManager(mClientManager)
+{
+	mDeviceUniqueId = 0; // mark as not initialized
+}
 
 void Manager::setRTC(IRTC * rtc)
 {
@@ -106,6 +112,7 @@ bool Manager::sendTime()
 bool Manager::sendLogicalData()
 {
 	PacketLogicalData packet;
+	packet.deviceUniqueId = getDeviceUniqueId();
 	packet.clientCount = mClientManager.getDeviceCount();
 	packet.connectedClientCount = mClientManager.getConnectedCount();
 	packet.seatCount = mSensorManager.getSeatCount();
@@ -131,5 +138,16 @@ void Manager::PrintDate(Print & out, const DateTime & d)
 	out.print(d.minute(), DEC);
 	out.print(':');
 	out.print(d.second(), DEC);
+}
+
+unsigned long Manager::getDeviceUniqueId()
+{
+	if (mDeviceUniqueId != 0) // if already generated
+		return mDeviceUniqueId;
+	do
+	{
+		mDeviceUniqueId = RNGUtils::generateEntropyWithAnalogInputs();
+	} while (mDeviceUniqueId == 0); // generate from entropy source until we get a value that is not 0
+	return mDeviceUniqueId;
 }
 
