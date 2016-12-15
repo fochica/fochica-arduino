@@ -22,6 +22,8 @@ public:
 	// receiving
 	virtual void setReceiverCallback(IServer * callback);
 	virtual void work() = 0;
+	// capabilities
+	virtual bool isCanReceivePackets();
 
 protected:
 	IServer * mServerCallback;

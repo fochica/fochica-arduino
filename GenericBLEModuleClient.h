@@ -31,6 +31,7 @@ public:
 
 	// receiving logic
 	void work();
+	bool isCanReceivePackets();
 
 	// state
 	void begin();

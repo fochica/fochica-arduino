@@ -117,6 +117,7 @@ bool Manager::sendLogicalData()
 	packet.connectedClientCount = mClientManager.getConnectedCount();
 	packet.seatCount = mSensorManager.getSeatCount();
 	packet.sensorCount = mSensorManager.getSensorAddedCount();
+	packet.capabilityMask = 0;
 	return getClientManager().sendLogicalData(packet);
 }
 

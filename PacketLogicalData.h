@@ -9,8 +9,16 @@
 	#include "WProgram.h"
 #endif
 
+// could be device capabilities or adapter capabilities
+struct Capabilities {
+	enum e {
+		CanReceivePackets = (1u << 0)
+	};
+};
+
 struct PacketLogicalData {
 	uint32_t deviceUniqueId; // unique device id (not guaranteed to be persistent across boots)
+	uint8_t capabilityMask; // Capabilities::e
 	uint8_t clientCount; // number of adapters
 	uint8_t connectedClientCount; // number of clients connected
 	uint8_t seatCount;

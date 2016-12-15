@@ -105,8 +105,19 @@ bool ClientManager::sendLogicalData(const PacketLogicalData & packet)
 {
 	bool ret = true;
 	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++) {
-		if (mDevices[i]->isConnected())
-			ret &= mDevices[i]->sendLogicalData(packet);
+		if (mDevices[i]->isConnected()) {
+			// we need to add device specific capabilities to this packet type, so make a copy of the const
+			PacketLogicalData specificPacket(packet);
+			// check capabilities
+			if(mDevices[i]->isCanReceivePackets())
+				specificPacket.capabilityMask |= Capabilities::CanReceivePackets;
+			if (DebugStream) {
+				DebugStream->print(F("Adapter capability: "));
+				DebugStream->println(specificPacket.capabilityMask);
+			}
+			// send
+			ret &= mDevices[i]->sendLogicalData(specificPacket);
+		}
 	}
 	return ret;
 }

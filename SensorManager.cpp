@@ -4,6 +4,7 @@
 
 #include "SensorManager.h"
 #include "DebugStream.h"
+#include "SoundManager.h"
 
 SensorManager::SensorManager(IClient & client) : mClient(client)
 {
@@ -46,6 +47,7 @@ bool SensorManager::addSensor(seatCount_t seatId, SensorLocation::e location, IS
 
 void SensorManager::calibrate(seatCount_t seatId, SensorState::e state)
 {
+	SoundManager::getInstance().playBeep(BeepType::SeatCalibrationStart);
 	// go over all sensors of seat
 	for (sensorCount_t sensorId = 0; sensorId < mSensorAddedCount; sensorId++) {
 		SensorData& sensor = mSensors[sensorId];
@@ -58,6 +60,7 @@ void SensorManager::calibrate(seatCount_t seatId, SensorState::e state)
 			}
 		}
 	}
+	SoundManager::getInstance().playBeep(BeepType::SeatCalibrationEnd);
 }
 
 bool SensorManager::sendCalibrationParams()

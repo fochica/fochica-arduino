@@ -14,7 +14,7 @@
 struct PacketTechnicalData {
 	uint16_t vcc; // mV
 	uint16_t carBatteryVoltage; // mV
-	uint16_t carBatteryCurrent; // mA
+	uint16_t deviceCurrent; // mA
 	uint16_t freeRAM;
 };
 

@@ -113,12 +113,19 @@ void GenericBLEModuleClient::work()
 
 }
 
+bool GenericBLEModuleClient::isCanReceivePackets()
+{
+	return mBLE.isListening();
+}
+
 bool GenericBLEModuleClient::processIncomingIfAvailable()
 {
 	if (DebugStream) {
-		DebugStream->print("processIncomingIfAvailable ");
+		DebugStream->print(F("processIncomingIfAvailable, pin: "));
 		DebugStream->print(mStatePin);
-		DebugStream->print(", ");
+		DebugStream->print(F(", listening: "));
+		DebugStream->print(mBLE.isListening());
+		DebugStream->print(F(", available: "));
 		DebugStream->println(mBLE.available());
 	}
 
@@ -176,7 +183,7 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 		break;
 	case PacketType::SeatOperation:
 		PacketSeatOperation packetSO;
-		count = mBLE.readBytes((uint8_t *)&packet, expectedLength);
+		count = mBLE.readBytes((uint8_t *)&packetSO, expectedLength);
 		if (mServerCallback && count == expectedLength)
 			mServerCallback->receiveSeatOperation(packetSO);
 		break;

@@ -72,10 +72,10 @@ void setup()
 	//for (;;); // don't proceed to normal operation
 
 	// init sensors
-	manager.getSensorManager().setSeatCount(1);
+	manager.getSensorManager().setSeatCount(2);
 	manager.getSensorManager().setSensorCount(2);
-	//manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
-	//manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digital);
+	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
+	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digital);
 	
 	// init tech sensors and params
 	manager.getTechnicalManager().setVccSensor(&vcc);

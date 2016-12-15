@@ -21,7 +21,7 @@ public:
 
 	void setVccSensor(ISensor * sensor) { mVccSensor = sensor; }
 	void setCarBatteryVoltageSensor(ISensor * sensor) { mCarBatteryVoltageSensor = sensor; }
-	void setCarBatteryCurrent(ISensor * sensor) { mCarBatteryCurrentSensor = sensor; }
+	void setDeviceCurrentSensor(ISensor * sensor) { mDeviceCurrentSensor = sensor; }
 	void setFreeRAMSensor(ISensor * sensor) { mFreeRAMSensor = sensor; }
 
 	void work(IClient * client);
@@ -29,7 +29,7 @@ public:
 private:
 	ISensor * mVccSensor;
 	ISensor * mCarBatteryVoltageSensor;
-	ISensor * mCarBatteryCurrentSensor;
+	ISensor * mDeviceCurrentSensor;
 	ISensor * mFreeRAMSensor;
 };
 
