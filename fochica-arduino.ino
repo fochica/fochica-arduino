@@ -29,6 +29,8 @@ const int BUZZER_PIN = 4;
 const int CAPACITANCE_READ_PIN = 2;
 const int CAPACITANCE_REF_PIN = 3;
 
+const int REED_SWITCH_PIN = 6;
+
 const int LOOP_DELAY = 1000;
 
 // Bluetooth Low Energy (HM-10 module)
@@ -48,7 +50,8 @@ SensorVcc vcc("Vcc");
 SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND, BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE);
 // occupancy (business logic) sensors
 SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
-SensorDigital digital("Test", BLE_STATE_PIN); // just a test, reuse existing pin
+//SensorDigital digital("Test", BLE_STATE_PIN); // just a test, reuse existing pin
+SensorDigital digital("Reed", REED_SWITCH_PIN, INPUT_PULLUP); // just a test, reuse existing pin
 // communication devices
 GenericBLEModuleClient ble(BLE_RX_PIN, BLE_TX_PIN, BLE_STATE_PIN);
 GenericBLEModuleClient ble2(BLE2_RX_PIN, BLE2_TX_PIN, BLE2_STATE_PIN);
@@ -74,12 +77,17 @@ void setup()
 	// init sensors
 	manager.getSensorManager().setSeatCount(2);
 	manager.getSensorManager().setSensorCount(2);
+	capSense.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
+	digital.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digital);
 	
 	// init tech sensors and params
+	vcc.begin();
 	manager.getTechnicalManager().setVccSensor(&vcc);
+	bat.begin();
 	manager.getTechnicalManager().setCarBatteryVoltageSensor(&bat);
+	ram.begin();
 	manager.getTechnicalManager().setFreeRAMSensor(&ram);
 	
 	// init comms
