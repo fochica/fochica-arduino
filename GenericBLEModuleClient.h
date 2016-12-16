@@ -20,7 +20,8 @@
 class GenericBLEModuleClient : public IClientDevice
 {
 public:
-	GenericBLEModuleClient(int rxPin, int txPin, int statePin);
+	GenericBLEModuleClient(SoftwareSerial & serial, int statePin);
+	GenericBLEModuleClient(HardwareSerial & serial, int statePin);
 
 	// sending packets
 	bool sendTime(const PacketTime& packet);
@@ -32,13 +33,16 @@ public:
 	// receiving logic
 	void work();
 	bool isCanReceivePackets();
+	bool isListenLimited(); // does this device belong to a class where only one can listen at a time?
+	void listen();
 
 	// state
 	void begin();
 	bool isConnected();
 
 private:
-	SoftwareSerial mBLE;
+	Stream & mBLE;
+	bool mIsSoftwareSerial;
 	int mStatePin;
 	bool mConnected; // last known connection state. true for connected.
 	unsigned long mLastSendTime;

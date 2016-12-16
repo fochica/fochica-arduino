@@ -25,6 +25,7 @@ public:
 	void setDeviceCount(clientCount_t deviceCount); // will reset the list
 	clientCount_t getDeviceCount() { return mDeviceCount; }
 	bool addDevice(IClientDevice * device);
+	void reassignListenRight();
 
 	// IClientDevice implementation
 	void begin() {};

@@ -23,7 +23,9 @@ public:
 	virtual void setReceiverCallback(IServer * callback);
 	virtual void work() = 0;
 	// capabilities
-	virtual bool isCanReceivePackets();
+	virtual bool isCanReceivePackets(); // is in a mode right now in which adapter can receive data from client
+	virtual bool isListenLimited(); // does this device belong to a class where only one can listen at a time?
+	virtual void listen();
 
 protected:
 	IServer * mServerCallback; // pointer to a callback interface for incoming data

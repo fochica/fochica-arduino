@@ -53,8 +53,10 @@ SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
 //SensorDigital digital("Test", BLE_STATE_PIN); // just a test, reuse existing pin
 SensorDigital digital("Reed", REED_SWITCH_PIN, INPUT_PULLUP); // just a test, reuse existing pin
 // communication devices
-GenericBLEModuleClient ble(BLE_RX_PIN, BLE_TX_PIN, BLE_STATE_PIN);
-GenericBLEModuleClient ble2(BLE2_RX_PIN, BLE2_TX_PIN, BLE2_STATE_PIN);
+SoftwareSerial bleSerial1(BLE_RX_PIN, BLE_TX_PIN);
+GenericBLEModuleClient ble1(bleSerial1, BLE_STATE_PIN);
+SoftwareSerial bleSerial2(BLE2_RX_PIN, BLE2_TX_PIN);
+GenericBLEModuleClient ble2(bleSerial2, BLE2_STATE_PIN);
 // misc
 RTCImpl_DS1307 rtc;
 Manager& manager = Manager::getInstance();
@@ -92,8 +94,8 @@ void setup()
 	
 	// init comms
 	manager.getClientManager().setDeviceCount(2);
-	ble.begin();
-	manager.getClientManager().addDevice(&ble);
+	ble1.begin();
+	manager.getClientManager().addDevice(&ble1);
 	ble2.begin();
 	manager.getClientManager().addDevice(&ble2);
 	manager.getClientManager().setReceiverCallback(&manager);
@@ -118,7 +120,7 @@ void loop()
 	DebugStream->println(vcc.getValueFloat());
 	DebugStream->println(bat.getValueFloat());
 	DebugStream->println(capSense.getValueInt());
-	DebugStream->println(ble.isConnected());
+	DebugStream->println(ble1.isConnected());
 	DebugStream->println(digital.getValueInt());
 
 	// work

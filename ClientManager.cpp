@@ -55,6 +55,16 @@ bool ClientManager::addDevice(IClientDevice * device)
 	return true;
 }
 
+void ClientManager::reassignListenRight()
+{
+	for (clientCount_t i = 0; i < mDeviceAddedCount; i++) {
+		if (mDevices[i]->isListenLimited() && mDevices[i]->isConnected()) { // find a device that is listen-limited and connected
+			mDevices[i]->listen(); // make it the one that listens
+			break;
+		}
+	}
+}
+
 void ClientManager::setReceiverCallback(IServer * callback)
 {
 	mServerCallback = callback;

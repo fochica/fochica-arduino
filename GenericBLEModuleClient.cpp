@@ -5,11 +5,20 @@
 #include "GenericBLEModuleClient.h"
 #include "DebugStream.h"
 
-GenericBLEModuleClient::GenericBLEModuleClient(int rxPin, int txPin, int statePin) : mBLE(rxPin, txPin)
+GenericBLEModuleClient::GenericBLEModuleClient(SoftwareSerial & serial, int statePin) : mBLE(serial)
 {
 	mStatePin = statePin;
 	mConnected = false;
 	mLastSendTime = 0;
+	mIsSoftwareSerial = true;
+}
+
+GenericBLEModuleClient::GenericBLEModuleClient(HardwareSerial & serial, int statePin) : mBLE(serial)
+{
+	mStatePin = statePin;
+	mConnected = false;
+	mLastSendTime = 0;
+	mIsSoftwareSerial = false;
 }
 
 void GenericBLEModuleClient::begin()
@@ -17,7 +26,14 @@ void GenericBLEModuleClient::begin()
 	// commands like pinMode should go in setup and not at a point where global constructors are called
 	// http://forum.arduino.cc/index.php?topic=212844.0
 	pinMode(mStatePin, INPUT);
-	mBLE.begin(BAUD_RATE);
+	if (mIsSoftwareSerial) {
+		SoftwareSerial & ss((SoftwareSerial &)mBLE);
+		ss.begin(BAUD_RATE);
+	}
+	else {
+		HardwareSerial & hs((HardwareSerial &)mBLE);
+		hs.begin(BAUD_RATE);
+	}
 	mBLE.setTimeout(PACKET_RECEIVE_TIMEOUT);
 }
 
@@ -115,7 +131,24 @@ void GenericBLEModuleClient::work()
 
 bool GenericBLEModuleClient::isCanReceivePackets()
 {
-	return mBLE.isListening();
+	if (mIsSoftwareSerial) {
+		SoftwareSerial & ss((SoftwareSerial &)mBLE);
+		return ss.isListening();
+	}
+	return true; // hardware serial is always ready to receive
+}
+
+bool GenericBLEModuleClient::isListenLimited()
+{
+	return mIsSoftwareSerial;
+}
+
+void GenericBLEModuleClient::listen()
+{
+	if (mIsSoftwareSerial) {
+		SoftwareSerial & ss((SoftwareSerial &)mBLE);
+		ss.listen();
+	}
 }
 
 bool GenericBLEModuleClient::processIncomingIfAvailable()
@@ -123,8 +156,11 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 	if (DebugStream) {
 		DebugStream->print(F("processIncomingIfAvailable, pin: "));
 		DebugStream->print(mStatePin);
-		DebugStream->print(F(", listening: "));
-		DebugStream->print(mBLE.isListening());
+		if (mIsSoftwareSerial) {
+			SoftwareSerial & ss((SoftwareSerial &)mBLE);
+			DebugStream->print(F(", listening: "));
+			DebugStream->print(ss.isListening());
+		}
 		DebugStream->print(F(", available: "));
 		DebugStream->println(mBLE.available());
 	}

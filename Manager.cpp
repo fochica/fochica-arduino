@@ -34,11 +34,17 @@ void Manager::onClientConnectionChange(bool isConnected)
 {
 	// beep
 	SoundManager::getInstance().playBeep(isConnected ? BeepType::ClientConnected : BeepType::ClientDisconnected);
-	// some data should be sent on connect
+
+	// some adapters belong to a class that shares listen rights
+	mClientManager.reassignListenRight(); // reassign right , so that one that is connected is listenning. do this before sending logical data.
+
+	// some data should be sent on connect/disconnect
+	// it is ok to send through the clientManager. system should be robust if some packets are resent even if not needed
+
+	// send logical data, this includes the number of connected adapters, so we need to resend on both the connect and disconnect
+	sendLogicalData();
+
 	if (isConnected) {
-		// it is ok to send through the clientManager. system should be robust if some packets are resent even if not needed
-		// send logical data
-		sendLogicalData();
 		// send calibration params
 		sendCalibrationParams();
 	}
