@@ -26,7 +26,7 @@ public:
 	virtual bool isCanReceivePackets();
 
 protected:
-	IServer * mServerCallback;
+	IServer * mServerCallback; // pointer to a callback interface for incoming data
 };
 
 #endif

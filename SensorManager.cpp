@@ -6,20 +6,40 @@
 #include "DebugStream.h"
 #include "SoundManager.h"
 
-SensorManager::SensorManager(IClient & client) : mClient(client)
+SensorManager::SensorManager(IClientDevice & client) : mClient(client)
 {
 	mSeatCount = mSensorCount = mSensorAddedCount = 0;
 	mSensors = NULL;
+	mSeats = NULL;
 }
 
 SensorManager::~SensorManager()
 {
 	releaseSensorMembers();
+	releaseSeatMembers();
+}
+
+void SensorManager::releaseSensorMembers()
+{
+	if (mSensors) {
+		for (int i = 0; i < mSensorAddedCount; i++)
+			delete mSensors[i].sensor; // delete the CalibratedSensor instance that we allocated
+		delete[] mSensors;
+	}
+}
+
+void SensorManager::releaseSeatMembers()
+{
+	if (mSeats) {
+		delete[] mSeats;
+	}
 }
 
 void SensorManager::setSeatCount(seatCount_t seatCount)
 {
+	releaseSeatMembers();
 	mSeatCount = seatCount;
+	mSeats = new SeatData[seatCount]();
 	// consider validation of existing data... for example that we are not left with sensors whose seatIds are above seatCount
 }
 
@@ -87,6 +107,7 @@ void SensorManager::work()
 				// read sensor values (raw and the state)
 				sensorVal_t sensorRawValue;
 				CalibratedSensorState::e sensorState = sensor.sensor->getValue(&sensorRawValue);
+				SensorState::e state=calibratedSensorStateToSeatSensorState(sensorState);
 				// send individual sensor values
 				PacketSensorData packet;
 				packet.seatId = seatId;
@@ -94,7 +115,7 @@ void SensorManager::work()
 				packet.location = sensor.location;
 				packet.type = sensor.sensorRaw->getType();
 				packet.value = sensorRawValue;
-				packet.state = calibratedSensorStateToSeatSensorState(sensorState);
+				packet.state = state;
 				mClient.sendSensorData(packet);
 
 				// aggregate
@@ -103,13 +124,46 @@ void SensorManager::work()
 					aggregatedValue = packet.state;
 				else {
 					if (aggregatedValue != packet.state) // sensor disagreement
-						aggregatedValue = 10; // TODO, change
+						aggregatedValue = SensorState::SensorConflict; // mark as conflict
 					// else, sensor agreement, keep aggregatedValue as-is
 				}
+
+				// respond to state change
+				if (sensor.lastState != state && sensor.lastState!= SensorState::None) {
+					if (SOUND_ON_SENSOR_STATE_CHANGE) {
+						SoundManager::getInstance().playBeep(BeepType::SensorStateChange);
+					}
+				}
+				sensor.lastState = state; // save
 			}
 		}
+
+		// decide on state
 		if (aggregatedValue == -1) // if no sensors
-			aggregatedValue = 11; //TODO, change
+			aggregatedValue = SensorState::None;
+		else {
+			if (aggregatedValue == SensorState::SensorConflict) {
+				unsigned long timeFromLastAgreement = millis() - mSeats[seatId].lastSensorAgreementTime;
+				if (timeFromLastAgreement < SENSOR_STABILIZE_TIME)
+					aggregatedValue = SensorState::Stabilizing;
+			}
+			else { // all sensor in agreement about some value
+				mSeats[seatId].lastSensorAgreementTime = millis();
+			}
+		}
+		SensorState::e seatState=(SensorState::e)aggregatedValue;
+
+		if (mSeats[seatId].lastState != seatState && mSeats[seatId].lastState!= SensorState::None) { // if change in state
+			if (mClient.isConnected()) { // have connections to client
+				if (SOUND_ON_SEAT_STATE_CHANGE) {
+					SoundManager::getInstance().playBeep(BeepType::SeatStateChange);
+				}
+			}
+			else { // no connection to client, alert
+				SoundManager::getInstance().playBeep(BeepType::SeatStateChangeNoClient);
+			}
+		}
+		mSeats[seatId].lastState = seatState; // save state for change detection next time
 		
 		// generate aggregated sensor (per seat) and send it
 		PacketSensorData packet;
@@ -120,15 +174,6 @@ void SensorManager::work()
 		packet.value = aggregatedValue;
 		packet.state = aggregatedValue;
 		mClient.sendSensorData(packet);
-	}
-}
-
-void SensorManager::releaseSensorMembers()
-{
-	if (mSensors) {
-		for (int i = 0; i < mSensorAddedCount; i++)
-			delete mSensors[i].sensor; // delete the CalibratedSensor instance that we allocated
-		delete[] mSensors;
 	}
 }
 

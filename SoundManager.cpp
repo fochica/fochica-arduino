@@ -31,6 +31,7 @@ void SoundManager::playBeep(BeepType::e beepType)
 	case BeepType::ClientDisconnected:
 		playTone(mPassiveBuzzerPin, 1400, 330, 30);
 		break;
+	case BeepType::SeatStateChangeNoClient:
 	case BeepType::Error: // generic error, preferably use specific beep
 		playTone(mPassiveBuzzerPin, 950, 330, 30);
 		playTone(mPassiveBuzzerPin, 1400, 330, 30);
@@ -44,6 +45,14 @@ void SoundManager::playBeep(BeepType::e beepType)
 		break;
 	case BeepType::SeatCalibrationEnd:
 		playTone(mPassiveBuzzerPin, 3000, 330, 30);
+		break;
+	case BeepType::SensorStateChange:
+		playTone(mPassiveBuzzerPin, 2000, 50, 0);
+		playTone(mPassiveBuzzerPin, 3000, 50, 0);
+		break;
+	case BeepType::SeatStateChange:
+		playTone(mPassiveBuzzerPin, 3000, 50, 0);
+		playTone(mPassiveBuzzerPin, 4000, 50, 0);
 		break;
 	default:
 		playTone(mPassiveBuzzerPin, 1800, 500, 30);

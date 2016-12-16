@@ -11,23 +11,26 @@
 
 #include "IClientDevice.h"
 
-typedef uint8_t deviceCount_t;
+typedef uint8_t clientCount_t;
 
 // A class representing a facade to all the clients and client devices we have available
-class ClientManager : public IClient
+class ClientManager : public IClientDevice
 {
 public:
 	ClientManager();
-	ClientManager(deviceCount_t deviceCount); // pass the number of devices we can have connected
+	ClientManager(clientCount_t deviceCount); // pass the number of devices we can have connected
 	~ClientManager();
 
-	deviceCount_t getConnectedCount();
-	void setDeviceCount(deviceCount_t deviceCount); // will reset the list
-	deviceCount_t getDeviceCount() { return mDeviceCount; }
+	clientCount_t getConnectedCount();
+	void setDeviceCount(clientCount_t deviceCount); // will reset the list
+	clientCount_t getDeviceCount() { return mDeviceCount; }
 	bool addDevice(IClientDevice * device);
-	void setReceiverCallback(IServer * callback);
 
+	// IClientDevice implementation
+	void begin() {};
+	bool isConnected() { return getConnectedCount() > 0; };
 	void work();
+	void setReceiverCallback(IServer * callback);
 
 	// IClient implementation
 	bool sendTime(const PacketTime& packet);
@@ -40,9 +43,8 @@ public:
 private:
 	IClientDevice ** mDevices; // pointer to an array of pointers of devices
 	bool *mDeviceConnState; //  pointer to aray of connection states (prev known state)
-	deviceCount_t mDeviceCount;
-	deviceCount_t mDeviceAddedCount;
-	IServer * mCallback; // pointer to a callback interface for incoming data
+	clientCount_t mDeviceCount;
+	clientCount_t mDeviceAddedCount;
 };
 
 #endif

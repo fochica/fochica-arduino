@@ -10,10 +10,10 @@ ClientManager::ClientManager()
 	mDeviceCount = 0;
 	mDevices = NULL;
 	mDeviceAddedCount = 0;
-	mCallback = NULL;
+	mServerCallback = NULL;
 }
 
-ClientManager::ClientManager(deviceCount_t deviceCount) : ClientManager()
+ClientManager::ClientManager(clientCount_t deviceCount) : ClientManager()
 {
 	setDeviceCount(deviceCount);
 }
@@ -24,7 +24,7 @@ ClientManager::~ClientManager()
 		delete[] mDevices;
 }
 
-void ClientManager::setDeviceCount(deviceCount_t deviceCount)
+void ClientManager::setDeviceCount(clientCount_t deviceCount)
 {
 	// release prev data, if exists
 	if (mDevices)
@@ -35,10 +35,10 @@ void ClientManager::setDeviceCount(deviceCount_t deviceCount)
 	mDeviceAddedCount = 0;
 }
 
-deviceCount_t ClientManager::getConnectedCount()
+clientCount_t ClientManager::getConnectedCount()
 {
-	deviceCount_t count = 0;
-	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++)
+	clientCount_t count = 0;
+	for (clientCount_t i = 0; i < mDeviceAddedCount; i++)
 		if (mDevices[i]->isConnected())
 			count++;
 	return count;
@@ -51,21 +51,21 @@ bool ClientManager::addDevice(IClientDevice * device)
 		return false;
 	}
 	mDevices[mDeviceAddedCount++] = device;
-	device->setReceiverCallback(mCallback); // note, we don't clear callback from devices on destruction, assume we initialize only once
+	device->setReceiverCallback(mServerCallback); // note, we don't clear callback from devices on destruction, assume we initialize only once
 	return true;
 }
 
 void ClientManager::setReceiverCallback(IServer * callback)
 {
-	mCallback = callback;
+	mServerCallback = callback;
 	// apply to all already added devices
-	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++)
+	for (clientCount_t i = 0; i < mDeviceAddedCount; i++)
 		mDevices[i]->setReceiverCallback(callback);
 }
 
 void ClientManager::work()
 {
-	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++) {
+	for (clientCount_t i = 0; i < mDeviceAddedCount; i++) {
 		mDevices[i]->work();
 	}
 }
@@ -74,7 +74,7 @@ void ClientManager::work()
 bool ClientManager::sendTime(const PacketTime & packet)
 {
 	bool ret = true;
-	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++) {
+	for (clientCount_t i = 0; i < mDeviceAddedCount; i++) {
 		if (mDevices[i]->isConnected()) // only send data if connected, otherwise we will send commands (in command mode). Should this logic be here or in the device implementation?
 			ret &= mDevices[i]->sendTime(packet);
 	}
@@ -84,7 +84,7 @@ bool ClientManager::sendTime(const PacketTime & packet)
 bool ClientManager::sendTechnicalData(const PacketTechnicalData & packet)
 {
 	bool ret = true;
-	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++) {
+	for (clientCount_t i = 0; i < mDeviceAddedCount; i++) {
 		if (mDevices[i]->isConnected())
 			ret &= mDevices[i]->sendTechnicalData(packet);
 	}
@@ -94,7 +94,7 @@ bool ClientManager::sendTechnicalData(const PacketTechnicalData & packet)
 bool ClientManager::sendSensorData(const PacketSensorData & packet)
 {
 	bool ret = true;
-	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++) {
+	for (clientCount_t i = 0; i < mDeviceAddedCount; i++) {
 		if (mDevices[i]->isConnected())
 			ret &= mDevices[i]->sendSensorData(packet);
 	}
@@ -104,7 +104,7 @@ bool ClientManager::sendSensorData(const PacketSensorData & packet)
 bool ClientManager::sendLogicalData(const PacketLogicalData & packet)
 {
 	bool ret = true;
-	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++) {
+	for (clientCount_t i = 0; i < mDeviceAddedCount; i++) {
 		if (mDevices[i]->isConnected()) {
 			// we need to add device specific capabilities to this packet type, so make a copy of the const
 			PacketLogicalData specificPacket(packet);
@@ -125,7 +125,7 @@ bool ClientManager::sendLogicalData(const PacketLogicalData & packet)
 bool ClientManager::sendCalibrationParams(const PacketCalibrationParams & packet)
 {
 	bool ret = true;
-	for (deviceCount_t i = 0; i < mDeviceAddedCount; i++) {
+	for (clientCount_t i = 0; i < mDeviceAddedCount; i++) {
 		if (mDevices[i]->isConnected())
 			ret &= mDevices[i]->sendCalibrationParams(packet);
 	}
