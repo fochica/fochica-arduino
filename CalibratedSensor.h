@@ -17,6 +17,14 @@ struct CalibratedSensorState {
 	};
 };
 
+struct CalibrationParams {
+	// cleanup params
+	int expMovingAverageAlpha; // "Exponentially Weighted Moving Average" alpha param. in milli units. value of 1000 means: use just the new value.
+	// thresholding params
+	bool stateAIsHigh;
+	sensorVal_t schmittThresholdHigh, schmittThresholdLow;
+};
+
 // A wrapper over a raw sensor input that implements cleanup and thresholding
 // including automated process to derrive parameters for cleanup and thresholding
 // Thresholding is between two states, A and B. S/B can be Occupied/empty but can also be other meanings, so we can use this for technical sensors too and not only for seat sensors.
@@ -35,24 +43,25 @@ public:
 	bool isCalibrated();
 	void resetCalibrationData();
 
-	long getExpMovingAverageAlpha() {
-		return mExpMovingAverageAlpha;
+	int getExpMovingAverageAlpha() {
+		return mCP.expMovingAverageAlpha;
 	}
 	bool getStateAIsHigh() {
-		return mStateAIsHigh;
+		return mCP.stateAIsHigh;
 	}
 	sensorVal_t getSchmittThresholdHigh() {
-		return mSchmittThresholdHigh;
+		return mCP.schmittThresholdHigh;
 	}
 	sensorVal_t getSchmittThresholdLow() {
-		return mSchmittThresholdLow;
+		return mCP.schmittThresholdLow;
 	}
 
 	// persistence
-	// TODO
+	void setCalibrationParams(CalibrationParams cp);
+	const CalibrationParams & getCalibrationParams();
 
 	// consts
-	static const long MAX_EXP_ALPHA = 1000L;
+	static const int MAX_EXP_ALPHA = 1000;
 
 private:
 	ISensor * mRaw;
@@ -62,11 +71,8 @@ private:
 	sensorVal_t mLastRawValue;
 
 	// calibration result
-	// cleanup params
-	long mExpMovingAverageAlpha; // "Exponentially Weighted Moving Average" alpha param. in milli units. value of 1000 means: use just the new value. use long for not loosing accuracy at high values.
-	// thresholding params
-	bool mStateAIsHigh;
-	sensorVal_t mSchmittThresholdHigh, mSchmittThresholdLow;
+	CalibrationParams mCP;
+	bool mIsCalibrated;
 
 	// calibration process data
 	// min, max, avg for each state.

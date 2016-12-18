@@ -5,6 +5,7 @@
 #include "SensorManager.h"
 #include "DebugStream.h"
 #include "SoundManager.h"
+#include "PersistentSettings.h"
 
 SensorManager::SensorManager(IClientDevice & client) : mClient(client)
 {
@@ -61,6 +62,13 @@ bool SensorManager::addSensor(seatCount_t seatId, SensorLocation::e location, IS
 	mSensors[mSensorAddedCount].seatId = seatId;
 	mSensors[mSensorAddedCount].location = location;
 	mSensors[mSensorAddedCount].sensor = new CalibratedSensor(sensor);
+	// read calibration params
+	CalibrationParams cp;
+	bool loaded=PersistentSettings::getInstance().readSeatSensorCalibrationParams(mSensorAddedCount, seatId, sensor->getType(), location, cp);
+	if (loaded) {
+		mSensors[mSensorAddedCount].sensor->setCalibrationParams(cp);
+	}
+
 	mSensorAddedCount++;
 	return true;
 }
@@ -76,6 +84,9 @@ void SensorManager::calibrate(seatCount_t seatId, SensorState::e state)
 			sensor.sensor->calibrate(seatSensorStateToCalibratedSensorState(state));
 			// issue calibration params packet to client
 			if (sensor.sensor->isCalibrated()) {
+				// save calibration params
+				PersistentSettings::getInstance().writeSeatSensorCalibrationParams(sensorId, seatId, sensor.sensorRaw->getType(), sensor.location, sensor.sensor->getCalibrationParams());
+				// annouce
 				sendCalibrationParams(sensorId);
 			}
 		}
@@ -119,7 +130,6 @@ void SensorManager::work()
 				mClient.sendSensorData(packet);
 
 				// aggregate
-				// TODO, add disagreement states
 				if (aggregatedValue == -1) // first sensor
 					aggregatedValue = packet.state;
 				else {

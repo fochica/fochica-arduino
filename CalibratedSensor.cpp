@@ -12,13 +12,12 @@ CalibratedSensor::CalibratedSensor(ISensor * raw, int expAlpha, sensorVal_t thLo
 	mLastRawValue = INITIAL_RAW_VALUE;
 
 	// these come from calibration
-	mExpMovingAverageAlpha = expAlpha;
-	mStateAIsHigh = false;
-	mSchmittThresholdHigh = thHigh;
-	mSchmittThresholdLow = thLow;
+	mCP.expMovingAverageAlpha = expAlpha;
+	mCP.stateAIsHigh = false;
+	mCP.schmittThresholdHigh = thHigh;
+	mCP.schmittThresholdLow = thLow;
 
 	resetCalibrationData();
-	// TODO, load previous persistent state
 }
 
 CalibratedSensorState::e CalibratedSensor::getValue(sensorVal_t * raw, sensorVal_t * debugFiltered)
@@ -27,16 +26,17 @@ CalibratedSensorState::e CalibratedSensor::getValue(sensorVal_t * raw, sensorVal
 	sensorVal_t val = mRaw->getValueInt();
 	if (raw)
 		*raw = val;
-	val=mExpMovingAverageAlpha*val / MAX_EXP_ALPHA + (MAX_EXP_ALPHA - mExpMovingAverageAlpha)*mLastRawValue / MAX_EXP_ALPHA;
+	long alpha = mCP.expMovingAverageAlpha; // use long to prevent overflow of alpha*val
+	val=alpha*val / MAX_EXP_ALPHA + (MAX_EXP_ALPHA - alpha)*mLastRawValue / MAX_EXP_ALPHA;
 	if (debugFiltered)
 		*debugFiltered = val;
 	mLastRawValue = val;
 
 	// change state if threshold is passed
-	if (val >= mSchmittThresholdHigh)
-		mCurState = mStateAIsHigh ? CalibratedSensorState::A : CalibratedSensorState::B;
-	else if (val <= mSchmittThresholdLow)
-		mCurState = mStateAIsHigh ? CalibratedSensorState::B : CalibratedSensorState::A;
+	if (val >= mCP.schmittThresholdHigh)
+		mCurState = mCP.stateAIsHigh ? CalibratedSensorState::A : CalibratedSensorState::B;
+	else if (val <= mCP.schmittThresholdLow)
+		mCurState = mCP.stateAIsHigh ? CalibratedSensorState::B : CalibratedSensorState::A;
 
 	return mCurState;
 }
@@ -63,9 +63,9 @@ void CalibratedSensor::calibrate(CalibratedSensorState::e state)
 	if (!mStateDataCollected[CalibratedSensorState::A] || !mStateDataCollected[CalibratedSensorState::B]) // exit if mid data collection process
 		return;
 
-	mStateAIsHigh = mStateAvg[CalibratedSensorState::A] > mStateAvg[CalibratedSensorState::B];
-	CalibratedSensorState::e high = mStateAIsHigh ? CalibratedSensorState::A : CalibratedSensorState::B;
-	CalibratedSensorState::e low = mStateAIsHigh ? CalibratedSensorState::B : CalibratedSensorState::A;
+	mCP.stateAIsHigh = mStateAvg[CalibratedSensorState::A] > mStateAvg[CalibratedSensorState::B];
+	CalibratedSensorState::e high = mCP.stateAIsHigh ? CalibratedSensorState::A : CalibratedSensorState::B;
+	CalibratedSensorState::e low = mCP.stateAIsHigh ? CalibratedSensorState::B : CalibratedSensorState::A;
 
 	// check dynamic range and warn if needed
 	sensorVal_t range = max(mStateMax[low], mStateMax[high]) - min(mStateMin[low], mStateMin[high]);
@@ -76,9 +76,9 @@ void CalibratedSensor::calibrate(CalibratedSensorState::e state)
 	if (mStateMin[high] > mStateMax[low]) { // no intersection
 		sensorVal_t gap = mStateMin[high] - mStateMax[low];
 		sensorVal_t offset = gap*NO_INTERSECTION_THRESHOLD_PERCENTILE / 100;
-		mSchmittThresholdHigh = mStateMin[high] - offset;
-		mSchmittThresholdLow = mStateMax[low] + offset;
-		mExpMovingAverageAlpha = MAX_EXP_ALPHA; // don't smooth, we don't need to. just use the raw value
+		mCP.schmittThresholdHigh = mStateMin[high] - offset;
+		mCP.schmittThresholdLow = mStateMax[low] + offset;
+		mCP.expMovingAverageAlpha = MAX_EXP_ALPHA; // don't smooth, we don't need to. just use the raw value
 	} else {
 		if (DebugStream) DebugStream->println(F("States intersect. This is not recommended. Please see if this can be improved or try to calibrate again or manually."));
 		if((mStateMin[high]<mStateMin[low] && mStateMax[high]>mStateMax[low]) || (mStateMin[high]>mStateMin[low] && mStateMax[high]<mStateMax[low])) // if low contained in high or high contained in low
@@ -88,10 +88,12 @@ void CalibratedSensor::calibrate(CalibratedSensorState::e state)
 		sensorVal_t highSpan = mStateAvg[high] - mStateMin[high];
 		// derrive filtering parameter to make samples more stable and cause the states to intersect less
 		float scaleFactor = (float)meanDist/(lowSpan + highSpan); // how much more narrow we want our signal to spread
-		mExpMovingAverageAlpha = scaleFactor*scaleFactor*MAX_EXP_ALPHA; // alpha=(spread_scale)^2 , not based on mathematical proof, might need tweaking
-		mSchmittThresholdHigh = mStateAvg[high] - (highSpan*scaleFactor*INTERSECTION_THRESHOLD_PERCENTILE/100);
-		mSchmittThresholdLow = mStateAvg[low] + (lowSpan*scaleFactor*INTERSECTION_THRESHOLD_PERCENTILE/100);
+		mCP.expMovingAverageAlpha = scaleFactor*scaleFactor*MAX_EXP_ALPHA; // alpha=(spread_scale)^2 , not based on mathematical proof, might need tweaking
+		mCP.schmittThresholdHigh = mStateAvg[high] - (highSpan*scaleFactor*INTERSECTION_THRESHOLD_PERCENTILE/100);
+		mCP.schmittThresholdLow = mStateAvg[low] + (lowSpan*scaleFactor*INTERSECTION_THRESHOLD_PERCENTILE/100);
 	}
+
+	mIsCalibrated = true; // success!
 }
 
 void CalibratedSensor::debugCalibrationState()
@@ -114,24 +116,38 @@ void CalibratedSensor::debugCalibrationState()
 	}
 
 	// calibration params
-	DebugStream->print(mStateAIsHigh);
+	DebugStream->print(mCP.stateAIsHigh);
 	DebugStream->print('\t');
-	DebugStream->print(mSchmittThresholdLow);
+	DebugStream->print(mCP.schmittThresholdLow);
 	DebugStream->print('\t');
-	DebugStream->print(mSchmittThresholdHigh);
+	DebugStream->print(mCP.schmittThresholdHigh);
 	DebugStream->print('\t');
-	DebugStream->print(mExpMovingAverageAlpha);
+	DebugStream->print(mCP.expMovingAverageAlpha);
 	DebugStream->println();
 }
 
 bool CalibratedSensor::isCalibrated()
 {
-	return mStateDataCollected[CalibratedSensorState::A] && mStateDataCollected[CalibratedSensorState::B];
+	//return mStateDataCollected[CalibratedSensorState::A] && mStateDataCollected[CalibratedSensorState::B];
+	// also support when data is loaded from persistent config
+	return mIsCalibrated;
 }
 
 void CalibratedSensor::resetCalibrationData()
 {
+	mIsCalibrated = false;
 	for (int s = 0; s < CalibratedSensorState::Count; s++) {
 		mStateDataCollected[s] = false;
 	}
+}
+
+void CalibratedSensor::setCalibrationParams(CalibrationParams cp)
+{
+	mCP = cp;
+	mIsCalibrated = true;
+}
+
+const CalibrationParams & CalibratedSensor::getCalibrationParams()
+{
+	return mCP;
 }

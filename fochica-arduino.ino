@@ -16,6 +16,7 @@
 // Includes of libraries for the sake of visual micro and IntelliSense
 #include <SoftwareSerial.h>
 #include <RTClib.h>
+#include <EEPROM.h>
 
 // settings
 const long SERIAL_BAUD = 115200;
