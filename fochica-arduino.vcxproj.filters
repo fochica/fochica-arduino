@@ -120,6 +120,21 @@
     <ClInclude Include="PersistentSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IPersistentLog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PersistentLogImpl_SD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PersistentLog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PersistentLogImpl_Serial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RTCImpl_Sync.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -213,6 +228,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PersistentSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IPersistentLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PersistentLogImpl_SD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PersistentLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PersistentLogImpl_Serial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RTCImpl_Sync.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

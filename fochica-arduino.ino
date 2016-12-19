@@ -1,8 +1,12 @@
 // our classes, added here automatically on "add code" wizard
 // keep only what we need for the main file
 
+#include "PersistentLog.h"
+#include "PersistentLogImpl_Serial.h"
+#include "PersistentLogImpl_SD.h"
 #include "CalibratedSensorTester.h"
 #include "SoundManager.h"
+#include "RTCImpl_Sync.h"
 #include "RTCImpl_DS1307.h"
 #include "GenericBLEModuleClient.h"
 #include "SensorDigital.h"
@@ -17,6 +21,7 @@
 #include <SoftwareSerial.h>
 #include <RTClib.h>
 #include <EEPROM.h>
+#include <SD.h>
 
 // settings
 const long SERIAL_BAUD = 115200;
@@ -44,6 +49,8 @@ const int BLE2_RX_PIN = 2; // yellow
 const int BLE2_TX_PIN = 3; // orange
 const int BLE2_STATE_PIN = 5; // gray
 
+const int SD_CS_PIN = 10;
+
 // objects
 // technical sensors
 SensorFreeRAM ram("SRAM");
@@ -52,25 +59,38 @@ SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_
 // occupancy (business logic) sensors
 SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
 //SensorDigital digital("Test", BLE_STATE_PIN); // just a test, reuse existing pin
-SensorDigital digital("Reed", REED_SWITCH_PIN, INPUT_PULLUP); // just a test, reuse existing pin
+SensorDigital digital("Reed", REED_SWITCH_PIN, INPUT_PULLUP);
 // communication devices
 SoftwareSerial bleSerial1(BLE_RX_PIN, BLE_TX_PIN);
 GenericBLEModuleClient ble1(bleSerial1, BLE_STATE_PIN);
 SoftwareSerial bleSerial2(BLE2_RX_PIN, BLE2_TX_PIN);
 GenericBLEModuleClient ble2(bleSerial2, BLE2_STATE_PIN);
 // misc
-RTCImpl_DS1307 rtc;
+RTCImpl_Sync rtc;
+//RTCImpl_DS1307 rtc;
+PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
+//PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memroy.
 Manager& manager = Manager::getInstance();
 
 void setup()
 {
 	// init serial
 	Serial.begin(SERIAL_BAUD);
-	delay(10); // wait a little for dev env to connect before sending data
-	Serial.println("test");
-	delay(2000);
+	delay(10); // wait a little for dev env to connect before sending data	
+
+	// debug and log interfaces
 	DebugStream = &Serial;
 	DebugStream->println(F("Start"));
+	rtc.begin();
+	manager.setRTC(&rtc);
+	if (logger.begin()) // if init ok
+		PersistentLog = &logger;
+	else
+		PersistentLog = NULL;
+
+	// testing of low ram conditions
+	//char * memGrab = "Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. ";
+	//Serial.println(memGrab);
 
 	// testing
 	//CalibratedSensorTester test;
@@ -104,8 +124,6 @@ void setup()
 	// misc
 	DebugStream->println(F("Free RAM: "));
 	DebugStream->println(ram.getValueInt());
-	rtc.begin();
-	manager.setRTC(&rtc);
 
 	// init buzzer and make start sound
 	// TODO, change to a fun tune
@@ -116,13 +134,21 @@ void setup()
 void loop()
 {
 	// debug
-	DebugStream->println(F("Loop"));
-	DebugStream->println(ram.getValueInt());
-	DebugStream->println(vcc.getValueFloat());
-	DebugStream->println(bat.getValueFloat());
-	DebugStream->println(capSense.getValueInt());
-	DebugStream->println(ble1.isConnected());
-	DebugStream->println(digital.getValueInt());
+	if (DebugStream) {
+		DebugStream->println(F("Loop"));
+		DebugStream->println(ram.getValueInt());
+		DebugStream->println(vcc.getValueFloat());
+		DebugStream->println(bat.getValueFloat());
+		DebugStream->println(capSense.getValueInt());
+		DebugStream->println(ble1.isConnected());
+		DebugStream->println(digital.getValueInt());
+	}
+
+	if (PersistentLog) {
+		Print & f = PersistentLog->open();
+		f.println("Test log");
+		PersistentLog->close(f);
+	}
 
 	// work
 	manager.work();

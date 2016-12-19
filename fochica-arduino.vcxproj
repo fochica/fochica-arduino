@@ -74,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src\utility;C:\Program Files (x86)\Arduino\libraries\RTClib;C:\Program Files (x86)\Arduino\libraries\RTClib\utility;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SoftwareSerial\src;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SoftwareSerial\src\utility;C:\Program Files (x86)\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\b5tkztcb.w3g\Micro Platforms\default\debuggers;C:\Users\arik\Documents\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\standard;C:\Users\arik\Documents\Arduino\fochica-arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/avr/include/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2//avr/include/avr/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src\utility;C:\Program Files (x86)\Arduino\libraries\RTClib;C:\Program Files (x86)\Arduino\libraries\RTClib\utility;C:\Program Files (x86)\Arduino\libraries\SD\src;C:\Program Files (x86)\Arduino\libraries\SD\src\utility;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SoftwareSerial\src;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SoftwareSerial\src\utility;C:\Program Files (x86)\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\b5tkztcb.w3g\Micro Platforms\default\debuggers;C:\Users\arik\Documents\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\standard;C:\Users\arik\Documents\Arduino\fochica-arduino;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/avr/include/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2//avr/include/avr/;C:\Users\arik\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>C:\Users\arik\Documents\Arduino\fochica-arduino\__vm\.fochica-arduino.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;F_CPU=16000000L;ARDUINO=106013;ARDUINO_AVR_UNO;ARDUINO_ARCH_AVR;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -125,6 +125,7 @@
     <ClInclude Include="GenericBLEModuleClient.h" />
     <ClInclude Include="IClient.h" />
     <ClInclude Include="IClientDevice.h" />
+    <ClInclude Include="IPersistentLog.h" />
     <ClInclude Include="IRTC.h" />
     <ClInclude Include="ISensor.h" />
     <ClInclude Include="IServer.h" />
@@ -138,9 +139,13 @@
     <ClInclude Include="PacketTechnicalData.h" />
     <ClInclude Include="PacketTime.h" />
     <ClInclude Include="PacketType.h" />
+    <ClInclude Include="PersistentLog.h" />
+    <ClInclude Include="PersistentLogImpl_SD.h" />
+    <ClInclude Include="PersistentLogImpl_Serial.h" />
     <ClInclude Include="PersistentSettings.h" />
     <ClInclude Include="RNGUtils.h" />
     <ClInclude Include="RTCImpl_DS1307.h" />
+    <ClInclude Include="RTCImpl_Sync.h" />
     <ClInclude Include="SeatOperation.h" />
     <ClInclude Include="SensorDigital.h" />
     <ClInclude Include="SensorFreeRAM.h" />
@@ -161,6 +166,7 @@
     <ClCompile Include="GenericBLEModuleClient.cpp" />
     <ClCompile Include="IClient.cpp" />
     <ClCompile Include="IClientDevice.cpp" />
+    <ClCompile Include="IPersistentLog.cpp" />
     <ClCompile Include="IRTC.cpp" />
     <ClCompile Include="ISensor.cpp" />
     <ClCompile Include="IServer.cpp" />
@@ -172,9 +178,13 @@
     <ClCompile Include="PacketSensorData.cpp" />
     <ClCompile Include="PacketTechnicalData.cpp" />
     <ClCompile Include="PacketTime.cpp" />
+    <ClCompile Include="PersistentLog.cpp" />
+    <ClCompile Include="PersistentLogImpl_SD.cpp" />
+    <ClCompile Include="PersistentLogImpl_Serial.cpp" />
     <ClCompile Include="PersistentSettings.cpp" />
     <ClCompile Include="RNGUtils.cpp" />
     <ClCompile Include="RTCImpl_DS1307.cpp" />
+    <ClCompile Include="RTCImpl_Sync.cpp" />
     <ClCompile Include="SeatOperation.cpp" />
     <ClCompile Include="SensorDigital.cpp" />
     <ClCompile Include="SensorFreeRAM.cpp" />

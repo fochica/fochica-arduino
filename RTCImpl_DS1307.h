@@ -12,6 +12,9 @@
 #include <RTClib.h>
 #include "IRTC.h"
 
+// RTC implementation using a DS1307 RTC chip. Uses a battery.
+// Can keep time across restarts and when the board is off.
+// RTC is synced to time from the clients.
 class RTCImpl_DS1307 : public IRTC
 {
 public:

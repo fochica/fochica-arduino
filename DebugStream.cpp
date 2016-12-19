@@ -4,5 +4,5 @@
 
 #include "DebugStream.h"
 
-Stream * DebugStream;
+Stream * DebugStream=NULL;
 
