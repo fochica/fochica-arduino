@@ -134,13 +134,13 @@ void SensorManager::work()
 				mClient.sendSensorData(packet);
 
 				// aggregate
-				if (aggregatedState == -1) // first sensor
-					aggregatedState = packet.state;
+				if (aggregatedState == SensorState::None) // first sensor
+					aggregatedState = state;
 				else if (aggregatedState == SensorState::NotCalibrated) {
 					// don't care of current sensor state, keep aggregated as NotCalibrated if there is at least one NotCalibrated sensor on seat
 				}
 				else {
-					if (aggregatedState != packet.state) // sensor disagreement
+					if (aggregatedState != state) // sensor disagreement
 						aggregatedState = SensorState::SensorConflict; // mark as conflict
 					// else, sensor agreement, keep aggregatedState as-is
 				}
