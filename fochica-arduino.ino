@@ -58,8 +58,8 @@ SensorVcc vcc("Vcc");
 SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND, BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE);
 // occupancy (business logic) sensors
 SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
-//SensorDigital digital("Test", BLE_STATE_PIN); // just a test, reuse existing pin
-SensorDigital digital("Reed", REED_SWITCH_PIN, INPUT_PULLUP);
+//SensorDigital digitalTest("Test", BLE_STATE_PIN); // just a test, reuse existing pin
+SensorDigital digitalReed("Reed", REED_SWITCH_PIN, INPUT_PULLUP);
 // communication devices
 SoftwareSerial bleSerial1(BLE_RX_PIN, BLE_TX_PIN);
 GenericBLEModuleClient ble1(bleSerial1, BLE_STATE_PIN);
@@ -102,9 +102,11 @@ void setup()
 	manager.getSensorManager().setSensorCount(2);
 	capSense.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
-	digital.begin();
-	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digital);
-	
+	digitalReed.begin();
+	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalReed);
+	//digitalTest.begin();
+	//manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalTest);
+
 	// init tech sensors and params
 	vcc.begin();
 	manager.getTechnicalManager().setVccSensor(&vcc);
@@ -139,14 +141,14 @@ void loop()
 		DebugStream->println(ram.getValueInt());
 		DebugStream->println(vcc.getValueFloat());
 		DebugStream->println(bat.getValueFloat());
-		DebugStream->println(capSense.getValueInt());
 		DebugStream->println(ble1.isConnected());
-		DebugStream->println(digital.getValueInt());
+		//DebugStream->println(capSense.getValueInt());
+		//DebugStream->println(digitalReed.getValueInt());
 	}
 
 	if (PersistentLog) {
 		Print & f = PersistentLog->open();
-		f.println("Test log");
+		f.println(F("Test log"));
 		PersistentLog->close(f);
 	}
 
