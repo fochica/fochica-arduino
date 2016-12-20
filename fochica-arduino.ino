@@ -69,7 +69,7 @@ GenericBLEModuleClient ble2(bleSerial2, BLE2_STATE_PIN);
 RTCImpl_Sync rtc;
 //RTCImpl_DS1307 rtc;
 PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
-//PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memroy.
+//PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memory.
 Manager& manager = Manager::getInstance();
 
 void setup()
