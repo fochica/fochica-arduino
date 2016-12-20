@@ -21,9 +21,10 @@ struct SensorLocation {
 };
 struct SensorState { // relevant for seat sensors
 	enum e { 
-		None, // no sensors to form an opinion or initial state
+		None, // no sensors to form an opinion for aggregated sensor or initial state for a single sensor
 		Occupied,
 		Empty,
+		NotCalibrated,
 		// aggregated states
 		Stabilizing, // disagreement but still in time window to be resolved.
 		SensorConflict, // disagreement past time window

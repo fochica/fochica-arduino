@@ -110,7 +110,7 @@ void SensorManager::work()
 {
 	// for each seat
 	for (seatCount_t seatId = 0; seatId < mSeatCount; seatId++) {
-		int aggregatedValue = -1;
+		SensorState::e aggregatedState = SensorState::None;
 		// and sensor
 		for (sensorCount_t sensorId=0; sensorId < mSensorAddedCount; sensorId++) {
 			SensorData& sensor = mSensors[sensorId];
@@ -118,7 +118,11 @@ void SensorManager::work()
 				// read sensor values (raw and the state)
 				sensorVal_t sensorRawValue;
 				CalibratedSensorState::e sensorState = sensor.sensor->getValue(&sensorRawValue);
-				SensorState::e state=calibratedSensorStateToSeatSensorState(sensorState);
+				SensorState::e state;
+				if (sensor.sensor->isCalibrated())
+					state = calibratedSensorStateToSeatSensorState(sensorState);
+				else
+					state = SensorState::NotCalibrated;
 				// send individual sensor values
 				PacketSensorData packet;
 				packet.seatId = seatId;
@@ -130,12 +134,15 @@ void SensorManager::work()
 				mClient.sendSensorData(packet);
 
 				// aggregate
-				if (aggregatedValue == -1) // first sensor
-					aggregatedValue = packet.state;
+				if (aggregatedState == -1) // first sensor
+					aggregatedState = packet.state;
+				else if (aggregatedState == SensorState::NotCalibrated) {
+					// don't care of current sensor state, keep aggregated as NotCalibrated if there is at least one NotCalibrated sensor on seat
+				}
 				else {
-					if (aggregatedValue != packet.state) // sensor disagreement
-						aggregatedValue = SensorState::SensorConflict; // mark as conflict
-					// else, sensor agreement, keep aggregatedValue as-is
+					if (aggregatedState != packet.state) // sensor disagreement
+						aggregatedState = SensorState::SensorConflict; // mark as conflict
+					// else, sensor agreement, keep aggregatedState as-is
 				}
 
 				// respond to state change
@@ -149,21 +156,19 @@ void SensorManager::work()
 		}
 
 		// decide on state
-		if (aggregatedValue == -1) // if no sensors
-			aggregatedValue = SensorState::None;
-		else {
-			if (aggregatedValue == SensorState::SensorConflict) {
+		if (aggregatedState != SensorState::None) // if not "no sensors"
+		{
+			if (aggregatedState == SensorState::SensorConflict) {
 				unsigned long timeFromLastAgreement = millis() - mSeats[seatId].lastSensorAgreementTime;
 				if (timeFromLastAgreement < SENSOR_STABILIZE_TIME)
-					aggregatedValue = SensorState::Stabilizing;
+					aggregatedState = SensorState::Stabilizing;
 			}
 			else { // all sensor in agreement about some value
 				mSeats[seatId].lastSensorAgreementTime = millis();
 			}
 		}
-		SensorState::e seatState=(SensorState::e)aggregatedValue;
 
-		if (mSeats[seatId].lastState != seatState && mSeats[seatId].lastState!= SensorState::None) { // if change in state
+		if (mSeats[seatId].lastState != aggregatedState && mSeats[seatId].lastState!= SensorState::None) { // if change in state
 			if (mClient.isConnected()) { // have connections to client
 				if (SOUND_ON_SEAT_STATE_CHANGE) {
 					SoundManager::getInstance().playBeep(BeepType::SeatStateChange);
@@ -173,7 +178,7 @@ void SensorManager::work()
 				SoundManager::getInstance().playBeep(BeepType::SeatStateChangeNoClient);
 			}
 		}
-		mSeats[seatId].lastState = seatState; // save state for change detection next time
+		mSeats[seatId].lastState = aggregatedState; // save state for change detection next time
 		
 		// generate aggregated sensor (per seat) and send it
 		PacketSensorData packet;
@@ -181,8 +186,8 @@ void SensorManager::work()
 		packet.sensorId = mSensorAddedCount + seatId; // generate unique ids above the existing ids
 		packet.location = SensorLocation::Virtual;
 		packet.type = SensorType::Aggregative;
-		packet.value = aggregatedValue;
-		packet.state = aggregatedValue;
+		packet.value = aggregatedState;
+		packet.state = aggregatedState;
 		mClient.sendSensorData(packet);
 	}
 }
