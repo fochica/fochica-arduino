@@ -11,6 +11,7 @@
 Manager::Manager() : mSensorManager(mClientManager)
 {
 	mDeviceUniqueId = 0; // mark as not initialized
+	mDoneInitialSending = false;
 }
 
 void Manager::setRTC(IRTC * rtc)
@@ -28,8 +29,19 @@ void Manager::work()
 	mClientManager.work();
 	mSensorManager.work();
 	mTechnicalManager.work(&mClientManager);
+
+	// handle sending of initial data to client on start, further sync will happen on events
+	if (mDoneInitialSending == false) {
+		if (mClientManager.isConnected()) {
+			sendLogicalData();
+			sendCalibrationParams();
+		}
+		mDoneInitialSending = true; // do only once
+	}
 }
 
+// get notified of a connect or disconnect on one of the modules/adapters
+// note that a disconnect in one adapter doesn't mean all adpaters are disconnected
 void Manager::onClientConnectionChange(bool isConnected)
 {
 	// beep
@@ -41,10 +53,10 @@ void Manager::onClientConnectionChange(bool isConnected)
 	// some data should be sent on connect/disconnect
 	// it is ok to send through the clientManager. system should be robust if some packets are resent even if not needed
 
-	// send logical data, this includes the number of connected adapters, so we need to resend on both the connect and disconnect
+	// send logical data, this includes the number of connected adapters, so we need to resend on both the connect and disconnect (for sake of other adapters)
 	sendLogicalData();
 
-	if (isConnected) {
+	if (isConnected) { // only send on connect, this is for data that doesn't change on disconnects
 		// send calibration params
 		sendCalibrationParams();
 	}
