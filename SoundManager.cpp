@@ -12,10 +12,14 @@ void SoundManager::playTone(int tonepin, int freq, int dur, int pause)
 	delay(pause);
 }
 
-void SoundManager::setPassiveBuzzer(int pin)
+void SoundManager::setPassiveBuzzer(uint8_t pin, uint8_t offLevel)
 {
 	mPassiveBuzzerPin = pin;
 	mUsePassiveBuzzer = true;
+	mPassiveBuzzerOffLevel = offLevel;
+
+	pinMode(pin, OUTPUT);
+	digitalWrite(pin, offLevel);
 }
 
 void SoundManager::playBeep(BeepType::e beepType)
@@ -58,4 +62,7 @@ void SoundManager::playBeep(BeepType::e beepType)
 		playTone(mPassiveBuzzerPin, 1800, 500, 30);
 		break;
 	}
+
+	// put pin back to default mode
+	digitalWrite(mPassiveBuzzerPin, mPassiveBuzzerOffLevel);
 }

@@ -31,6 +31,7 @@ const long BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND = 10000;
 const long BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE = 20000;
 
 const int BUZZER_PIN = 4;
+const int BUZZER_OFF_STATE = HIGH; // LOW is using a NPN transistor (preffered) to drive the buzzer. HIGH if using a PNP.
 
 const int CAPACITANCE_READ_PIN = 2;
 const int CAPACITANCE_REF_PIN = 3;
@@ -129,7 +130,7 @@ void setup()
 
 	// init buzzer and make start sound
 	// TODO, change to a fun tune
-	SoundManager::getInstance().setPassiveBuzzer(BUZZER_PIN);
+	SoundManager::getInstance().setPassiveBuzzer(BUZZER_PIN, BUZZER_OFF_STATE);
 	SoundManager::getInstance().playBeep(BeepType::Start);
 }
 

@@ -33,7 +33,8 @@ private:
 	SoundManager(const SoundManager &rhs);
 	SoundManager & operator=(const SoundManager &rhs);
 
-	int mPassiveBuzzerPin;
+	uint8_t mPassiveBuzzerPin;
+	uint8_t mPassiveBuzzerOffLevel;
 	bool mUsePassiveBuzzer;
 
 	static void playTone(int tonepin, int freq, int dur, int pause);
@@ -44,7 +45,7 @@ public:
 		return singleton;
 	}
 
-	void setPassiveBuzzer(int pin);
+	void setPassiveBuzzer(uint8_t pin, uint8_t offLevel); // passive buzzer pin and level to set when not making sounds. Depends on the transistor used to drive the buzzer. For NPN (preferred) use LOW and for PNP use HIGH.
 	void playBeep(BeepType::e beepType);
 
 };
