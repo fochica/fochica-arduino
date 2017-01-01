@@ -9,6 +9,7 @@
 #include "RTCImpl_Sync.h"
 #include "RTCImpl_DS1307.h"
 #include "GenericBLEModuleClient.h"
+#include "SensorSharpIRDistance.h"
 #include "SensorDigital.h"
 #include "SensorQtouch.h"
 #include "SensorVoltage.h"
@@ -17,7 +18,7 @@
 #include "Manager.h"
 #include "DebugStream.h"
 
-// Includes of libraries for the sake of visual micro and IntelliSense
+// Includes of libraries that are used in this project, for the sake of visual micro and IntelliSense
 #include <SoftwareSerial.h>
 #include <RTClib.h>
 #include <EEPROM.h>
@@ -37,6 +38,8 @@ const int CAPACITANCE_READ_PIN = 2;
 const int CAPACITANCE_REF_PIN = 3;
 
 const int REED_SWITCH_PIN = 6;
+
+const int IR_DISTANCE_READ_PIN = 0;
 
 const int LOOP_DELAY = 1000;
 
@@ -61,11 +64,12 @@ SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_
 SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
 //SensorDigital digitalTest("Test", BLE_STATE_PIN); // just a test, reuse existing pin
 SensorDigital digitalReed("Reed", REED_SWITCH_PIN, INPUT_PULLUP);
+SensorSharpIRDistance irDistance("IRDistance", IR_DISTANCE_READ_PIN);
 // communication devices
 SoftwareSerial bleSerial1(BLE_RX_PIN, BLE_TX_PIN);
 GenericBLEModuleClient ble1(bleSerial1, BLE_STATE_PIN);
-SoftwareSerial bleSerial2(BLE2_RX_PIN, BLE2_TX_PIN);
-GenericBLEModuleClient ble2(bleSerial2, BLE2_STATE_PIN);
+///SoftwareSerial bleSerial2(BLE2_RX_PIN, BLE2_TX_PIN);
+///GenericBLEModuleClient ble2(bleSerial2, BLE2_STATE_PIN);
 // misc
 RTCImpl_Sync rtc;
 //RTCImpl_DS1307 rtc;
@@ -99,12 +103,14 @@ void setup()
 	//for (;;); // don't proceed to normal operation
 
 	// init sensors
-	manager.getSensorManager().setSeatCount(2);
-	manager.getSensorManager().setSensorCount(2);
+	manager.getSensorManager().setSeatCount(1);
+	manager.getSensorManager().setSensorCount(3);
 	capSense.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
 	digitalReed.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalReed);
+	irDistance.begin();
+	manager.getSensorManager().addSensor(0, SensorLocation::Above, &irDistance);
 	//digitalTest.begin();
 	//manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalTest);
 
@@ -117,11 +123,11 @@ void setup()
 	manager.getTechnicalManager().setFreeRAMSensor(&ram);
 	
 	// init comms
-	manager.getClientManager().setDeviceCount(2);
+	manager.getClientManager().setDeviceCount(1);
 	ble1.begin();
 	manager.getClientManager().addDevice(&ble1);
-	ble2.begin();
-	manager.getClientManager().addDevice(&ble2);
+	///ble2.begin();
+	///manager.getClientManager().addDevice(&ble2);
 	manager.getClientManager().setReceiverCallback(&manager);
 
 	// misc
@@ -143,6 +149,7 @@ void loop()
 		DebugStream->println(vcc.getValueFloat());
 		DebugStream->println(bat.getValueFloat());
 		DebugStream->println(ble1.isConnected());
+		DebugStream->println(irDistance.getValueInt());
 		//DebugStream->println(capSense.getValueInt());
 		//DebugStream->println(digitalReed.getValueInt());
 	}

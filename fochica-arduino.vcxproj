@@ -152,6 +152,7 @@
     <ClInclude Include="SensorManager.h" />
     <ClInclude Include="SensorMock.h" />
     <ClInclude Include="SensorQtouch.h" />
+    <ClInclude Include="SensorSharpIRDistance.h" />
     <ClInclude Include="SensorVcc.h" />
     <ClInclude Include="SensorVoltage.h" />
     <ClInclude Include="SoundManager.h" />
@@ -191,6 +192,7 @@
     <ClCompile Include="SensorManager.cpp" />
     <ClCompile Include="SensorMock.cpp" />
     <ClCompile Include="SensorQtouch.cpp" />
+    <ClCompile Include="SensorSharpIRDistance.cpp" />
     <ClCompile Include="SensorVcc.cpp" />
     <ClCompile Include="SensorVoltage.cpp" />
     <ClCompile Include="SoundManager.cpp" />
@@ -201,7 +203,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties arduino.upload.port="COM6" />
+      <UserProperties arduino.upload.port="COM4" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

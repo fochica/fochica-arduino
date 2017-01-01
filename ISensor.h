@@ -12,7 +12,7 @@
 // put the enum in a scope that a struct creates
 // http://stackoverflow.com/questions/482745/namespaces-for-enum-types-best-practices
 struct SensorType {
-	enum e { Vcc, Voltage, RAM, Capacitance, OnOff, Aggregative, Mock };
+	enum e { Vcc, Voltage, RAM, Capacitance, OnOff, Aggregative, Mock, IRDistance };
 };
 
 typedef int sensorVal_t; // define with typedef so if we want to change this to another type (i.e. an unsigned int) in the future, then we can.
