@@ -25,6 +25,8 @@
 #include <SD.h>
 
 // settings
+#define DEVICE2 // build with sensors and adapter for device #2, used for testing in the lab. Otherwise device #1 used in field testing.
+
 const long SERIAL_BAUD = 115200;
 
 const int BATTERY_VOLTAGE_SENSOR_PIN = 1;
@@ -32,7 +34,11 @@ const long BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND = 10000;
 const long BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE = 20000;
 
 const int BUZZER_PIN = 4;
+#ifdef DEVICE2
+const int BUZZER_OFF_STATE = LOW; // LOW is using a NPN transistor (preffered) to drive the buzzer. HIGH if using a PNP.
+#else
 const int BUZZER_OFF_STATE = HIGH; // LOW is using a NPN transistor (preffered) to drive the buzzer. HIGH if using a PNP.
+#endif
 
 const int CAPACITANCE_READ_PIN = 2;
 const int CAPACITANCE_REF_PIN = 3;
@@ -64,15 +70,21 @@ SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_
 SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
 //SensorDigital digitalTest("Test", BLE_STATE_PIN); // just a test, reuse existing pin
 SensorDigital digitalReed("Reed", REED_SWITCH_PIN, INPUT_PULLUP);
+#ifndef DEVICE2
 SensorSharpIRDistance irDistance("IRDistance", IR_DISTANCE_READ_PIN);
 // communication devices
 SoftwareSerial bleSerial1(BLE_RX_PIN, BLE_TX_PIN);
 GenericBLEModuleClient ble1(bleSerial1, BLE_STATE_PIN);
-///SoftwareSerial bleSerial2(BLE2_RX_PIN, BLE2_TX_PIN);
-///GenericBLEModuleClient ble2(bleSerial2, BLE2_STATE_PIN);
+#else
+SoftwareSerial bleSerial2(BLE2_RX_PIN, BLE2_TX_PIN);
+GenericBLEModuleClient ble2(bleSerial2, BLE2_STATE_PIN);
+#endif
 // misc
+#ifndef DEVICE2
 RTCImpl_Sync rtc;
-//RTCImpl_DS1307 rtc;
+#else
+RTCImpl_DS1307 rtc;
+#endif
 PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
 //PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memory.
 Manager& manager = Manager::getInstance();
@@ -104,13 +116,19 @@ void setup()
 
 	// init sensors
 	manager.getSensorManager().setSeatCount(1);
+#ifdef DEVICE2
+	manager.getSensorManager().setSensorCount(2);
+#else
 	manager.getSensorManager().setSensorCount(3);
+#endif
 	capSense.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
 	digitalReed.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalReed);
+#ifndef DEVICE2
 	irDistance.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::Above, &irDistance);
+#endif
 	//digitalTest.begin();
 	//manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalTest);
 
@@ -124,10 +142,13 @@ void setup()
 	
 	// init comms
 	manager.getClientManager().setDeviceCount(1);
+#ifndef DEVICE2
 	ble1.begin();
 	manager.getClientManager().addDevice(&ble1);
-	///ble2.begin();
-	///manager.getClientManager().addDevice(&ble2);
+#else
+	ble2.begin();
+	manager.getClientManager().addDevice(&ble2);
+#endif
 	manager.getClientManager().setReceiverCallback(&manager);
 
 	// misc
@@ -148,8 +169,10 @@ void loop()
 		DebugStream->println(ram.getValueInt());
 		DebugStream->println(vcc.getValueFloat());
 		DebugStream->println(bat.getValueFloat());
+#ifndef DEVICE2
 		DebugStream->println(ble1.isConnected());
 		DebugStream->println(irDistance.getValueInt());
+#endif
 		//DebugStream->println(capSense.getValueInt());
 		//DebugStream->println(digitalReed.getValueInt());
 	}
