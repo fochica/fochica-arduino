@@ -165,13 +165,13 @@ void loop()
 {
 	// debug
 	if (DebugStream) {
-		DebugStream->println(F("Loop"));
-		DebugStream->println(ram.getValueInt());
-		DebugStream->println(vcc.getValueFloat());
-		DebugStream->println(bat.getValueFloat());
+		//DebugStream->println(F("Loop"));
+		//DebugStream->println(ram.getValueInt());
+		//DebugStream->println(vcc.getValueFloat());
+		//DebugStream->println(bat.getValueFloat());
 #ifndef DEVICE2
-		DebugStream->println(ble1.isConnected());
-		DebugStream->println(irDistance.getValueInt());
+		//DebugStream->println(ble1.isConnected());
+		//DebugStream->println(irDistance.getValueInt());
 #endif
 		//DebugStream->println(capSense.getValueInt());
 		//DebugStream->println(digitalReed.getValueInt());
