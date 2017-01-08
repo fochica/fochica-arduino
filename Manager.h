@@ -48,9 +48,14 @@ private:
 	bool receiveSeatOperation(const PacketSeatOperation& packet);
 
 	// sending packets
+	const int PACKET_SEND_REPEATS = 3; // after connecting, it will take the client a second or two to perform service discovery and subscribe to notifications. During that time it can't receive packets from the device. We will repeat relevant packets to resolve this.
 	bool sendTime();
 	bool sendLogicalData();
+	bool sendLogicalDataOnce();
+	int mRepeatSendLogicalData;
 	bool sendCalibrationParams();
+	bool sendCalibrationParamsOnce();
+	int mRepeatSendCalibrationParams;
 
 	// sub/helper classes
 	IRTC * mRTC;

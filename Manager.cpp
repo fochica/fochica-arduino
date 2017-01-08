@@ -12,6 +12,9 @@ Manager::Manager() : mSensorManager(mClientManager)
 {
 	mDeviceUniqueId = 0; // mark as not initialized
 	mDoneInitialSending = false;
+
+	mRepeatSendLogicalData = 0;
+	mRepeatSendCalibrationParams = 0;
 }
 
 void Manager::setRTC(IRTC * rtc)
@@ -26,24 +29,47 @@ void Manager::setRTC(IRTC * rtc)
 
 void Manager::work()
 {
+	// handle sending repeats
+	if (mRepeatSendLogicalData > 0) {
+		sendLogicalDataOnce();
+		mRepeatSendLogicalData--;
+	}
+	if (mRepeatSendCalibrationParams > 0) {
+		sendCalibrationParamsOnce();
+		mRepeatSendCalibrationParams--;
+	}
+
+	// sub modules
 	mClientManager.work();
 	mSensorManager.work();
 	mTechnicalManager.work(&mClientManager);
 
 	// handle sending of initial data to client on start, further sync will happen on events
+	// https://trello.com/c/RDiZhuAY/81-send-packets-on-begin-if-connected
+	/*
 	if (mDoneInitialSending == false) {
+		if (DebugStream != NULL) {
+			DebugStream->println(F("Performing Initial Sending"));
+		}
+
 		if (mClientManager.isConnected()) {
 			sendLogicalData();
 			sendCalibrationParams();
 		}
 		mDoneInitialSending = true; // do only once
 	}
+	*/
 }
 
 // get notified of a connect or disconnect on one of the modules/adapters
 // note that a disconnect in one adapter doesn't mean all adpaters are disconnected
 void Manager::onClientConnectionChange(bool isConnected)
 {
+	if (DebugStream != NULL) {
+		DebugStream->print(F("onClientConnectionChange, connected="));
+		DebugStream->println(isConnected);
+	}
+
 	// beep
 	SoundManager::getInstance().playBeep(isConnected ? BeepType::ClientConnected : BeepType::ClientDisconnected);
 
@@ -129,6 +155,18 @@ bool Manager::sendTime()
 
 bool Manager::sendLogicalData()
 {
+	mRepeatSendLogicalData = PACKET_SEND_REPEATS;
+	sendLogicalDataOnce();
+	mRepeatSendLogicalData--;
+}
+
+bool Manager::sendLogicalDataOnce()
+{
+	if (DebugStream != NULL) {
+		DebugStream->print(F("sendLogicalDataOnce, mRepeatSendLogicalData="));
+		DebugStream->println(mRepeatSendLogicalData);
+	}
+
 	PacketLogicalData packet;
 	packet.deviceUniqueId = getDeviceUniqueId();
 	packet.clientCount = mClientManager.getDeviceCount();
@@ -140,6 +178,13 @@ bool Manager::sendLogicalData()
 }
 
 bool Manager::sendCalibrationParams()
+{
+	mRepeatSendCalibrationParams = PACKET_SEND_REPEATS;
+	sendCalibrationParamsOnce();
+	mRepeatSendCalibrationParams--;
+}
+
+bool Manager::sendCalibrationParamsOnce()
 {
 	return getSensorManager().sendCalibrationParams();
 }
