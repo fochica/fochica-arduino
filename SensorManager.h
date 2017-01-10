@@ -19,6 +19,7 @@ typedef uint8_t sensorCount_t;
 struct SensorLocation {
 	enum e { Virtual, UnderSeat, Chest, Above };
 };
+
 struct SensorState { // relevant for seat sensors
 	enum e { 
 		None, // no sensors to form an opinion for aggregated sensor or initial state for a single sensor

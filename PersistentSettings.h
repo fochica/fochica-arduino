@@ -12,7 +12,6 @@
 #include "SensorManager.h"
 
 // This class is a singleton for saving config to persistent EEPROM memory
-// At first support a passive buzzer. In the future add support for other modules.
 class PersistentSettings
 {
 private:
