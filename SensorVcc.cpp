@@ -22,12 +22,12 @@ float SensorVcc::getValueFloat()
 	// Possibly AVR specific
 	// cross platform issue
 	byte mux = ADMUX; // save current adc mux value
-	ADMUX = (DEFAULT << 6) | BANDGAP_REF_PIN; // select 14 in the mux, have to do manually
+	ADMUX = (DEFAULT << 6) | BANDGAP_REF_PIN; // select 14 in the mux, have to do manually and select AnalogReference=DEFAULT
 	delayMicroseconds(SETTLE_DURATION_US);
 	bitSet(ADCSRA, ADSC);
 	while (bit_is_set(ADCSRA, ADSC));
 	word refReading = ADC;
-	ADMUX = mux; // restore mux and reference mode
+	ADMUX = mux; // restore mux and reference mode (if the mode before was not DEFAULT, we might cause a change in reference mode. does this need a settle time?)
 
 	return (BANDGAP_VOLTAGE * ISensor::MAX_ADC_VALUE) / refReading;
 }
