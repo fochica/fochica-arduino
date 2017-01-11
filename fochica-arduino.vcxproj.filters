@@ -138,6 +138,12 @@
     <ClInclude Include="SensorSharpIRDistance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SensorOperation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketSensorOperation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -249,6 +255,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SensorSharpIRDistance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SensorOperation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketSensorOperation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

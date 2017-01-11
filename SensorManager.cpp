@@ -62,11 +62,12 @@ bool SensorManager::addSensor(seatCount_t seatId, SensorLocation::e location, IS
 	mSensors[mSensorAddedCount].seatId = seatId;
 	mSensors[mSensorAddedCount].location = location;
 	mSensors[mSensorAddedCount].sensor = new CalibratedSensor(sensor);
-	// read calibration params
-	CalibrationParams cp;
-	bool loaded=PersistentSettings::getInstance().readSeatSensorCalibrationParams(mSensorAddedCount, seatId, sensor->getType(), location, cp);
+	// read persistent params
+	SensorPersistentParams pp;
+	bool loaded=PersistentSettings::getInstance().readSeatSensorPersistentParams(mSensorAddedCount, seatId, sensor->getType(), location, pp);
 	if (loaded) {
-		mSensors[mSensorAddedCount].sensor->setCalibrationParams(cp);
+		mSensors[mSensorAddedCount].sensor->setCalibrationParams(pp.calibrationParams);
+		mSensors[mSensorAddedCount].activityMode = pp.activityMode;
 	}
 
 	mSensorAddedCount++;
@@ -84,8 +85,9 @@ void SensorManager::calibrate(seatCount_t seatId, SensorState::e state)
 			sensor.sensor->calibrate(seatSensorStateToCalibratedSensorState(state));
 			// issue calibration params packet to client
 			if (sensor.sensor->isCalibrated()) {
-				// save calibration params
-				PersistentSettings::getInstance().writeSeatSensorCalibrationParams(sensorId, seatId, sensor.sensorRaw->getType(), sensor.location, sensor.sensor->getCalibrationParams());
+				// save persistent params
+				SensorPersistentParams pp(sensor.sensor->getCalibrationParams(), sensor.activityMode);
+				PersistentSettings::getInstance().writeSeatSensorPersistentParams(sensorId, seatId, sensor.sensorRaw->getType(), sensor.location, pp);
 				// annouce
 				sendCalibrationParams(sensorId);
 			}
@@ -106,6 +108,18 @@ bool SensorManager::sendCalibrationParams()
 	return true;
 }
 
+void SensorManager::setSensorActivityMode(sensorCount_t sensorId, SensorActivityMode::e activityMode)
+{
+	if (sensorId >= mSensorAddedCount) // sanity and security check
+		return;
+	SensorData& sensor = mSensors[sensorId];
+	sensor.activityMode = activityMode; // set variable
+	
+	// save persistent params
+	SensorPersistentParams pp(sensor.sensor->getCalibrationParams(), sensor.activityMode);
+	PersistentSettings::getInstance().writeSeatSensorPersistentParams(sensorId, sensor.seatId, sensor.sensorRaw->getType(), sensor.location, pp);
+}
+
 void SensorManager::work()
 {
 	// for each seat
@@ -116,13 +130,20 @@ void SensorManager::work()
 			SensorData& sensor = mSensors[sensorId];
 			if (sensor.seatId == seatId) { // of current seat
 				// read sensor values (raw and the state)
-				sensorVal_t sensorRawValue;
-				CalibratedSensorState::e sensorState = sensor.sensor->getValue(&sensorRawValue);
+				sensorVal_t sensorRawValue=0;
 				SensorState::e state;
-				if (sensor.sensor->isCalibrated())
-					state = calibratedSensorStateToSeatSensorState(sensorState);
-				else
-					state = SensorState::NotCalibrated;
+				if (sensor.activityMode == SensorActivityMode::Disabled) {
+					state = SensorState::Disabled;
+				}
+				else {
+					CalibratedSensorState::e sensorState;
+					sensorState = sensor.sensor->getValue(&sensorRawValue);
+					if (sensor.sensor->isCalibrated())
+						state = calibratedSensorStateToSeatSensorState(sensorState);
+					else
+						state = SensorState::NotCalibrated;
+				}
+
 				// send individual sensor values
 				PacketSensorData packet;
 				packet.seatId = seatId;
@@ -131,7 +152,12 @@ void SensorManager::work()
 				packet.type = sensor.sensorRaw->getType();
 				packet.value = sensorRawValue;
 				packet.state = state;
+				packet.activityMode = sensor.activityMode;
 				mClient.sendSensorData(packet);
+
+				// ignore non active sensors for aggregated state manangement
+				if (sensor.activityMode != SensorActivityMode::Active)
+					continue;
 
 				// aggregate
 				if (aggregatedState == SensorState::None) // first sensor
@@ -142,7 +168,7 @@ void SensorManager::work()
 				else {
 					if (aggregatedState != state) // sensor disagreement
 						aggregatedState = SensorState::SensorConflict; // mark as conflict
-					// else, sensor agreement, keep aggregatedState as-is
+					// else, sensor agreement or skip sensor, keep aggregatedState as-is
 				}
 
 				// respond to state change
@@ -158,6 +184,7 @@ void SensorManager::work()
 		// decide on state
 		if (aggregatedState != SensorState::None) // if not "no sensors"
 		{
+			// handle switch from stabilizing to conflict of aggregate state
 			if (aggregatedState == SensorState::SensorConflict) {
 				unsigned long timeFromLastAgreement = millis() - mSeats[seatId].lastSensorAgreementTime;
 				if (timeFromLastAgreement < SENSOR_STABILIZE_TIME)
@@ -188,6 +215,7 @@ void SensorManager::work()
 		packet.type = SensorType::Aggregative;
 		packet.value = aggregatedState;
 		packet.state = aggregatedState;
+		packet.activityMode = SensorActivityMode::Active;
 		mClient.sendSensorData(packet);
 	}
 }

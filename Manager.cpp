@@ -7,6 +7,7 @@
 #include "RNGUtils.h"
 #include "SoundManager.h"
 #include "SeatOperation.h"
+#include "SensorOperation.h"
 
 Manager::Manager() : mSensorManager(mClientManager)
 {
@@ -138,6 +139,33 @@ bool Manager::receiveSeatOperation(const PacketSeatOperation & packet)
 		break;
 	}
 	
+	return false;
+}
+
+bool Manager::receiveSensorOperation(const PacketSensorOperation & packet)
+{
+	if (DebugStream != NULL) {
+		DebugStream->print(F("Got sensor id "));
+		DebugStream->println(packet.sensorId);
+		DebugStream->print(F("Got sensor operation "));
+		DebugStream->println(packet.operationId);
+	}
+
+	switch (packet.operationId)
+	{
+	case SensorOperation::SetActivityModeActive:
+		getSensorManager().setSensorActivityMode(packet.sensorId, SensorActivityMode::Active);
+		return true;
+	case SensorOperation::SetActivityModeDeactivated:
+		getSensorManager().setSensorActivityMode(packet.sensorId, SensorActivityMode::Deactivated);
+		return true;
+	case SensorOperation::SetActivityModeDisabled:
+		getSensorManager().setSensorActivityMode(packet.sensorId, SensorActivityMode::Disabled);
+		return true;
+	default:
+		break;
+	}
+
 	return false;
 }
 

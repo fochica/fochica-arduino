@@ -46,6 +46,7 @@ private:
 	// incoming packets
 	bool receiveTime(const PacketTime& packet);
 	bool receiveSeatOperation(const PacketSeatOperation& packet);
+	bool receiveSensorOperation(const PacketSensorOperation& packet);
 
 	// sending packets
 	bool sendTime();

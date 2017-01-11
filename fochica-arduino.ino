@@ -1,6 +1,8 @@
 // our classes, added here automatically on "add code" wizard
 // keep only what we need for the main file
 
+#include "PacketSensorOperation.h"
+#include "SensorOperation.h"
 #include "PersistentLog.h"
 #include "PersistentLogImpl_Serial.h"
 #include "PersistentLogImpl_SD.h"

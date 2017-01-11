@@ -262,6 +262,12 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 		if (mServerCallback && count == expectedLength)
 			mServerCallback->receiveSeatOperation(packetSO);
 		break;
+	case PacketType::SensorOperation:
+		PacketSensorOperation packetSnO;
+		count = mBLE.readBytes((uint8_t *)&packetSnO, expectedLength);
+		if (mServerCallback && count == expectedLength)
+			mServerCallback->receiveSensorOperation(packetSnO);
+		break;
 	default:
 		if (DebugStream != NULL) {
 			DebugStream->print(F("Not handled packet type in BLE receiver, type="));
@@ -297,6 +303,8 @@ int GenericBLEModuleClient::getPacketLength(PacketType::e type)
 		return sizeof(PacketTime);
 	case PacketType::SeatOperation:
 		return sizeof(PacketSeatOperation);
+	case PacketType::SensorOperation:
+		return sizeof(PacketSensorOperation);
 	}
 	return -1; // error, invalid or unknown packet type
 }

@@ -10,7 +10,8 @@ struct PacketType {
 		SensorData = 's',
 		LogicalData = 'l',
 		CalibrationParams = 'c',
-		SeatOperation = 'o'
+		SeatOperation = 'o',
+		SensorOperation = 'n'
 	};
 };
 

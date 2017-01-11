@@ -11,6 +11,7 @@
 
 #include "PacketTime.h"
 #include "PacketSeatOperation.h"
+#include "PacketSensorOperation.h"
 
 // Defines an interface to the server deivce (the Arduino MCU). The interface is used to get packets from client devices.
 class IServer
@@ -20,6 +21,7 @@ public:
 
 	virtual bool receiveTime(const PacketTime& packet) = 0;
 	virtual bool receiveSeatOperation(const PacketSeatOperation& packet) = 0;
+	virtual bool receiveSensorOperation(const PacketSensorOperation& packet) = 0;
 };
 
 #endif

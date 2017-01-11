@@ -26,11 +26,25 @@ struct SensorState { // relevant for seat sensors
 		Occupied,
 		Empty,
 		NotCalibrated,
+		Disabled,
 		// aggregated states
 		Stabilizing, // disagreement but still in time window to be resolved.
 		SensorConflict, // disagreement past time window
 		Count
 	};
+};
+
+struct SensorActivityMode {
+	enum e { Active, Deactivated, Disabled }; // Deactivated: don't take part in aggregated state, Disabled: don't even take readings
+};
+
+struct SensorPersistentParams {
+	SensorPersistentParams() {};
+	SensorPersistentParams(const CalibrationParams & cp, SensorActivityMode::e am) :calibrationParams(cp), activityMode(am) {
+	}
+
+	CalibrationParams calibrationParams;
+	SensorActivityMode::e activityMode;
 };
 
 class SensorManager
@@ -46,6 +60,7 @@ public:
 	sensorCount_t getSensorAddedCount() { return mSensorAddedCount; }
 	void calibrate(seatCount_t seatId, SensorState::e state);
 	bool sendCalibrationParams();
+	void setSensorActivityMode(sensorCount_t sensorId, SensorActivityMode::e activityMode);
 
 	void work();
 	
@@ -56,6 +71,7 @@ private:
 		seatCount_t seatId;
 		SensorLocation::e location;
 		SensorState::e lastState;
+		SensorActivityMode::e activityMode;
 	};
 
 	struct SeatData {

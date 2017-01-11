@@ -14,25 +14,25 @@ void PersistentSettings::init()
 	if (mHeader.token != TOKEN || mHeader.version != SCHEMA_VERSION) { // if bad or unknown data in EEPROM
 		mHeader.token = TOKEN;
 		mHeader.version = SCHEMA_VERSION;
-		mHeader.seatSensorCalibrationParamsCount = 0;
+		mHeader.seatSensorPersistentParamsCount = 0;
 		EEPROM.put(EEPROM_START, mHeader);
 	}
 	if (DebugStream) {
 		DebugStream->print(F("Loaded header of EEPROM with entries: "));
-		DebugStream->println(mHeader.seatSensorCalibrationParamsCount);
+		DebugStream->println(mHeader.seatSensorPersistentParamsCount);
 	}
 }
 
 int PersistentSettings::getAddressOfSSCP(int id)
 {
 	int address = EEPROM_START + sizeof(PersistentSettingsHeader);
-	address += (id*(sizeof(PersistentSettingsSSCPHeader) + sizeof(CalibrationParams)));
+	address += (id*(sizeof(PersistentSettingsSSCPHeader) + sizeof(SensorPersistentParams)));
 	return address;
 }
 
-bool PersistentSettings::readSeatSensorCalibrationParams(sensorCount_t sensorId, seatCount_t seatId, SensorType::e sensorType, SensorLocation::e sensorLocation, CalibrationParams & cp)
+bool PersistentSettings::readSeatSensorPersistentParams(sensorCount_t sensorId, seatCount_t seatId, SensorType::e sensorType, SensorLocation::e sensorLocation, SensorPersistentParams & pp)
 {
-	if (sensorId >= mHeader.seatSensorCalibrationParamsCount) // if this sensorId is not stored
+	if (sensorId >= mHeader.seatSensorPersistentParamsCount) // if this sensorId is not stored
 		return false;
 
 	// read SSCP header
@@ -43,15 +43,15 @@ bool PersistentSettings::readSeatSensorCalibrationParams(sensorCount_t sensorId,
 		return false;
 
 	// read CP
-	EEPROM.get(address + sizeof(PersistentSettingsSSCPHeader), cp);
+	EEPROM.get(address + sizeof(PersistentSettingsSSCPHeader), pp);
 	return true;
 }
 
-void PersistentSettings::writeSeatSensorCalibrationParams(sensorCount_t sensorId, seatCount_t seatId, SensorType::e sensorType, SensorLocation::e sensorLocation, const CalibrationParams & cp)
+void PersistentSettings::writeSeatSensorPersistentParams(sensorCount_t sensorId, seatCount_t seatId, SensorType::e sensorType, SensorLocation::e sensorLocation, const SensorPersistentParams & pp)
 {
-	if (sensorId > mHeader.seatSensorCalibrationParamsCount) { // if need to pad entries
-		int itemsToPad = sensorId - mHeader.seatSensorCalibrationParamsCount;
-		int address= getAddressOfSSCP(mHeader.seatSensorCalibrationParamsCount); // start of items to pad
+	if (sensorId > mHeader.seatSensorPersistentParamsCount) { // if need to pad entries
+		int itemsToPad = sensorId - mHeader.seatSensorPersistentParamsCount;
+		int address= getAddressOfSSCP(mHeader.seatSensorPersistentParamsCount); // start of items to pad
 		
 		PersistentSettingsSSCPHeader pad; // define an entry that is not valid, should not match any valid read attempt
 		pad.seatId = -1;
@@ -72,11 +72,11 @@ void PersistentSettings::writeSeatSensorCalibrationParams(sensorCount_t sensorId
 	cpHeader.sensorType = sensorType;
 	
 	EEPROM.put(address, cpHeader);
-	EEPROM.put(address + sizeof(PersistentSettingsSSCPHeader), cp);
+	EEPROM.put(address + sizeof(PersistentSettingsSSCPHeader), pp);
 
 	// update header if needed (when we added entries)
-	if (sensorId >= mHeader.seatSensorCalibrationParamsCount) {
-		mHeader.seatSensorCalibrationParamsCount = sensorId + 1;
+	if (sensorId >= mHeader.seatSensorPersistentParamsCount) {
+		mHeader.seatSensorPersistentParamsCount = sensorId + 1;
 		EEPROM.put(EEPROM_START, mHeader);
 	}
 }
