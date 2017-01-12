@@ -69,6 +69,8 @@ bool SensorManager::addSensor(seatCount_t seatId, SensorLocation::e location, IS
 		mSensors[mSensorAddedCount].sensor->setCalibrationParams(pp.calibrationParams);
 		mSensors[mSensorAddedCount].activityMode = pp.activityMode;
 	}
+	else
+		mSensors[mSensorAddedCount].activityMode = SensorActivityMode::Active; // default
 
 	mSensorAddedCount++;
 	return true;

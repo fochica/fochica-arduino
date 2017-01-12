@@ -38,6 +38,7 @@ struct SensorActivityMode {
 	enum e { Active, Deactivated, Disabled }; // Deactivated: don't take part in aggregated state, Disabled: don't even take readings
 };
 
+// part of the persistent schema, probably need to increase version number if this is changed
 struct SensorPersistentParams {
 	SensorPersistentParams() {};
 	SensorPersistentParams(const CalibrationParams & cp, SensorActivityMode::e am) :calibrationParams(cp), activityMode(am) {

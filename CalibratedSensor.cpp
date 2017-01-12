@@ -93,7 +93,7 @@ void CalibratedSensor::calibrate(CalibratedSensorState::e state)
 		mCP.schmittThresholdLow = mStateAvg[low] + (lowSpan*scaleFactor*INTERSECTION_THRESHOLD_PERCENTILE/100);
 	}
 
-	mIsCalibrated = true; // success!
+	mCP.isCalibrated = true; // success!
 }
 
 void CalibratedSensor::debugCalibrationState()
@@ -130,12 +130,12 @@ bool CalibratedSensor::isCalibrated()
 {
 	//return mStateDataCollected[CalibratedSensorState::A] && mStateDataCollected[CalibratedSensorState::B];
 	// also support when data is loaded from persistent config
-	return mIsCalibrated;
+	return mCP.isCalibrated;
 }
 
 void CalibratedSensor::resetCalibrationData()
 {
-	mIsCalibrated = false;
+	mCP.isCalibrated = false;
 	for (int s = 0; s < CalibratedSensorState::Count; s++) {
 		mStateDataCollected[s] = false;
 	}
@@ -144,7 +144,6 @@ void CalibratedSensor::resetCalibrationData()
 void CalibratedSensor::setCalibrationParams(CalibrationParams cp)
 {
 	mCP = cp;
-	mIsCalibrated = true;
 }
 
 const CalibrationParams & CalibratedSensor::getCalibrationParams()

@@ -17,7 +17,9 @@ struct CalibratedSensorState {
 	};
 };
 
+// part of the persistent schema, probably need to increase version number if this is changed
 struct CalibrationParams {
+	bool isCalibrated;
 	// cleanup params
 	int expMovingAverageAlpha; // "Exponentially Weighted Moving Average" alpha param. in milli units. value of 1000 means: use just the new value.
 	// thresholding params
@@ -72,7 +74,6 @@ private:
 
 	// calibration result
 	CalibrationParams mCP;
-	bool mIsCalibrated;
 
 	// calibration process data
 	// min, max, avg for each state.
