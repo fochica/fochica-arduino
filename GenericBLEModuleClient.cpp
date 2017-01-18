@@ -45,9 +45,9 @@ bool GenericBLEModuleClient::isConnected()
 bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, byte size)
 {
 	if (DebugStream) {
-		DebugStream->print("writePacket ");
+		DebugStream->print(F("writePacket "));
 		DebugStream->print(mStatePin);
-		DebugStream->print(", ");
+		DebugStream->print(F(", "));
 		DebugStream->println((char)type);
 	}
 

@@ -19,6 +19,9 @@ class SensorFreeRAM : public ISensor
 	 sensorVal_t getValueInt(); // return bytes
 	 float getValueFloat(); // return bytes
 	 int getSamplingTime();
+
+	 void dumpSRAMContent(Stream &s);
+	 void dumpSRAMBounds(Stream &s);
 };
 
 #endif

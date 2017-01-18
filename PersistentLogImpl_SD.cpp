@@ -4,7 +4,7 @@
 
 #include "PersistentLogImpl_SD.h"
 
-#include <SD.h> // for file
+#include <SD.h> // for File type
 #include "DebugStream.h"
 
 

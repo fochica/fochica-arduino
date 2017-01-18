@@ -9,14 +9,14 @@ unsigned long RNGUtils::generateEntropyWithAnalogInputs()
 {
 	unsigned long entropy = millis() + micros(); // this alone might not be a good source of entropy because seeding might happen at the same time each boot. consider to add RTC value if available.
 	if (DebugStream) {
-		DebugStream->print("Entropy value: ");
+		DebugStream->print(F("Entropy value: "));
 		DebugStream->println(entropy);
 	}
 
 	for (int pin = 0; pin <= ANALOGS_FOR_SEED; pin++)
 		entropy += analogRead(pin);
 	if (DebugStream) {
-		DebugStream->print("Entropy value: ");
+		DebugStream->print(F("Entropy value: "));
 		DebugStream->println(entropy);
 	}
 

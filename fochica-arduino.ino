@@ -1,11 +1,15 @@
 // our classes, added here automatically on "add code" wizard
 // keep only what we need for the main file
 
+//#define USE_SD_LIBRARY // The SD library takes over 0.5KB RAM and lots of Flash memory. Practical use is only possible of larger bords, such as the Mega, not Uno.
+
 #include "PacketSensorOperation.h"
 #include "SensorOperation.h"
 #include "PersistentLog.h"
 #include "PersistentLogImpl_Serial.h"
+#ifdef USE_SD_LIBRARY
 #include "PersistentLogImpl_SD.h"
+#endif
 #include "CalibratedSensorTester.h"
 #include "SoundManager.h"
 #include "RTCImpl_Sync.h"
@@ -24,7 +28,9 @@
 #include <SoftwareSerial.h>
 #include <RTClib.h>
 #include <EEPROM.h>
+#ifdef USE_SD_LIBRARY
 #include <SD.h>
+#endif
 
 // settings
 #define DEVICE2 // build with sensors and adapter for device #2, used for testing in the lab. Otherwise device #1 used in field testing.
@@ -157,6 +163,11 @@ void setup()
 	DebugStream->println(F("Free RAM: "));
 	DebugStream->println(ram.getValueInt());
 
+	// ram dump
+	//ram.dumpSRAMContent(Serial);
+	//ram.dumpSRAMBounds(Serial);
+	//for (;;); // don't proceed to normal operation
+
 	// init buzzer and make start sound
 	// TODO, change to a fun tune
 	SoundManager::getInstance().setPassiveBuzzer(BUZZER_PIN, BUZZER_OFF_STATE);
@@ -168,7 +179,7 @@ void loop()
 	// debug
 	if (DebugStream) {
 		//DebugStream->println(F("Loop"));
-		//DebugStream->println(ram.getValueInt());
+		DebugStream->println(ram.getValueInt());
 		//DebugStream->println(vcc.getValueFloat());
 		//DebugStream->println(bat.getValueFloat());
 #ifndef DEVICE2
