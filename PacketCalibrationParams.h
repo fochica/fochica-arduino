@@ -16,6 +16,7 @@ struct PacketCalibrationParams {
 	uint16_t triggerLow;
 	uint16_t lowPassAlpha; // in milli units
 	uint8_t highIsOccupied; // boolean
+	uint8_t calibrationState; // CalibrationState::e
 };
 
 #endif

@@ -17,9 +17,15 @@ struct CalibratedSensorState {
 	};
 };
 
+struct CalibrationState {
+	enum e {
+		None, Good, LimitedDynamicRange, StateIntersection, StateContainment
+	};
+};
+
 // part of the persistent schema, probably need to increase version number if this is changed
 struct CalibrationParams {
-	bool isCalibrated;
+	CalibrationState::e state;
 	// cleanup params
 	int expMovingAverageAlpha; // "Exponentially Weighted Moving Average" alpha param. in milli units. value of 1000 means: use just the new value.
 	// thresholding params
@@ -43,6 +49,7 @@ public:
 	void calibrate(CalibratedSensorState::e state);
 	void debugCalibrationState();
 	bool isCalibrated();
+	CalibrationState::e getCalibrationState() { return mCP.state; }
 	void resetCalibrationData();
 
 	int getExpMovingAverageAlpha() {

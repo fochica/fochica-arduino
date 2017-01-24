@@ -67,10 +67,14 @@ void CalibratedSensor::calibrate(CalibratedSensorState::e state)
 	CalibratedSensorState::e high = mCP.stateAIsHigh ? CalibratedSensorState::A : CalibratedSensorState::B;
 	CalibratedSensorState::e low = mCP.stateAIsHigh ? CalibratedSensorState::B : CalibratedSensorState::A;
 
+	CalibrationState::e resultState = CalibrationState::Good; // optimistic
+
 	// check dynamic range and warn if needed
 	sensorVal_t range = max(mStateMax[low], mStateMax[high]) - min(mStateMin[low], mStateMin[high]);
-	if (range < LIMITED_DYNAMIC_RANGE && DebugStream)
+	if (range < LIMITED_DYNAMIC_RANGE && DebugStream) {
 		DebugStream->println(F("Sensor dynamic range is constrained. Consider introducing gain. Please see if this can be improved or try to calibrate again or manually."));
+		resultState = CalibrationState::LimitedDynamicRange;
+	}
 
 	// check how states intersect
 	if (mStateMin[high] > mStateMax[low]) { // no intersection
@@ -80,9 +84,14 @@ void CalibratedSensor::calibrate(CalibratedSensorState::e state)
 		mCP.schmittThresholdLow = mStateMax[low] + offset;
 		mCP.expMovingAverageAlpha = MAX_EXP_ALPHA; // don't smooth, we don't need to. just use the raw value
 	} else {
-		if (DebugStream) DebugStream->println(F("States intersect. This is not recommended. Please see if this can be improved or try to calibrate again or manually."));
-		if((mStateMin[high]<mStateMin[low] && mStateMax[high]>mStateMax[low]) || (mStateMin[high]>mStateMin[low] && mStateMax[high]<mStateMax[low])) // if low contained in high or high contained in low
-			if (DebugStream) DebugStream->println(F("One state is contained in another state. This is highly not recommended. Please see if this can be improved or try to calibrate again or manually."));
+		if (DebugStream)
+			DebugStream->println(F("States intersect. This is not recommended. Please see if this can be improved or try to calibrate again or manually."));
+		resultState = CalibrationState::StateIntersection;
+		if((mStateMin[high]<mStateMin[low] && mStateMax[high]>mStateMax[low]) || (mStateMin[high]>mStateMin[low] && mStateMax[high]<mStateMax[low])) { // if low contained in high or high contained in low
+			if (DebugStream)
+				DebugStream->println(F("One state is contained in another state. This is highly not recommended. Please see if this can be improved or try to calibrate again or manually."));
+			resultState = CalibrationState::StateContainment;
+		}
 		sensorVal_t meanDist = mStateAvg[high] - mStateAvg[low];
 		sensorVal_t lowSpan = mStateMax[low] - mStateAvg[low];
 		sensorVal_t highSpan = mStateAvg[high] - mStateMin[high];
@@ -93,7 +102,7 @@ void CalibratedSensor::calibrate(CalibratedSensorState::e state)
 		mCP.schmittThresholdLow = mStateAvg[low] + (lowSpan*scaleFactor*INTERSECTION_THRESHOLD_PERCENTILE/100);
 	}
 
-	mCP.isCalibrated = true; // success!
+	mCP.state = resultState; // success!
 }
 
 void CalibratedSensor::debugCalibrationState()
@@ -130,12 +139,12 @@ bool CalibratedSensor::isCalibrated()
 {
 	//return mStateDataCollected[CalibratedSensorState::A] && mStateDataCollected[CalibratedSensorState::B];
 	// also support when data is loaded from persistent config
-	return mCP.isCalibrated;
+	return mCP.state!=CalibrationState::None;
 }
 
 void CalibratedSensor::resetCalibrationData()
 {
-	mCP.isCalibrated = false;
+	mCP.state = CalibrationState::None;
 	for (int s = 0; s < CalibratedSensorState::Count; s++) {
 		mStateDataCollected[s] = false;
 	}

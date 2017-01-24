@@ -20,7 +20,7 @@ private:
 	PersistentSettings(const PersistentSettings &rhs);
 	PersistentSettings & operator=(const PersistentSettings &rhs);
 
-	const int SCHEMA_VERSION = 3;
+	const int SCHEMA_VERSION = 1;
 	const int EEPROM_START = 0;
 	const long TOKEN = 1594354L; // some random token to identify that we use this EEPROM
 

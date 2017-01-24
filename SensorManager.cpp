@@ -242,5 +242,6 @@ void SensorManager::sendCalibrationParams(sensorCount_t sensorId)
 	packet.lowPassAlpha = sensor.sensor->getExpMovingAverageAlpha();
 	packet.triggerHigh = sensor.sensor->getSchmittThresholdHigh();
 	packet.triggerLow = sensor.sensor->getSchmittThresholdLow();
+	packet.calibrationState = sensor.sensor->getCalibrationState();
 	mClient.sendCalibrationParams(packet);
 }
