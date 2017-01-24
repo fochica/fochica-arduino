@@ -1,7 +1,9 @@
 // our classes, added here automatically on "add code" wizard
 // keep only what we need for the main file
 
-//#define USE_SD_LIBRARY // The SD library takes over 0.5KB RAM and lots of Flash memory. Practical use is only possible of larger bords, such as the Mega, not Uno.
+#ifdef  ARDUINO_AVR_MEGA2560
+#define USE_SD_LIBRARY // The SD library takes over 0.5KB RAM and lots of Flash memory. Practical use is only possible of larger bords, such as the Mega, not Uno.
+#endif
 
 #include "PacketSensorOperation.h"
 #include "SensorOperation.h"
@@ -93,8 +95,11 @@ RTCImpl_Sync rtc;
 #else
 RTCImpl_DS1307 rtc;
 #endif
+#ifdef USE_SD_LIBRARY
+PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memory.
+#else
 PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
-//PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memory.
+#endif
 Manager& manager = Manager::getInstance();
 
 void setup()
