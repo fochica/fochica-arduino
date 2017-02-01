@@ -14,6 +14,8 @@
 
 ///////////
 // INCLUDES
+#include "EventHandlerDisconnectedStateChange.h"
+#include "EventHandlerConnectedStateChange.h"
 #include "DischargeProtectionManager.h"
 #include "PersistentLog.h"
 #include "PersistentLogImpl_Serial.h"
@@ -130,6 +132,10 @@ CalibratedSensor lowBatCharge(&bat, DISCHARGE_PROTECTION_ALPHA, DISCHARGE_PROTEC
 DischargeProtectionManager dischargeProtection(lowBatCharge, DISCHARGE_PROTECTION_PIN);
 #endif
 
+// event handlers
+EventHandlerDisconnectedStateChange ehDisconnectedStateChange;
+EventHandlerConnectedStateChange ehConnectedStateChange;
+
 // general manager
 Manager& manager = Manager::getInstance();
 
@@ -201,6 +207,11 @@ void setup()
 	manager.getClientManager().addDevice(&ble1);
 #endif
 	manager.getClientManager().setReceiverCallback(&manager);
+
+	// init event handlers
+	manager.setEventHandlerCount(3);
+	manager.addEventHandler(&ehConnectedStateChange);
+	manager.addEventHandler(&ehDisconnectedStateChange);
 
 	// misc
 	DebugStream->println(F("Free RAM: "));

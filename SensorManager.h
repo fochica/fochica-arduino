@@ -69,7 +69,6 @@ private:
 
 	const unsigned long SENSOR_STABILIZE_TIME = 10 * 1000; // in ms
 	const bool SOUND_ON_SENSOR_STATE_CHANGE = false;
-	const bool SOUND_ON_SEAT_STATE_CHANGE = true;
 
 	void releaseSensorMembers();
 	void releaseSeatMembers();

@@ -206,16 +206,8 @@ void SensorManager::work()
 		}
 
 		if (mSeats[seatId].lastState != aggregatedState && mSeats[seatId].lastState!= SensorState::None) { // if change in state
-			//mEventHandler.eventSeatStateChange()
-
-			if (mClient.isConnected()) { // have connections to client
-				if (SOUND_ON_SEAT_STATE_CHANGE) {
-					SoundManager::getInstance().playBeep(BeepType::SeatStateChange);
-				}
-			}
-			else { // no connection to client, alert
-				SoundManager::getInstance().playBeep(BeepType::SeatStateChangeNoClient);
-			}
+			// notify manager
+			mCallback.eventSeatStateChange(seatId, mSeats[seatId].lastState, aggregatedState);
 		}
 		mSeats[seatId].lastState = aggregatedState; // save state for change detection next time
 		

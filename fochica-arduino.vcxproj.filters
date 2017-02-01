@@ -159,6 +159,12 @@
     <ClInclude Include="SensorMisc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EventHandlerConnectedStateChange.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EventHandlerDisconnectedStateChange.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -291,6 +297,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SensorMisc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EventHandlerConnectedStateChange.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EventHandlerDisconnectedStateChange.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

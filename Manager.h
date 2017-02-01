@@ -38,8 +38,8 @@ public:
 	void work();
 
 	// IEventHandlerState (functionality provided for EventHandlers to get state)
-	bool isConnected() { mClientManager.isConnected(); }
-	seatCount_t getSeatCount() { mSensorManager.getSeatCount(); }
+	bool isConnected() { return mClientManager.isConnected(); }
+	seatCount_t getSeatCount() { return mSensorManager.getSeatCount(); }
 	SensorState::e getSeatState(seatCount_t seatId) { return mSensorManager.getSeatState(seatId); }
 
 	// event handlers list

@@ -295,6 +295,11 @@ void Manager::eventHandlersWork()
 bool Manager::eventSeatStateChange(seatCount_t seatId, SensorState::e lastState, SensorState::e newState)
 {
 	for (int i = 0; i < mEventHandlerAddedCount; i++) {
+		//if (DebugStream) {
+		//	DebugStream->print(F("Calling eventSeatStateChange on an event handler, seatId="));
+		//	DebugStream->print(seatId);
+		//	DebugStream->println();
+		//}
 		if (mEventHandlers[i]->eventSeatStateChange(*this, seatId, lastState, newState) == false)
 			return false;
 	}
