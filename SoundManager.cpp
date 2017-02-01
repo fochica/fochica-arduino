@@ -60,6 +60,11 @@ void SoundManager::playBeep(BeepType::e beepType)
 		playTone(mPassiveBuzzerPin, 3000, 50, 0);
 		playTone(mPassiveBuzzerPin, 4000, 50, 0);
 		break;
+	case BeepType::DischargeProtectionShutdown:
+		playTone(mPassiveBuzzerPin, 950, 400, 50);
+		playTone(mPassiveBuzzerPin, 950, 400, 50);
+		playTone(mPassiveBuzzerPin, 950, 400, 50);
+		break;
 	default:
 		playTone(mPassiveBuzzerPin, 1800, 500, 30);
 		break;

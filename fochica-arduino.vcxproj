@@ -123,6 +123,7 @@
     <ClInclude Include="CalibratedSensorTester.h" />
     <ClInclude Include="ClientManager.h" />
     <ClInclude Include="DebugStream.h" />
+    <ClInclude Include="DischargeProtectionManager.h" />
     <ClInclude Include="GenericBLEModuleClient.h" />
     <ClInclude Include="IClient.h" />
     <ClInclude Include="IClientDevice.h" />
@@ -167,6 +168,7 @@
     <ClCompile Include="CalibratedSensorTester.cpp" />
     <ClCompile Include="ClientManager.cpp" />
     <ClCompile Include="DebugStream.cpp" />
+    <ClCompile Include="DischargeProtectionManager.cpp" />
     <ClCompile Include="GenericBLEModuleClient.cpp" />
     <ClCompile Include="IClient.cpp" />
     <ClCompile Include="IClientDevice.cpp" />

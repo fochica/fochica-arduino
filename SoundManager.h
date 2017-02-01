@@ -19,6 +19,7 @@ struct BeepType {
 		SensorStateChange,
 		SeatStateChange,
 		SeatStateChangeNoClient,
+		DischargeProtectionShutdown,
 		Error
 	};
 };

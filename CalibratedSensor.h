@@ -40,7 +40,7 @@ struct CalibrationParams {
 class CalibratedSensor
 {
 public:
-	CalibratedSensor(ISensor * raw, int expAlpha=0, sensorVal_t thLow=0, sensorVal_t thHigh=0); // must provide a valid raw sensor as source
+	CalibratedSensor(ISensor * raw, int expAlpha=0, sensorVal_t thLow=0, sensorVal_t thHigh=0, CalibratedSensorState::e initialState= INITIAL_STATE, sensorVal_t initialValue=INITIAL_RAW_VALUE); // must provide a valid raw sensor as source
 
 	// reading of value
 	CalibratedSensorState::e getValue(sensorVal_t * raw=NULL, sensorVal_t * debugFiltered=NULL);

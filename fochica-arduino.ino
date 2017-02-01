@@ -1,15 +1,22 @@
-// our classes, added here automatically on "add code" wizard
+// our new classes, added here automatically on "add code" wizard
 // keep only what we need for the main file
 
+/////////////
+// MAIN FLAGS
+#define DEVICE_LAB // build with sensors and adapter for device #2, used for testing in the lab. Otherwise device #1 used in field testing.
+
 #ifdef  ARDUINO_AVR_MEGA2560
-#define USE_SD_LIBRARY // The SD library takes over 0.5KB RAM and lots of Flash memory. Practical use is only possible of larger bords, such as the Mega, not Uno.
+#define USE_SD_MODULE // The SD library takes over 0.5KB RAM and lots of Flash memory. The SD module is an SPI devices and takes 4 pins. Practical use is only possible of larger bords, such as the Mega, not Uno.
 #endif
 
-#include "PacketSensorOperation.h"
-#include "SensorOperation.h"
+//#define USE_DISCHARGE_PROTECTION
+
+///////////
+// INCLUDES
+#include "DischargeProtectionManager.h"
 #include "PersistentLog.h"
 #include "PersistentLogImpl_Serial.h"
-#ifdef USE_SD_LIBRARY
+#ifdef USE_SD_MODULE
 #include "PersistentLogImpl_SD.h"
 #endif
 #include "CalibratedSensorTester.h"
@@ -30,34 +37,33 @@
 #include <SoftwareSerial.h>
 #include <RTClib.h>
 #include <EEPROM.h>
-#ifdef USE_SD_LIBRARY
+#ifdef USE_SD_MODULE
 #include <SD.h>
 #endif
 
-// settings
-#define DEVICE2 // build with sensors and adapter for device #2, used for testing in the lab. Otherwise device #1 used in field testing.
-
+///////////
+// SETTINGS
 const long SERIAL_BAUD = 115200;
 
-const int BATTERY_VOLTAGE_SENSOR_PIN = 1;
-const long BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND = 10000;
-const long BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE = 20000;
+const int BATTERY_VOLTAGE_SENSOR_PIN = 1; // analog pin#
+const long BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND = 10000; // 10Kohm
+const long BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE = 20000; // 20Kohm
 
 const int BUZZER_PIN = 4;
-#ifdef DEVICE2
+#ifdef DEVICE_LAB
 const int BUZZER_OFF_STATE = LOW; // LOW is using a NPN transistor (preffered) to drive the buzzer. HIGH if using a PNP.
 #else
 const int BUZZER_OFF_STATE = HIGH; // LOW is using a NPN transistor (preffered) to drive the buzzer. HIGH if using a PNP.
 #endif
 
-const int CAPACITANCE_READ_PIN = 2;
-const int CAPACITANCE_REF_PIN = 3;
+const int CAPACITANCE_READ_PIN = 2; // analog pin#
+const int CAPACITANCE_REF_PIN = 3; // analog pin#
 
 const int REED_SWITCH_PIN = 6;
 
-const int IR_DISTANCE_READ_PIN = 0;
+const int IR_DISTANCE_READ_PIN = 0; // analog pin#
 
-const int LOOP_DELAY = 1000;
+const int LOOP_DELAY = 1000; // seconds
 
 // Bluetooth Low Energy (HM-10 module)
 const int BLE_RX_PIN = 8; // yellow
@@ -69,41 +75,72 @@ const int BLE2_RX_PIN = 2; // yellow
 const int BLE2_TX_PIN = 3; // orange
 const int BLE2_STATE_PIN = 5; // gray
 
-const int SD_CS_PIN = 10;
+#ifdef USE_SD_MODULE
+const int SD_CS_PIN = ; // depends on module, probably pin 10. need to free it from being used by other component and allocate here.
+#endif
 
-// objects
+#ifdef USE_DISCHARGE_PROTECTION
+// Discharge protection "keep-alive" pin
+const int DISCHARGE_PROTECTION_PIN = 10;
+const int DISCHARGE_PROTECTION_ALPHA = 0.02 * CalibratedSensor::MAX_EXP_ALPHA; // can try values closer to 0.01 if discharge protection kicks in during engine cranking.
+const int DISCHARGE_PROTECTION_LOW_CHARGE_TH = 11500; // 11.5V
+const int DISCHARGE_PROTECTION_HIGH_CHARGE_TH = 12000; // 12V
+#endif
+
+//////////
+// OBJECTS
 // technical sensors
 SensorFreeRAM ram("SRAM");
 SensorVcc vcc("Vcc");
 SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND, BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE);
+
 // occupancy (business logic) sensors
 SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
 //SensorDigital digitalTest("Test", BLE_STATE_PIN); // just a test, reuse existing pin
 SensorDigital digitalReed("Reed", REED_SWITCH_PIN, INPUT_PULLUP);
-#ifndef DEVICE2
+#ifndef DEVICE_LAB
 SensorSharpIRDistance irDistance("IRDistance", IR_DISTANCE_READ_PIN);
+#endif
+
 // communication devices
-SoftwareSerial bleSerial1(BLE_RX_PIN, BLE_TX_PIN);
-GenericBLEModuleClient ble1(bleSerial1, BLE_STATE_PIN);
-#else
+#ifdef DEVICE_LAB
 SoftwareSerial bleSerial2(BLE2_RX_PIN, BLE2_TX_PIN);
 GenericBLEModuleClient ble2(bleSerial2, BLE2_STATE_PIN);
-#endif
-// misc
-#ifndef DEVICE2
-RTCImpl_Sync rtc;
 #else
-RTCImpl_DS1307 rtc;
+SoftwareSerial bleSerial1(BLE_RX_PIN, BLE_TX_PIN);
+GenericBLEModuleClient ble1(bleSerial1, BLE_STATE_PIN);
 #endif
-#ifdef USE_SD_LIBRARY
+
+// timing and logging
+#ifdef DEVICE_LAB
+RTCImpl_DS1307 rtc;
+#else
+RTCImpl_Sync rtc;
+#endif
+#ifdef USE_SD_MODULE
 PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memory.
 #else
 PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
 #endif
+
+// discharge protection
+#ifdef USE_DISCHARGE_PROTECTION
+CalibratedSensor lowBatCharge(&bat, DISCHARGE_PROTECTION_ALPHA, DISCHARGE_PROTECTION_LOW_CHARGE_TH, DISCHARGE_PROTECTION_HIGH_CHARGE_TH, CalibratedSensorState::B, DISCHARGE_PROTECTION_HIGH_CHARGE_TH); // set to start in state=B="high charge"
+DischargeProtectionManager dischargeProtection(lowBatCharge, DISCHARGE_PROTECTION_PIN);
+#endif
+
+// general manager
 Manager& manager = Manager::getInstance();
 
+///////
+// CODE
 void setup()
 {
+#ifdef USE_DISCHARGE_PROTECTION
+	// first thing, make sure we get power
+	dischargeProtection.begin();
+#endif
+
 	// init serial
 	Serial.begin(SERIAL_BAUD);
 	delay(10); // wait a little for dev env to connect before sending data	
@@ -129,7 +166,7 @@ void setup()
 
 	// init sensors
 	manager.getSensorManager().setSeatCount(1);
-#ifdef DEVICE2
+#ifdef DEVICE_LAB
 	manager.getSensorManager().setSensorCount(2);
 #else
 	manager.getSensorManager().setSensorCount(3);
@@ -138,7 +175,7 @@ void setup()
 	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
 	digitalReed.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalReed);
-#ifndef DEVICE2
+#ifndef DEVICE_LAB
 	irDistance.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::Above, &irDistance);
 #endif
@@ -155,12 +192,12 @@ void setup()
 	
 	// init comms
 	manager.getClientManager().setDeviceCount(1);
-#ifndef DEVICE2
-	ble1.begin();
-	manager.getClientManager().addDevice(&ble1);
-#else
+#ifdef DEVICE_LAB
 	ble2.begin();
 	manager.getClientManager().addDevice(&ble2);
+#else
+	ble1.begin();
+	manager.getClientManager().addDevice(&ble1);
 #endif
 	manager.getClientManager().setReceiverCallback(&manager);
 
@@ -184,10 +221,10 @@ void loop()
 	// debug
 	if (DebugStream) {
 		//DebugStream->println(F("Loop"));
-		DebugStream->println(ram.getValueInt());
+		//DebugStream->println(ram.getValueInt());
 		//DebugStream->println(vcc.getValueFloat());
-		//DebugStream->println(bat.getValueFloat());
-#ifndef DEVICE2
+		DebugStream->println(bat.getValueFloat());
+#ifndef DEVICE_LAB
 		//DebugStream->println(ble1.isConnected());
 		//DebugStream->println(irDistance.getValueInt());
 #endif
@@ -203,6 +240,9 @@ void loop()
 
 	// work
 	manager.work();
+#ifdef USE_DISCHARGE_PROTECTION
+	dischargeProtection.work();
+#endif
 
 	delay(LOOP_DELAY);
 }

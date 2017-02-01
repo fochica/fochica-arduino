@@ -5,11 +5,11 @@
 #include "CalibratedSensor.h"
 #include "DebugStream.h"
 
-CalibratedSensor::CalibratedSensor(ISensor * raw, int expAlpha, sensorVal_t thLow, sensorVal_t thHigh)
+CalibratedSensor::CalibratedSensor(ISensor * raw, int expAlpha, sensorVal_t thLow, sensorVal_t thHigh, CalibratedSensorState::e initialState, sensorVal_t initialValue)
 {
 	mRaw = raw;
-	mCurState = INITIAL_STATE;
-	mLastRawValue = INITIAL_RAW_VALUE;
+	mCurState = initialState;
+	mLastRawValue = initialValue;
 
 	// these come from calibration
 	mCP.expMovingAverageAlpha = expAlpha;
