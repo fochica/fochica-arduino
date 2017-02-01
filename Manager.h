@@ -12,15 +12,17 @@
 #include <RTClib.h> // for DateTime classes
 
 #include "IServer.h"
+#include "IEventHandlerState.h"
 #include "IRTC.h"
 #include "ClientManager.h"
 #include "SensorManager.h"
 #include "TechnicalManager.h"
+#include "IEventHandler.h"
 
 // This main class is a singleton
 // http://stackoverflow.com/questions/8811988/can-i-return-a-reference-to-a-static-class-singleton-instance-within-that-clas
 // http://stackoverflow.com/questions/13047526/difference-between-singleton-implemention-using-pointer-and-using-static-object
-class Manager : public IServer
+class Manager : public IServer, IEventHandlerState, ISensorManagerCallback
 {
 public:
 	static Manager& getInstance() {
@@ -35,11 +37,24 @@ public:
 
 	void work();
 
+	// IEventHandlerState (functionality provided for EventHandlers to get state)
+	bool isConnected() { mClientManager.isConnected(); }
+	seatCount_t getSeatCount() { mSensorManager.getSeatCount(); }
+	SensorState::e getSeatState(seatCount_t seatId) { return mSensorManager.getSeatState(seatId); }
+
+	// event handlers list
+	void setEventHandlerCount(int count);
+	bool addEventHandler(IEventHandler * handler);
+
+	// sensor manager callback
+	bool eventSeatStateChange(seatCount_t seatId, SensorState::e lastState, SensorState::e newState);
+
 private:
 	// protect constructors to prevent singleton modification
 	Manager();
 	Manager(const Manager &rhs);
 	Manager & operator=(const Manager &rhs);
+	~Manager();
 
 	// client notification
 	void onClientConnectionChange(bool isConnected);
@@ -77,6 +92,16 @@ private:
 	// unique device id generation
 	unsigned long mDeviceUniqueId; // a unique id. re-generated per boot. generated at first use (at conection to client) which helps get better entropy.
 	unsigned long getDeviceUniqueId(); // returns an id, generates it if needed
+
+	// event handlers
+	IEventHandler ** mEventHandlers; // pointer to an array of event handlers. this class doesn't allocate or free the handlers, just the array.
+	int mEventHandlerCount;
+	int mEventHandlerAddedCount;
+	void releaseEventHandlers();
+	// distribution helpers
+	void eventHandlersWork();
+	bool eventClientConnectionChange(bool isAdapterConnected);
+
 };
 
 #endif

@@ -1,5 +1,6 @@
 // our new classes, added here automatically on "add code" wizard
 // keep only what we need for the main file
+#define MARKER
 
 /////////////
 // MAIN FLAGS

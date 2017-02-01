@@ -9,13 +9,21 @@
 #include "SeatOperation.h"
 #include "SensorOperation.h"
 
-Manager::Manager() : mSensorManager(mClientManager)
+Manager::Manager() : mSensorManager(mClientManager, *this)
 {
 	mDeviceUniqueId = 0; // mark as not initialized
 	mDoneInitialSending = false;
 
 	mRepeatSendLogicalData = 0;
 	mRepeatSendCalibrationParams = 0;
+
+	mEventHandlerAddedCount = mEventHandlerCount = 0;
+	mEventHandlers = NULL;
+}
+
+Manager::~Manager()
+{
+	releaseEventHandlers();
 }
 
 void Manager::setRTC(IRTC * rtc)
@@ -44,6 +52,9 @@ void Manager::work()
 	mClientManager.work();
 	mSensorManager.work();
 	mTechnicalManager.work(&mClientManager);
+
+	// event handlers
+	eventHandlersWork();
 
 	// handle sending of initial data to client on start, further sync will happen on events
 	// https://trello.com/c/RDiZhuAY/81-send-packets-on-begin-if-connected
@@ -87,6 +98,9 @@ void Manager::onClientConnectionChange(bool isConnected)
 		// send calibration params
 		sendCalibrationParams();
 	}
+
+	// update event handlers
+	eventClientConnectionChange(isConnected);
 }
 
 bool Manager::receiveTime(const PacketTime & packet)
@@ -241,5 +255,58 @@ unsigned long Manager::getDeviceUniqueId()
 		mDeviceUniqueId = RNGUtils::generateEntropyWithAnalogInputs();
 	} while (mDeviceUniqueId == 0); // generate from entropy source until we get a value that is not 0
 	return mDeviceUniqueId;
+}
+
+void Manager::releaseEventHandlers()
+{
+	if (mEventHandlers != NULL) {
+		delete[] mEventHandlers;
+		mEventHandlers = NULL;
+	}
+}
+
+void Manager::setEventHandlerCount(int count)
+{
+	releaseEventHandlers();
+	mEventHandlerCount = count;
+	mEventHandlerAddedCount = 0;
+	mEventHandlers = new IEventHandler *[count];
+}
+
+bool Manager::addEventHandler(IEventHandler * handler)
+{
+	if (mEventHandlerAddedCount >= mEventHandlerCount) {
+		if (DebugStream != NULL) DebugStream->println(F("Manager::addEventHandler, trying to add more events than declared"));
+		return false;
+	}
+
+	mEventHandlers[mEventHandlerAddedCount] = handler;
+
+	mEventHandlerAddedCount++;
+	return true;
+}
+
+void Manager::eventHandlersWork()
+{
+	for (int i = 0; i < mEventHandlerAddedCount; i++)
+		mEventHandlers[i]->work(*this);
+}
+
+bool Manager::eventSeatStateChange(seatCount_t seatId, SensorState::e lastState, SensorState::e newState)
+{
+	for (int i = 0; i < mEventHandlerAddedCount; i++) {
+		if (mEventHandlers[i]->eventSeatStateChange(*this, seatId, lastState, newState) == false)
+			return false;
+	}
+	return true;
+}
+
+bool Manager::eventClientConnectionChange(bool isAdapterConnected)
+{
+	for (int i = 0; i < mEventHandlerAddedCount; i++) {
+		if (mEventHandlers[i]->eventClientConnectionChange(*this, isAdapterConnected) == false)
+			return false;
+	}
+	return true;
 }
 

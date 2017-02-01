@@ -7,7 +7,7 @@
 #include "SoundManager.h"
 #include "PersistentSettings.h"
 
-SensorManager::SensorManager(IClientDevice & client) : mClient(client)
+SensorManager::SensorManager(IClientDevice & client, ISensorManagerCallback & callback) : mClient(client), mCallback(callback)
 {
 	mSeatCount = mSensorCount = mSensorAddedCount = 0;
 	mSensors = NULL;
@@ -122,6 +122,14 @@ void SensorManager::setSensorActivityMode(sensorCount_t sensorId, SensorActivity
 	PersistentSettings::getInstance().writeSeatSensorPersistentParams(sensorId, sensor.seatId, sensor.sensorRaw->getType(), sensor.location, pp);
 }
 
+SensorState::e SensorManager::getSeatState(seatCount_t seatId)
+{
+	if (seatId >= mSeatCount) // sanity and security check
+		return SensorState::None;
+	SeatData& seat = mSeats[seatId];
+	return seat.lastState;
+}
+
 void SensorManager::work()
 {
 	// for each seat
@@ -198,6 +206,8 @@ void SensorManager::work()
 		}
 
 		if (mSeats[seatId].lastState != aggregatedState && mSeats[seatId].lastState!= SensorState::None) { // if change in state
+			//mEventHandler.eventSeatStateChange()
+
 			if (mClient.isConnected()) { // have connections to client
 				if (SOUND_ON_SEAT_STATE_CHANGE) {
 					SoundManager::getInstance().playBeep(BeepType::SeatStateChange);

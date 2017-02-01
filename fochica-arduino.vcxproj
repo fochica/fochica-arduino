@@ -127,9 +127,12 @@
     <ClInclude Include="GenericBLEModuleClient.h" />
     <ClInclude Include="IClient.h" />
     <ClInclude Include="IClientDevice.h" />
+    <ClInclude Include="IEventHandler.h" />
+    <ClInclude Include="IEventHandlerState.h" />
     <ClInclude Include="IPersistentLog.h" />
     <ClInclude Include="IRTC.h" />
     <ClInclude Include="ISensor.h" />
+    <ClInclude Include="ISensorManagerCallback.h" />
     <ClInclude Include="IServer.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Packet.h" />
@@ -153,6 +156,7 @@
     <ClInclude Include="SensorDigital.h" />
     <ClInclude Include="SensorFreeRAM.h" />
     <ClInclude Include="SensorManager.h" />
+    <ClInclude Include="SensorMisc.h" />
     <ClInclude Include="SensorMock.h" />
     <ClInclude Include="SensorOperation.h" />
     <ClInclude Include="SensorQtouch.h" />
@@ -172,9 +176,12 @@
     <ClCompile Include="GenericBLEModuleClient.cpp" />
     <ClCompile Include="IClient.cpp" />
     <ClCompile Include="IClientDevice.cpp" />
+    <ClCompile Include="IEventHandler.cpp" />
+    <ClCompile Include="IEventHandlerState.cpp" />
     <ClCompile Include="IPersistentLog.cpp" />
     <ClCompile Include="IRTC.cpp" />
     <ClCompile Include="ISensor.cpp" />
+    <ClCompile Include="ISensorManagerCallback.cpp" />
     <ClCompile Include="IServer.cpp" />
     <ClCompile Include="Manager.cpp" />
     <ClCompile Include="PacketCalibrationParams.cpp" />
@@ -196,6 +203,7 @@
     <ClCompile Include="SensorDigital.cpp" />
     <ClCompile Include="SensorFreeRAM.cpp" />
     <ClCompile Include="SensorManager.cpp" />
+    <ClCompile Include="SensorMisc.cpp" />
     <ClCompile Include="SensorMock.cpp" />
     <ClCompile Include="SensorOperation.cpp" />
     <ClCompile Include="SensorQtouch.cpp" />

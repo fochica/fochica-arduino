@@ -12,31 +12,8 @@
 #include "ISensor.h"
 #include "IClientDevice.h"
 #include "CalibratedSensor.h"
-
-typedef uint8_t seatCount_t;
-typedef uint8_t sensorCount_t;
-
-struct SensorLocation {
-	enum e { Virtual, UnderSeat, Chest, Above };
-};
-
-struct SensorState { // relevant for seat sensors
-	enum e { 
-		None, // no sensors to form an opinion for aggregated sensor or initial state for a single sensor
-		Occupied,
-		Empty,
-		NotCalibrated,
-		Disabled,
-		// aggregated states
-		Stabilizing, // disagreement but still in time window to be resolved.
-		SensorConflict, // disagreement past time window
-		Count
-	};
-};
-
-struct SensorActivityMode {
-	enum e { Active, Deactivated, Disabled }; // Deactivated: don't take part in aggregated state, Disabled: don't even take readings
-};
+#include "ISensorManagerCallback.h"
+#include "SensorMisc.h"
 
 // part of the persistent schema, probably need to increase version number if this is changed
 struct SensorPersistentParams {
@@ -51,7 +28,7 @@ struct SensorPersistentParams {
 class SensorManager
 {
 public:
-	SensorManager(IClientDevice & client);
+	SensorManager(IClientDevice & client, ISensorManagerCallback & callback);
 	~SensorManager();
 
 	void setSeatCount(seatCount_t seatCount);
@@ -62,6 +39,7 @@ public:
 	void calibrate(seatCount_t seatId, SensorState::e state);
 	bool sendCalibrationParams();
 	void setSensorActivityMode(sensorCount_t sensorId, SensorActivityMode::e activityMode);
+	SensorState::e getSeatState(seatCount_t seatId);
 
 	void work();
 	
@@ -87,6 +65,7 @@ private:
 	SeatData* mSeats;
 
 	IClientDevice & mClient; // IClient interface to client manager, encapsulating several clients and client devices
+	ISensorManagerCallback & mCallback; // interface back to Manager
 
 	const unsigned long SENSOR_STABILIZE_TIME = 10 * 1000; // in ms
 	const bool SOUND_ON_SENSOR_STATE_CHANGE = false;

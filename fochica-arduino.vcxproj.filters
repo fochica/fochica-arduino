@@ -147,6 +147,18 @@
     <ClInclude Include="DischargeProtectionManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IEventHandlerState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IEventHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ISensorManagerCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SensorMisc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -267,6 +279,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DischargeProtectionManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IEventHandlerState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IEventHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ISensorManagerCallback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SensorMisc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
