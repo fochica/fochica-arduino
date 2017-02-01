@@ -136,6 +136,14 @@ Manager& manager = Manager::getInstance();
 // CODE
 void setup()
 {
+	// init tech sensors and params
+	vcc.begin();
+	manager.getTechnicalManager().setVccSensor(&vcc);
+	bat.begin();
+	manager.getTechnicalManager().setCarBatteryVoltageSensor(&bat);
+	ram.begin();
+	manager.getTechnicalManager().setFreeRAMSensor(&ram);
+
 #ifdef USE_DISCHARGE_PROTECTION
 	// first thing, make sure we get power
 	dischargeProtection.begin();
@@ -182,14 +190,6 @@ void setup()
 	//digitalTest.begin();
 	//manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalTest);
 
-	// init tech sensors and params
-	vcc.begin();
-	manager.getTechnicalManager().setVccSensor(&vcc);
-	bat.begin();
-	manager.getTechnicalManager().setCarBatteryVoltageSensor(&bat);
-	ram.begin();
-	manager.getTechnicalManager().setFreeRAMSensor(&ram);
-	
 	// init comms
 	manager.getClientManager().setDeviceCount(1);
 #ifdef DEVICE_LAB
