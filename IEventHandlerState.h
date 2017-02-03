@@ -18,6 +18,9 @@ public:
 	virtual bool isConnected() =0;
 	virtual seatCount_t getSeatCount() =0;
 	virtual SensorState::e getSeatState(seatCount_t seatId) =0;
+
+	// helper
+	virtual bool isAnySeatNotEmpty();
 };
 
 #endif

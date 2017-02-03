@@ -14,6 +14,7 @@
 
 ///////////
 // INCLUDES
+#include "EventHandlerExternalAlertTrigger.h"
 #include "EventHandlerFallbackReminder.h"
 #include "EventHandlerDisconnectedStateChange.h"
 #include "EventHandlerConnectedStateChange.h"
@@ -145,6 +146,7 @@ CalibratedSensor carEngineState(&bat, CAR_ENGINE_ALPHA, CAR_ENGINE_OFF_TH, CAR_E
 EventHandlerDisconnectedStateChange ehDisconnectedStateChange;
 EventHandlerConnectedStateChange ehConnectedStateChange;
 EventHandlerFallbackReminder ehFallbackReminder(carEngineState); // doesn't work for cars that turn the engine off automatically during stops
+EventHandlerExternalAlertTrigger ehAlertLed(carEngineState, 10000, 13); // example external alert trigger. turn on-board led (13) as an indication of alert.
 
 // general manager
 Manager& manager = Manager::getInstance();
@@ -219,10 +221,12 @@ void setup()
 	manager.getClientManager().setReceiverCallback(&manager);
 
 	// init event handlers
-	manager.setEventHandlerCount(3);
+	manager.setEventHandlerCount(4);
 	manager.addEventHandler(&ehConnectedStateChange);
 	manager.addEventHandler(&ehDisconnectedStateChange);
 	manager.addEventHandler(&ehFallbackReminder);
+	ehAlertLed.begin();
+	manager.addEventHandler(&ehAlertLed);
 
 	// misc
 	DebugStream->println(F("Free RAM: "));

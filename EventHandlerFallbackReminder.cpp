@@ -27,7 +27,7 @@ void EventHandlerFallbackReminder::work(IEventHandlerState & state)
 
 	// start alert if we are not connected and any seat is occupied and the engine is turned off
 	if (mAlertActive==false && mLastEngineState != engineState && engineState==ENGINE_OFF) {
-		if (state.isConnected() == false && isAnySeatNotEmpty(state) == true) {
+		if (state.isConnected() == false && state.isAnySeatNotEmpty() == true) {
 			// start alert
 			mAlertActive = true;
 			mNextNotification = millis();
@@ -41,7 +41,7 @@ void EventHandlerFallbackReminder::work(IEventHandlerState & state)
 	// handle alert mode
 	if (mAlertActive) {
 		// stop if we got connected to a client or if all seats are empty or if car engine is running again
-		if (state.isConnected() || isAnySeatNotEmpty(state) == false || engineState == ENGINE_RUNNING) {
+		if (state.isConnected() || state.isAnySeatNotEmpty() == false || engineState == ENGINE_RUNNING) {
 			mAlertActive = false;
 			if (DebugStream) {
 				DebugStream->println(F("Fallback reminder alert stop"));
@@ -56,14 +56,4 @@ void EventHandlerFallbackReminder::work(IEventHandlerState & state)
 			}
 		}
 	}
-}
-
-bool EventHandlerFallbackReminder::isAnySeatNotEmpty(IEventHandlerState & state)
-{
-	seatCount_t seats = state.getSeatCount();
-	for (seatCount_t i = 0; i < seats; i++) {
-		if (state.getSeatState(i) != SensorState::Empty)
-			return true;
-	}
-	return false;
 }
