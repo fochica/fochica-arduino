@@ -126,6 +126,7 @@
     <ClInclude Include="DischargeProtectionManager.h" />
     <ClInclude Include="EventHandlerConnectedStateChange.h" />
     <ClInclude Include="EventHandlerDisconnectedStateChange.h" />
+    <ClInclude Include="EventHandlerFallbackReminder.h" />
     <ClInclude Include="GenericBLEModuleClient.h" />
     <ClInclude Include="IClient.h" />
     <ClInclude Include="IClientDevice.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="DischargeProtectionManager.cpp" />
     <ClCompile Include="EventHandlerConnectedStateChange.cpp" />
     <ClCompile Include="EventHandlerDisconnectedStateChange.cpp" />
+    <ClCompile Include="EventHandlerFallbackReminder.cpp" />
     <ClCompile Include="GenericBLEModuleClient.cpp" />
     <ClCompile Include="IClient.cpp" />
     <ClCompile Include="IClientDevice.cpp" />

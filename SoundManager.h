@@ -20,6 +20,7 @@ struct BeepType {
 		SeatStateChange,
 		SeatStateChangeNoClient,
 		DischargeProtectionShutdown,
+		FallbackReminderAlert,
 		Error
 	};
 };

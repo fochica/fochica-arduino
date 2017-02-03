@@ -16,8 +16,8 @@ class IEventHandler
 {
 public:
 	virtual void work(IEventHandlerState &state) {};
-	virtual bool eventSeatStateChange(IEventHandlerState &state, seatCount_t seatId, SensorState::e lastState, SensorState::e newState) {};
-	virtual bool eventClientConnectionChange(IEventHandlerState &state, bool isAdapterConnected) {};
+	virtual bool eventSeatStateChange(IEventHandlerState &state, seatCount_t seatId, SensorState::e lastState, SensorState::e newState) { return true; };
+	virtual bool eventClientConnectionChange(IEventHandlerState &state, bool isAdapterConnected) { return true; };
 };
 
 #endif

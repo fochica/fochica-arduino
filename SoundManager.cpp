@@ -65,6 +65,9 @@ void SoundManager::playBeep(BeepType::e beepType)
 		playTone(mPassiveBuzzerPin, 950, 400, 50);
 		playTone(mPassiveBuzzerPin, 950, 400, 50);
 		break;
+	case BeepType::FallbackReminderAlert:
+		playTone(mPassiveBuzzerPin, 400, 100, 30);
+		break;
 	default:
 		playTone(mPassiveBuzzerPin, 1800, 500, 30);
 		break;

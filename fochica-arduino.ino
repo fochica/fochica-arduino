@@ -14,6 +14,7 @@
 
 ///////////
 // INCLUDES
+#include "EventHandlerFallbackReminder.h"
 #include "EventHandlerDisconnectedStateChange.h"
 #include "EventHandlerConnectedStateChange.h"
 #include "DischargeProtectionManager.h"
@@ -90,6 +91,10 @@ const int DISCHARGE_PROTECTION_LOW_CHARGE_TH = 11500; // 11.5V
 const int DISCHARGE_PROTECTION_HIGH_CHARGE_TH = 12000; // 12V
 #endif
 
+const int CAR_ENGINE_ALPHA = 0.2 * CalibratedSensor::MAX_EXP_ALPHA;
+const int CAR_ENGINE_OFF_TH = 13000; // 13V
+const int CAR_ENGINE_RUNNING_TH = 13500; // 13.5V
+
 //////////
 // OBJECTS
 // technical sensors
@@ -132,9 +137,14 @@ CalibratedSensor lowBatCharge(&bat, DISCHARGE_PROTECTION_ALPHA, DISCHARGE_PROTEC
 DischargeProtectionManager dischargeProtection(lowBatCharge, DISCHARGE_PROTECTION_PIN);
 #endif
 
+// car engine running detection
+// State A is off and B is running. start with default A state
+CalibratedSensor carEngineState(&bat, CAR_ENGINE_ALPHA, CAR_ENGINE_OFF_TH, CAR_ENGINE_RUNNING_TH);
+
 // event handlers
 EventHandlerDisconnectedStateChange ehDisconnectedStateChange;
 EventHandlerConnectedStateChange ehConnectedStateChange;
+EventHandlerFallbackReminder ehFallbackReminder(carEngineState); // doesn't work for cars that turn the engine off automatically during stops
 
 // general manager
 Manager& manager = Manager::getInstance();
@@ -212,6 +222,7 @@ void setup()
 	manager.setEventHandlerCount(3);
 	manager.addEventHandler(&ehConnectedStateChange);
 	manager.addEventHandler(&ehDisconnectedStateChange);
+	manager.addEventHandler(&ehFallbackReminder);
 
 	// misc
 	DebugStream->println(F("Free RAM: "));
