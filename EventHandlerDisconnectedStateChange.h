@@ -10,11 +10,17 @@
 #endif
 
 #include "IEventHandler.h"
-#include "SoundManager.h"
 
+// Makes a sound notification when a seat state changes and there is no client connected.
+// This indicates a warning to the user that system is not in an optimal state.
 class EventHandlerDisconnectedStateChange : public IEventHandler
 {
+public:
+	EventHandlerDisconnectedStateChange(bool includePseudoChanges = false) : mIncludePseudoChanges(includePseudoChanges) {}
 	bool eventSeatStateChange(IEventHandlerState &state, seatCount_t seatId, SensorState::e lastState, SensorState::e newState);
+
+private:
+	bool mIncludePseudoChanges;
 };
 
 #endif

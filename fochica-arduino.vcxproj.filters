@@ -171,6 +171,12 @@
     <ClInclude Include="EventHandlerExternalAlertTrigger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EventHandlerConnectedSensorStateChange.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EventHandlerWriteToPersistentLog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -315,6 +321,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EventHandlerExternalAlertTrigger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EventHandlerConnectedSensorStateChange.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EventHandlerWriteToPersistentLog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

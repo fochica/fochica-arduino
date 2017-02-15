@@ -124,10 +124,12 @@
     <ClInclude Include="ClientManager.h" />
     <ClInclude Include="DebugStream.h" />
     <ClInclude Include="DischargeProtectionManager.h" />
+    <ClInclude Include="EventHandlerConnectedSensorStateChange.h" />
     <ClInclude Include="EventHandlerConnectedStateChange.h" />
     <ClInclude Include="EventHandlerDisconnectedStateChange.h" />
     <ClInclude Include="EventHandlerExternalAlertTrigger.h" />
     <ClInclude Include="EventHandlerFallbackReminder.h" />
+    <ClInclude Include="EventHandlerWriteToPersistentLog.h" />
     <ClInclude Include="GenericBLEModuleClient.h" />
     <ClInclude Include="IClient.h" />
     <ClInclude Include="IClientDevice.h" />
@@ -177,10 +179,12 @@
     <ClCompile Include="ClientManager.cpp" />
     <ClCompile Include="DebugStream.cpp" />
     <ClCompile Include="DischargeProtectionManager.cpp" />
+    <ClCompile Include="EventHandlerConnectedSensorStateChange.cpp" />
     <ClCompile Include="EventHandlerConnectedStateChange.cpp" />
     <ClCompile Include="EventHandlerDisconnectedStateChange.cpp" />
     <ClCompile Include="EventHandlerExternalAlertTrigger.cpp" />
     <ClCompile Include="EventHandlerFallbackReminder.cpp" />
+    <ClCompile Include="EventHandlerWriteToPersistentLog.cpp" />
     <ClCompile Include="GenericBLEModuleClient.cpp" />
     <ClCompile Include="IClient.cpp" />
     <ClCompile Include="IClientDevice.cpp" />

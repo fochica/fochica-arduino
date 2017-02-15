@@ -15,6 +15,7 @@ class ISensorManagerCallback
 {
 public:
 	virtual bool eventSeatStateChange(seatCount_t seatId, SensorState::e lastState, SensorState::e newState) = 0;
+	virtual bool eventSensorStateChange(seatCount_t seatId, sensorCount_t sensorId, SensorState::e lastState, SensorState::e newState) = 0;
 };
 
 #endif

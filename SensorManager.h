@@ -68,7 +68,6 @@ private:
 	ISensorManagerCallback & mCallback; // interface back to Manager
 
 	const unsigned long SENSOR_STABILIZE_TIME = 10 * 1000; // in ms
-	const bool SOUND_ON_SENSOR_STATE_CHANGE = false;
 
 	void releaseSensorMembers();
 	void releaseSeatMembers();

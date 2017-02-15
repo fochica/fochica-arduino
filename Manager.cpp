@@ -311,6 +311,15 @@ bool Manager::eventSeatStateChange(seatCount_t seatId, SensorState::e lastState,
 	return true;
 }
 
+bool Manager::eventSensorStateChange(seatCount_t seatId, sensorCount_t sensorId, SensorState::e lastState, SensorState::e newState)
+{
+	for (int i = 0; i < mEventHandlerAddedCount; i++) {
+		if (mEventHandlers[i]->eventSensorStateChange(*this, seatId, sensorId, lastState, newState) == false)
+			return false;
+	}
+	return true;
+}
+
 bool Manager::eventClientConnectionChange(bool isAdapterConnected)
 {
 	for (int i = 0; i < mEventHandlerAddedCount; i++) {

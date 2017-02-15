@@ -48,6 +48,7 @@ public:
 
 	// sensor manager callback
 	bool eventSeatStateChange(seatCount_t seatId, SensorState::e lastState, SensorState::e newState);
+	bool eventSensorStateChange(seatCount_t seatId, sensorCount_t sensorId, SensorState::e lastState, SensorState::e newState);
 
 private:
 	// protect constructors to prevent singleton modification

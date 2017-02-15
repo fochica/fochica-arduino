@@ -183,9 +183,7 @@ void SensorManager::work()
 
 				// respond to state change
 				if (sensor.lastState != state && sensor.lastState!= SensorState::None) {
-					if (SOUND_ON_SENSOR_STATE_CHANGE) {
-						SoundManager::getInstance().playBeep(BeepType::SensorStateChange);
-					}
+					mCallback.eventSensorStateChange(seatId, sensorId, sensor.lastState, state);
 				}
 				sensor.lastState = state; // save
 			}

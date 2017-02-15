@@ -14,8 +14,10 @@
 
 ///////////
 // INCLUDES
+#include "EventHandlerWriteToPersistentLog.h"
 #include "EventHandlerExternalAlertTrigger.h"
 #include "EventHandlerFallbackReminder.h"
+#include "EventHandlerConnectedSensorStateChange.h"
 #include "EventHandlerDisconnectedStateChange.h"
 #include "EventHandlerConnectedStateChange.h"
 #include "DischargeProtectionManager.h"
@@ -153,9 +155,11 @@ CalibratedSensor carEngineState(&bat, CAR_ENGINE_ALPHA, CAR_ENGINE_OFF_TH, CAR_E
 
 // event handlers
 EventHandlerDisconnectedStateChange ehDisconnectedStateChange;
-EventHandlerConnectedStateChange ehConnectedStateChange;
+//EventHandlerConnectedStateChange ehConnectedStateChange; // this makes a sound on seat state changes, which are aggregated states
+EventHandlerConnectedSensorStateChange ehConnectedStateChange; // this makes a sound on sensor changes, which are lower level events
 EventHandlerFallbackReminder ehFallbackReminder(carEngineState); // doesn't work for cars that turn the engine off automatically during stops
-EventHandlerExternalAlertTrigger ehAlertLed(carEngineState, 10000, 13); // example external alert trigger. turn on-board led (13) as an indication of alert.
+EventHandlerExternalAlertTrigger ehAlertLed(carEngineState, 10000, 13); // example of an external alert trigger. turn on-board led (13) as an indication of alert.
+EventHandlerWriteToPersistentLog ehPersistentLog;
 
 // general manager
 Manager& manager = Manager::getInstance();
@@ -242,12 +246,13 @@ void setup()
 	// init event handlers
 	if (persistentFile)
 		persistentFile->println(F("Initializing event handlers"));
-	manager.setEventHandlerCount(4);
+	manager.setEventHandlerCount(5);
 	manager.addEventHandler(&ehConnectedStateChange);
 	manager.addEventHandler(&ehDisconnectedStateChange);
 	manager.addEventHandler(&ehFallbackReminder);
 	ehAlertLed.begin();
 	manager.addEventHandler(&ehAlertLed);
+	manager.addEventHandler(&ehPersistentLog);
 
 	// misc
 	if (DebugStream) {
