@@ -14,6 +14,7 @@
 
 ///////////
 // INCLUDES
+#include "EventHandlerNotifyClientConnectionChange.h"
 #include "EventHandlerWriteToPersistentLog.h"
 #include "EventHandlerExternalAlertTrigger.h"
 #include "EventHandlerFallbackReminder.h"
@@ -160,6 +161,7 @@ EventHandlerConnectedSensorStateChange ehConnectedStateChange; // this makes a s
 EventHandlerFallbackReminder ehFallbackReminder(carEngineState); // doesn't work for cars that turn the engine off automatically during stops
 EventHandlerExternalAlertTrigger ehAlertLed(carEngineState, 10000, 13); // example of an external alert trigger. turn on-board led (13) as an indication of alert.
 EventHandlerWriteToPersistentLog ehPersistentLog;
+EventHandlerNotifyClientConnectionChange ehClientConnectionChange;
 
 // general manager
 Manager& manager = Manager::getInstance();
@@ -246,13 +248,14 @@ void setup()
 	// init event handlers
 	if (persistentFile)
 		persistentFile->println(F("Initializing event handlers"));
-	manager.setEventHandlerCount(5);
+	manager.setEventHandlerCount(6);
 	manager.addEventHandler(&ehConnectedStateChange);
 	manager.addEventHandler(&ehDisconnectedStateChange);
 	manager.addEventHandler(&ehFallbackReminder);
 	ehAlertLed.begin();
 	manager.addEventHandler(&ehAlertLed);
 	manager.addEventHandler(&ehPersistentLog);
+	manager.addEventHandler(&ehClientConnectionChange);
 
 	// misc
 	if (DebugStream) {

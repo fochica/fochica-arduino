@@ -177,6 +177,9 @@
     <ClInclude Include="EventHandlerWriteToPersistentLog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EventHandlerNotifyClientConnectionChange.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager.cpp">
@@ -327,6 +330,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EventHandlerWriteToPersistentLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EventHandlerNotifyClientConnectionChange.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

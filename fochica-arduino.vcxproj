@@ -129,6 +129,7 @@
     <ClInclude Include="EventHandlerDisconnectedStateChange.h" />
     <ClInclude Include="EventHandlerExternalAlertTrigger.h" />
     <ClInclude Include="EventHandlerFallbackReminder.h" />
+    <ClInclude Include="EventHandlerNotifyClientConnectionChange.h" />
     <ClInclude Include="EventHandlerWriteToPersistentLog.h" />
     <ClInclude Include="GenericBLEModuleClient.h" />
     <ClInclude Include="IClient.h" />
@@ -184,6 +185,7 @@
     <ClCompile Include="EventHandlerDisconnectedStateChange.cpp" />
     <ClCompile Include="EventHandlerExternalAlertTrigger.cpp" />
     <ClCompile Include="EventHandlerFallbackReminder.cpp" />
+    <ClCompile Include="EventHandlerNotifyClientConnectionChange.cpp" />
     <ClCompile Include="EventHandlerWriteToPersistentLog.cpp" />
     <ClCompile Include="GenericBLEModuleClient.cpp" />
     <ClCompile Include="IClient.cpp" />
