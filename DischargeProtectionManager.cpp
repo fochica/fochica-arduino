@@ -33,11 +33,13 @@ void DischargeProtectionManager::work()
 			DebugStream->println();
 		}
 		if (PersistentLog) {
-			Print & f = PersistentLog->open();
-			f.print(F("Detecting low charge state and terminating keep-alive signal at pin="));
-			f.print(mKeepAlivePin);
-			f.println();
-			PersistentLog->close(f);
+			Print * f = PersistentLog->open();
+			if (f) {
+				f->print(F("Detecting low charge state and terminating keep-alive signal at pin="));
+				f->print(mKeepAlivePin);
+				f->println();
+				PersistentLog->close();
+			}
 		}
 		SoundManager::getInstance().playBeep(BeepType::DischargeProtectionShutdown);
 		digitalWrite(mKeepAlivePin, LOW);

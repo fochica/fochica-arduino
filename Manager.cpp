@@ -106,21 +106,26 @@ void Manager::onClientConnectionChange(bool isConnected)
 bool Manager::receiveTime(const PacketTime & packet)
 {
 	if (DebugStream != NULL) {
-		DebugStream->print(F("Got utc time "));
+		DebugStream->print(F("Got utc time: "));
 		DebugStream->println(packet.utcTime);
-		DebugStream->print(F("Got time offset "));
+		DebugStream->print(F("Got time offset: "));
 		DebugStream->println(packet.offsetToLocal);
 	}
 
 	if (mRTC == NULL)
 		return false; // we just ignore it, RTC is not mandatory
 
+	// set RTC to correct time
 	mTimeOffsetFromUtcToLocal = packet.offsetToLocal;
+	if (DebugStream != NULL) {
+		DebugStream->print(F("Setting RTC to: "));
+		DebugStream->println(packet.utcTime + packet.offsetToLocal);
+	}
 	mRTC->setUnixTime(packet.utcTime + packet.offsetToLocal);
 	
 	// verify
 	if (DebugStream!=NULL) {
-		DebugStream->print(F("Value at RTC (with offset) "));
+		DebugStream->print(F("Value at RTC (with offset): "));
 		DebugStream->println(mRTC->getUnixTime());
 		// render as date parts and print
 		PrintDate(*DebugStream, mRTC->getUnixTime());

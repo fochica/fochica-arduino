@@ -14,16 +14,16 @@ boolean PersistentLogImpl_Serial::begin()
 	return true;
 }
 
-Print & PersistentLogImpl_Serial::open()
+Print * PersistentLogImpl_Serial::open()
 {
 	DateTime dt(mRTC.getUnixTime());
 	printDate(mStream, dt);
 	mStream.print(F(", "));
 
-	return mStream;
+	return &mStream;
 }
 
-void PersistentLogImpl_Serial::close(Print & print)
+void PersistentLogImpl_Serial::close()
 {
 	// do nothing, serial log is kept open all the time
 }

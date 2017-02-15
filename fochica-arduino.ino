@@ -81,12 +81,16 @@ const int BLE2_TX_PIN = 3; // orange
 const int BLE2_STATE_PIN = 5; // gray
 
 #ifdef USE_SD_MODULE
-const int SD_CS_PIN = ; // depends on module, probably pin 10. need to free it from being used by other component and allocate here.
+const int SD_CS_PIN = 10; // depends on module, probably pin 10. need to free it from being used by other component and allocate here.
 #endif
 
 #ifdef USE_DISCHARGE_PROTECTION
 // Discharge protection "keep-alive" pin
+#ifndef USE_SD_MODULE // if we are not using pin 10 for SD card
 const int DISCHARGE_PROTECTION_PIN = 10;
+#else
+#error Allocate and define DISCHARGE_PROTECTION_PIN
+#endif
 const int DISCHARGE_PROTECTION_ALPHA = 0.02 * CalibratedSensor::MAX_EXP_ALPHA; // can try values closer to 0.01 if discharge protection kicks in during engine cranking.
 const int DISCHARGE_PROTECTION_LOW_CHARGE_TH = 11500; // 11.5V
 const int DISCHARGE_PROTECTION_HIGH_CHARGE_TH = 12000; // 12V
@@ -113,8 +117,12 @@ SensorSharpIRDistance irDistance("IRDistance", IR_DISTANCE_READ_PIN);
 
 // communication devices
 #ifdef DEVICE_LAB
+#ifdef HAVE_HWSERIAL2
+GenericBLEModuleClient ble2(Serial2, BLE2_STATE_PIN);
+#else
 SoftwareSerial bleSerial2(BLE2_RX_PIN, BLE2_TX_PIN);
 GenericBLEModuleClient ble2(bleSerial2, BLE2_STATE_PIN);
+#endif
 #else
 SoftwareSerial bleSerial1(BLE_RX_PIN, BLE_TX_PIN);
 GenericBLEModuleClient ble1(bleSerial1, BLE_STATE_PIN);
@@ -127,7 +135,8 @@ RTCImpl_DS1307 rtc;
 RTCImpl_Sync rtc;
 #endif
 #ifdef USE_SD_MODULE
-PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memory.
+//PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memory.
+PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
 #else
 PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
 #endif
@@ -174,13 +183,19 @@ void setup()
 
 	// debug and log interfaces
 	DebugStream = &Serial;
-	DebugStream->println(F("Start"));
+	if (DebugStream)
+		DebugStream->println(F("Start"));
 	rtc.begin();
 	manager.setRTC(&rtc);
 	if (logger.begin()) // if init ok
 		PersistentLog = &logger;
 	else
 		PersistentLog = NULL;
+	Print * persistentFile;
+	if (PersistentLog)
+		persistentFile = PersistentLog->open();
+	if(persistentFile)
+		persistentFile->println(F("Start"));
 
 	// testing of low ram conditions
 	//char * memGrab = "Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. ";
@@ -192,6 +207,8 @@ void setup()
 	//for (;;); // don't proceed to normal operation
 
 	// init sensors
+	if (persistentFile)
+		persistentFile->println(F("Initializing Sensors"));
 	manager.getSensorManager().setSeatCount(1);
 #ifdef DEVICE_LAB
 	manager.getSensorManager().setSensorCount(2);
@@ -210,6 +227,8 @@ void setup()
 	//manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalTest);
 
 	// init comms
+	if (persistentFile)
+		persistentFile->println(F("Initializing communications"));
 	manager.getClientManager().setDeviceCount(1);
 #ifdef DEVICE_LAB
 	ble2.begin();
@@ -221,6 +240,8 @@ void setup()
 	manager.getClientManager().setReceiverCallback(&manager);
 
 	// init event handlers
+	if (persistentFile)
+		persistentFile->println(F("Initializing event handlers"));
 	manager.setEventHandlerCount(4);
 	manager.addEventHandler(&ehConnectedStateChange);
 	manager.addEventHandler(&ehDisconnectedStateChange);
@@ -229,8 +250,15 @@ void setup()
 	manager.addEventHandler(&ehAlertLed);
 
 	// misc
-	DebugStream->println(F("Free RAM: "));
-	DebugStream->println(ram.getValueInt());
+	if (DebugStream) {
+		DebugStream->println(F("Free RAM: "));
+		DebugStream->println(ram.getValueInt());
+	}
+	if (persistentFile) {
+		persistentFile->println(F("Free RAM: "));
+		persistentFile->println(ram.getValueInt());
+		PersistentLog->close(); // close persistent log of the start process
+	}
 
 	// ram dump
 	//ram.dumpSRAMContent(Serial);
@@ -250,7 +278,7 @@ void loop()
 		//DebugStream->println(F("Loop"));
 		//DebugStream->println(ram.getValueInt());
 		//DebugStream->println(vcc.getValueFloat());
-		DebugStream->println(bat.getValueFloat());
+		//DebugStream->println(bat.getValueFloat());
 #ifndef DEVICE_LAB
 		//DebugStream->println(ble1.isConnected());
 		//DebugStream->println(irDistance.getValueInt());
@@ -260,9 +288,17 @@ void loop()
 	}
 
 	if (PersistentLog) {
-		Print & f = PersistentLog->open();
-		f.println(F("Test log"));
-		PersistentLog->close(f);
+		Print * f = PersistentLog->open();
+		if (f) {
+			f->print(F("Loop, RAM: "));
+			f->print(ram.getValueInt());
+			f->print(F(", Vcc: "));
+			f->print(vcc.getValueFloat());
+			f->print(F(", Vbat: "));
+			f->print(bat.getValueFloat());
+			f->println();
+			PersistentLog->close();
+		}
 	}
 
 	// work

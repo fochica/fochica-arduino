@@ -12,12 +12,13 @@
 #include <RTClib.h> // for DateTime
 
 // interface of a persistent log, such an SD card
+// supports only one open file at a time
 class IPersistentLog
 {
 public:
 	virtual boolean begin() = 0;
-	virtual Print & open() = 0;
-	virtual void close(Print &) = 0;
+	virtual Print * open() = 0;
+	virtual void close() = 0;
 
 protected:
 	void printDate(Print & out, const DateTime & d);

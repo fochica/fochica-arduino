@@ -19,8 +19,8 @@ class PersistentLogImpl_Serial : public IPersistentLog
 public:
 	PersistentLogImpl_Serial(Stream & stream, IRTC & rtc);
 	boolean begin();
-	Print & open(); // open a stream for writing, caller should close as soon as it is done writing
-	void close(Print & print);
+	Print * open(); // open a stream for writing, caller should close as soon as it is done writing
+	void close();
 
 private:
 	IRTC & mRTC;
