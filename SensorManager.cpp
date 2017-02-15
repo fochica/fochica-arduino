@@ -4,6 +4,7 @@
 
 #include "SensorManager.h"
 #include "DebugStream.h"
+#include "PersistentLog.h"
 #include "SoundManager.h"
 #include "PersistentSettings.h"
 
@@ -132,6 +133,13 @@ SensorState::e SensorManager::getSeatState(seatCount_t seatId)
 
 void SensorManager::work()
 {
+	// log, open file once for use in this method
+	Print * file;
+	if (PersistentLog)
+		file = PersistentLog->open();
+	if(file)
+		file->println(F("Sensor manager working"));
+
 	// for each seat
 	for (seatCount_t seatId = 0; seatId < mSeatCount; seatId++) {
 		SensorState::e aggregatedState = SensorState::None;
@@ -144,6 +152,13 @@ void SensorManager::work()
 				SensorState::e state;
 				if (sensor.activityMode == SensorActivityMode::Disabled) {
 					state = SensorState::Disabled;
+
+					// log
+					if (file) {
+						file->print(F("Sensor: "));
+						file->print(sensorId);
+						file->println(F(", is disabled"));
+					}
 				}
 				else {
 					CalibratedSensorState::e sensorState;
@@ -152,6 +167,23 @@ void SensorManager::work()
 						state = calibratedSensorStateToSeatSensorState(sensorState);
 					else
 						state = SensorState::NotCalibrated;
+
+					// log
+					if (file) {
+						file->print(F("Sensor: "));
+						file->print(sensorId);
+						file->print(F(", seat: "));
+						file->print(seatId);
+						file->print(F(", activityMode: "));
+						file->print(sensor.activityMode);
+						file->print(F(", value: "));
+						file->print(sensorRawValue);
+						file->print(F(", sensor state: "));
+						file->print(sensorState);
+						file->print(F(", calibrated state: "));
+						file->print(state);
+						file->println();
+					}
 				}
 
 				// send individual sensor values

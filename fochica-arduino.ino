@@ -138,8 +138,8 @@ RTCImpl_DS1307 rtc;
 RTCImpl_Sync rtc;
 #endif
 #ifdef USE_SD_MODULE
-//PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memory.
-PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
+PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memory.
+//PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
 #else
 PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
 #endif
@@ -259,11 +259,11 @@ void setup()
 
 	// misc
 	if (DebugStream) {
-		DebugStream->println(F("Free RAM: "));
+		DebugStream->print(F("Free RAM: "));
 		DebugStream->println(ram.getValueInt());
 	}
 	if (persistentFile) {
-		persistentFile->println(F("Free RAM: "));
+		persistentFile->print(F("Free RAM: "));
 		persistentFile->println(ram.getValueInt());
 		PersistentLog->close(); // close persistent log of the start process
 	}
