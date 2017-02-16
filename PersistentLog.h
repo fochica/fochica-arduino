@@ -13,5 +13,7 @@
 
 extern IPersistentLog * PersistentLog;
 
+#define PersistentLogWrite(X) if(PersistentLog) {Print * f=PersistentLog->open(); if(f) {f->println(X); PersistentLog->close();}}
+
 #endif
 

@@ -146,13 +146,6 @@ SensorState::e SensorManager::getSeatState(seatCount_t seatId)
 
 void SensorManager::work()
 {
-	// log, open file once for use in this method
-	Print * file;
-	if (PersistentLog)
-		file = PersistentLog->open();
-	if(file)
-		file->println(F("Sensor manager working"));
-
 	// for each seat
 	for (seatCount_t seatId = 0; seatId < mSeatCount; seatId++) {
 		SensorState::e aggregatedState = SensorState::None;
@@ -160,6 +153,11 @@ void SensorManager::work()
 		for (sensorCount_t sensorId=0; sensorId < mSensorAddedCount; sensorId++) {
 			SensorData& sensor = mSensors[sensorId];
 			if (sensor.seatId == seatId) { // of current seat
+				// open log, open file once per sensor. can't keep it open because the callbacks might also want to write to teh file
+				Print * file;
+				if (PersistentLog)
+					file = PersistentLog->open();
+
 				// read sensor values (raw and the state)
 				sensorVal_t sensorRawValue=0;
 				SensorState::e state;
@@ -191,13 +189,17 @@ void SensorManager::work()
 						file->print(sensor.activityMode);
 						file->print(F(", value: "));
 						file->print(sensorRawValue);
-						file->print(F(", sensor state: "));
+						file->print(F(", calibrated state (A/B): "));
 						file->print(sensorState);
-						file->print(F(", calibrated state: "));
+						file->print(F(", sensor state (logical): "));
 						file->print(state);
 						file->println();
 					}
 				}
+
+				// close log
+				if (file)
+					PersistentLog->close();
 
 				// send individual sensor values
 				PacketSensorData packet;
@@ -265,9 +267,6 @@ void SensorManager::work()
 		packet.activityMode = SensorActivityMode::Active;
 		mClient.sendSensorData(packet);
 	}
-
-	if(file)
-		PersistentLog->close();
 }
 
 SensorState::e SensorManager::calibratedSensorStateToSeatSensorState(CalibratedSensorState::e s)

@@ -197,11 +197,8 @@ void setup()
 		PersistentLog = &logger;
 	else
 		PersistentLog = NULL;
-	Print * persistentFile;
-	if (PersistentLog)
-		persistentFile = PersistentLog->open();
-	if(persistentFile)
-		persistentFile->println(F("Start"));
+
+	PersistentLogWrite(F("Start"));
 
 	// testing of low ram conditions
 	//char * memGrab = "Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. Memory grab. ";
@@ -213,8 +210,7 @@ void setup()
 	//for (;;); // don't proceed to normal operation
 
 	// init sensors
-	if (persistentFile)
-		persistentFile->println(F("Initializing Sensors"));
+	PersistentLogWrite(F("Initializing Sensors"));
 	manager.getSensorManager().setSeatCount(1);
 #ifdef DEVICE_LAB
 	manager.getSensorManager().setSensorCount(2);
@@ -233,8 +229,7 @@ void setup()
 	//manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalTest);
 
 	// init comms
-	if (persistentFile)
-		persistentFile->println(F("Initializing communications"));
+	PersistentLogWrite(F("Initializing communications"));
 	manager.getClientManager().setDeviceCount(1);
 #ifdef DEVICE_LAB
 	ble2.begin();
@@ -246,8 +241,7 @@ void setup()
 	manager.getClientManager().setReceiverCallback(&manager);
 
 	// init event handlers
-	if (persistentFile)
-		persistentFile->println(F("Initializing event handlers"));
+	PersistentLogWrite(F("Initializing event handlers"));
 	manager.setEventHandlerCount(6);
 	manager.addEventHandler(&ehConnectedStateChange);
 	manager.addEventHandler(&ehDisconnectedStateChange);
@@ -257,11 +251,14 @@ void setup()
 	manager.addEventHandler(&ehPersistentLog);
 	manager.addEventHandler(&ehClientConnectionChange);
 
-	// misc
+	// misc log
 	if (DebugStream) {
 		DebugStream->print(F("Free RAM: "));
 		DebugStream->println(ram.getValueInt());
 	}
+	Print * persistentFile;
+	if (PersistentLog)
+		persistentFile = PersistentLog->open();
 	if (persistentFile) {
 		persistentFile->print(F("Free RAM: "));
 		persistentFile->println(ram.getValueInt());

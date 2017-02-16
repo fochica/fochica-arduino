@@ -31,7 +31,7 @@ Print * PersistentLogImpl_SD::open()
 	// check if already open
 	if (mFile) {
 		if(DebugStream)
-			DebugStream->print(F("Error opening SD file, another file already open."));
+			DebugStream->println(F("Error opening SD file, another file already open."));
 		return NULL;
 	}
 

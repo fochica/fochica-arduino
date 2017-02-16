@@ -3,6 +3,7 @@
 // 
 
 #include "SoundManager.h"
+#include "DebugStream.h"
 
 void SoundManager::playTone(int tonepin, int freq, int dur, int pause)
 {
@@ -75,4 +76,10 @@ void SoundManager::playBeep(BeepType::e beepType)
 
 	// put pin back to default mode
 	digitalWrite(mPassiveBuzzerPin, mPassiveBuzzerOffLevel);
+
+	// log
+	if (DebugStream) {
+		DebugStream->print(F("Playing Beep #"));
+		DebugStream->println(beepType);
+	}
 }

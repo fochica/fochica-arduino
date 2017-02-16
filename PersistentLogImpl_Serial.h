@@ -25,6 +25,7 @@ public:
 private:
 	IRTC & mRTC;
 	Stream & mStream;
+	bool mOpen; // for problem detection
 };
 
 #endif
