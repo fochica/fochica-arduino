@@ -17,6 +17,7 @@ bool EventHandlerWriteToPersistentLog::eventSeatStateChange(IEventHandlerState &
 			file->print(F(" -> "));
 			file->print(newState);
 			file->println();
+			PersistentLog->close();
 		}
 	}
 	return true;
@@ -36,6 +37,7 @@ bool EventHandlerWriteToPersistentLog::eventSensorStateChange(IEventHandlerState
 			file->print(F(" -> "));
 			file->print(newState);
 			file->println();
+			PersistentLog->close();
 		}
 	}
 	return true;
@@ -49,6 +51,7 @@ bool EventHandlerWriteToPersistentLog::eventClientConnectionChange(IEventHandler
 			file->print(F("Adapter connection change, connected: "));
 			file->print(isAdapterConnected);
 			file->println();
+			PersistentLog->close();
 		}
 	}
 	return true;

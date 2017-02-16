@@ -4,6 +4,7 @@
 
 #include "CalibratedSensor.h"
 #include "DebugStream.h"
+#include "PersistentLog.h"
 
 CalibratedSensor::CalibratedSensor(ISensor * raw, int expAlpha, sensorVal_t thLow, sensorVal_t thHigh, CalibratedSensorState::e initialState, sensorVal_t initialValue)
 {
@@ -103,36 +104,53 @@ void CalibratedSensor::calibrate(CalibratedSensorState::e state)
 	}
 
 	mCP.state = resultState; // success!
+
+	// log
+	if (DebugStream)
+		debugCalibrationState(DebugStream);
+	if (PersistentLog) {
+		Print * file = PersistentLog->open();
+		if (file)
+			debugCalibrationState(file);
+		PersistentLog->close();
+	}
 }
 
 void CalibratedSensor::debugCalibrationState()
 {
-	if (DebugStream == NULL)
+	debugCalibrationState(DebugStream);
+}
+
+void CalibratedSensor::debugCalibrationState(Print * stream)
+{
+	if (stream == NULL)
 		return;
 
 	// calibration process data for each state
 	for (int s = 0; s < CalibratedSensorState::Count; s++) {
-		DebugStream->print(s);
-		DebugStream->print('\t');
-		DebugStream->print(mStateMin[s]);
-		DebugStream->print('\t');
-		DebugStream->print(mStateAvg[s]);
-		DebugStream->print('\t');
-		DebugStream->print(mStateMax[s]);
-		DebugStream->print('\t');
-		DebugStream->print(mStateDataCollected[s]);
-		DebugStream->println();
+		stream->print(s);
+		stream->print('\t');
+		stream->print(mStateDataCollected[s]);
+		stream->print('\t');
+		stream->print(mStateMin[s]);
+		stream->print('\t');
+		stream->print(mStateAvg[s]);
+		stream->print('\t');
+		stream->print(mStateMax[s]);
+		stream->println();
 	}
 
 	// calibration params
-	DebugStream->print(mCP.stateAIsHigh);
-	DebugStream->print('\t');
-	DebugStream->print(mCP.schmittThresholdLow);
-	DebugStream->print('\t');
-	DebugStream->print(mCP.schmittThresholdHigh);
-	DebugStream->print('\t');
-	DebugStream->print(mCP.expMovingAverageAlpha);
-	DebugStream->println();
+	stream->print(mCP.state);
+	stream->print('\t');
+	stream->print(mCP.stateAIsHigh);
+	stream->print('\t');
+	stream->print(mCP.schmittThresholdLow);
+	stream->print('\t');
+	stream->print(mCP.schmittThresholdHigh);
+	stream->print('\t');
+	stream->print(mCP.expMovingAverageAlpha);
+	stream->println();
 }
 
 bool CalibratedSensor::isCalibrated()

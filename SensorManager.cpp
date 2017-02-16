@@ -69,6 +69,19 @@ bool SensorManager::addSensor(seatCount_t seatId, SensorLocation::e location, IS
 	if (loaded) {
 		mSensors[mSensorAddedCount].sensor->setCalibrationParams(pp.calibrationParams);
 		mSensors[mSensorAddedCount].activityMode = pp.activityMode;
+		// log
+		if (PersistentLog) {
+			Print * file = PersistentLog->open();
+			if (file) {
+				file->print(F("Sensor #"));
+				file->print(mSensorAddedCount);
+				file->print(F(", activity mode: "));
+				file->print(pp.activityMode);
+				file->println(F(", calibration params: "));
+				mSensors[mSensorAddedCount].sensor->debugCalibrationState(file);
+				PersistentLog->close();
+			}
+		}
 	}
 	else
 		mSensors[mSensorAddedCount].activityMode = SensorActivityMode::Active; // default
@@ -252,6 +265,9 @@ void SensorManager::work()
 		packet.activityMode = SensorActivityMode::Active;
 		mClient.sendSensorData(packet);
 	}
+
+	if(file)
+		PersistentLog->close();
 }
 
 SensorState::e SensorManager::calibratedSensorStateToSeatSensorState(CalibratedSensorState::e s)

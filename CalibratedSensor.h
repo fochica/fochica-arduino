@@ -48,6 +48,7 @@ public:
 	// calibration
 	void calibrate(CalibratedSensorState::e state);
 	void debugCalibrationState();
+	void debugCalibrationState(Print * stream);
 	bool isCalibrated();
 	CalibrationState::e getCalibrationState() { return mCP.state; }
 	void resetCalibrationData();
