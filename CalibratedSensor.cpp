@@ -131,12 +131,14 @@ void CalibratedSensor::debugCalibrationState(Print * stream)
 		stream->print(s);
 		stream->print('\t');
 		stream->print(mStateDataCollected[s]);
-		stream->print('\t');
-		stream->print(mStateMin[s]);
-		stream->print('\t');
-		stream->print(mStateAvg[s]);
-		stream->print('\t');
-		stream->print(mStateMax[s]);
+		if (mStateDataCollected[s]) {
+			stream->print('\t');
+			stream->print(mStateMin[s]);
+			stream->print('\t');
+			stream->print(mStateAvg[s]);
+			stream->print('\t');
+			stream->print(mStateMax[s]);
+		}
 		stream->println();
 	}
 
