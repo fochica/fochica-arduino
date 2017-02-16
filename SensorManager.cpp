@@ -63,6 +63,7 @@ bool SensorManager::addSensor(seatCount_t seatId, SensorLocation::e location, IS
 	mSensors[mSensorAddedCount].seatId = seatId;
 	mSensors[mSensorAddedCount].location = location;
 	mSensors[mSensorAddedCount].sensor = new CalibratedSensor(sensor);
+	mSensors[mSensorAddedCount].lastState = SensorState::None; // the initial state
 	// read persistent params
 	SensorPersistentParams pp;
 	bool loaded=PersistentSettings::getInstance().readSeatSensorPersistentParams(mSensorAddedCount, seatId, sensor->getType(), location, pp);
@@ -189,7 +190,7 @@ void SensorManager::work()
 						file->print(sensor.activityMode);
 						file->print(F(", value: "));
 						file->print(sensorRawValue);
-						file->print(F(", calibrated state (A/B): "));
+						file->print(F(", calibrated state (0=A=Occupied/1=B=Empty): "));
 						file->print(sensorState);
 						file->print(F(", sensor state (logical): "));
 						file->print(state);
