@@ -7,7 +7,7 @@
 #define DEVICE_LAB // build with sensors and adapter for device #2, used for testing in the lab. Otherwise device #1 used in field testing.
 
 #ifdef  ARDUINO_AVR_MEGA2560
-#define USE_SD_MODULE // The SD library takes over 0.5KB RAM and lots of Flash memory. The SD module is an SPI devices and takes 4 pins. Practical use is only possible of larger bords, such as the Mega, not Uno.
+#define USE_SD_MODULE // The SD library uses over 0.5KB of RAM and lots of Flash memory. The SD module is an SPI devices and takes 4 pins. Practical use is only possible of larger bords, such as the Arduino Mega, not Arduino Uno.
 #endif
 
 //#define USE_DISCHARGE_PROTECTION
@@ -138,7 +138,7 @@ RTCImpl_DS1307 rtc;
 RTCImpl_Sync rtc;
 #endif
 #ifdef USE_SD_MODULE
-PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need a Mega or another board with a lot of Flash to fit this support in program memory.
+PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need an Arduino Mega or another board with a lot of Flash to fit this support in program memory.
 //PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
 #else
 PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
