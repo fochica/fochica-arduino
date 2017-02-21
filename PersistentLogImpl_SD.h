@@ -12,20 +12,20 @@
 #include "IPersistentLog.h"
 
 #include <RTClib.h> // for DateTime
-#include <SD.h> // for File type
+#include <SD.h> // for File type, should be the newer SD library from https://github.com/adafruit/SD to suport specifying the SPI pins for soft-SPI
 #include "IRTC.h"
 
 class PersistentLogImpl_SD : public IPersistentLog
 {
 public:
-	PersistentLogImpl_SD(int pin, IRTC & rtc);
+	PersistentLogImpl_SD(IRTC & rtc, int pin, int8_t mosi = -1, int8_t miso = -1, int8_t sck = -1);
 	boolean begin();
 	Print * open(); // open a stream for writing, caller should close as soon as it is done writing
 	void close();
 	bool isPresent() { return mPresent; }
 
 private:
-	int mPin;
+	int mPin, mMosi, mMiso, mSck;
 	IRTC & mRTC;
 	bool mPresent;
 	File mFile;

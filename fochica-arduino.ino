@@ -7,7 +7,10 @@
 #define DEVICE_LAB // build with sensors and adapter for device #2, used for testing in the lab. Otherwise device #1 used in field testing.
 
 #ifdef  ARDUINO_AVR_MEGA2560
-#define USE_SD_MODULE // The SD library uses over 0.5KB of RAM and lots of Flash memory. The SD module is an SPI devices and takes 4 pins. Practical use is only possible of larger bords, such as the Arduino Mega, not Arduino Uno.
+#define SUPPORT_SD_MODULE // The SD library uses over 0.5KB of RAM and lots of Flash memory. The SD module is an SPI devices and takes 4 pins. Practical use is only possible of larger bords, such as the Arduino Mega, not Arduino Uno.
+#endif
+#ifdef SUPPORT_SD_MODULE
+#define USE_SD_MODULE // by default, use it if we can support it
 #endif
 
 //#define USE_DISCHARGE_PROTECTION
@@ -24,7 +27,7 @@
 #include "DischargeProtectionManager.h"
 #include "PersistentLog.h"
 #include "PersistentLogImpl_Serial.h"
-#ifdef USE_SD_MODULE
+#ifdef SUPPORT_SD_MODULE
 #include "PersistentLogImpl_SD.h"
 #endif
 #include "CalibratedSensorTester.h"
@@ -45,7 +48,7 @@
 #include <SoftwareSerial.h>
 #include <RTClib.h>
 #include <EEPROM.h>
-#ifdef USE_SD_MODULE
+#ifdef SUPPORT_SD_MODULE
 #include <SD.h>
 #endif
 
@@ -85,6 +88,13 @@ const int BLE2_STATE_PIN = 5; // gray
 
 #ifdef USE_SD_MODULE
 const int SD_CS_PIN = 10; // depends on module, probably pin 10. need to free it from being used by other component and allocate here.
+// if you shield doesn't support Arduino Mega SPI pins, you might need to override the defaults here
+const int SD_MOSI_PIN = 11; // 51 native on Mega
+const int SD_MISO_PIN = 12; // 50 native on Mega
+const int SD_SCK_PIN = 13; // 52 native on Mega
+//const int SD_MOSI_PIN = -1; // use default
+//const int SD_MISO_PIN = -1; // use default
+//const int SD_SCK_PIN = -1; // use default
 #endif
 
 #ifdef USE_DISCHARGE_PROTECTION
@@ -115,20 +125,24 @@ SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
 //SensorDigital digitalTest("Test", BLE_STATE_PIN); // just a test, reuse existing pin
 SensorDigital digitalReed("Reed", REED_SWITCH_PIN, INPUT_PULLUP);
 #ifndef DEVICE_LAB
-SensorSharpIRDistance irDistance("IRDistance", IR_DISTANCE_READ_PIN);
+//SensorSharpIRDistance irDistance("IRDistance", IR_DISTANCE_READ_PIN);
 #endif
 
 // communication devices
 #ifdef DEVICE_LAB
-#ifdef HAVE_HWSERIAL2
-GenericBLEModuleClient ble2(Serial2, BLE2_STATE_PIN);
+#ifdef HAVE_HWSERIAL1
+GenericBLEModuleClient ble2(Serial1, BLE2_STATE_PIN);
 #else
 SoftwareSerial bleSerial2(BLE2_RX_PIN, BLE2_TX_PIN);
 GenericBLEModuleClient ble2(bleSerial2, BLE2_STATE_PIN);
 #endif
 #else
+#ifdef HAVE_HWSERIAL1
+GenericBLEModuleClient ble1(Serial1, BLE_STATE_PIN);
+#else
 SoftwareSerial bleSerial1(BLE_RX_PIN, BLE_TX_PIN);
 GenericBLEModuleClient ble1(bleSerial1, BLE_STATE_PIN);
+#endif
 #endif
 
 // timing and logging
@@ -138,7 +152,7 @@ RTCImpl_DS1307 rtc;
 RTCImpl_Sync rtc;
 #endif
 #ifdef USE_SD_MODULE
-PersistentLogImpl_SD logger(SD_CS_PIN, rtc); // log to SD card. You will need an Arduino Mega or another board with a lot of Flash to fit this support in program memory.
+PersistentLogImpl_SD logger(rtc, SD_CS_PIN, SD_MOSI_PIN, SD_MISO_PIN, SD_SCK_PIN); // log to SD card. You will need an Arduino Mega or another board with a lot of Flash to fit this support in program memory.
 //PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
 #else
 PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
@@ -222,8 +236,8 @@ void setup()
 	digitalReed.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalReed);
 #ifndef DEVICE_LAB
-	irDistance.begin();
-	manager.getSensorManager().addSensor(0, SensorLocation::Above, &irDistance);
+	//irDistance.begin();
+	//manager.getSensorManager().addSensor(0, SensorLocation::Above, &irDistance);
 #endif
 	//digitalTest.begin();
 	//manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalTest);
