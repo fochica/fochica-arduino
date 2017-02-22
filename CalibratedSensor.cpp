@@ -42,7 +42,8 @@ CalibratedSensorState::e CalibratedSensor::getValue(sensorVal_t * raw, sensorVal
 	return mCurState;
 }
 
-void CalibratedSensor::calibrate(CalibratedSensorState::e state)
+// returns true is calibration parameters were calculated, and false if only one state parameters were registered
+bool CalibratedSensor::calibrate(CalibratedSensorState::e state)
 {
 	// collect params of this state
 	long total=0;
@@ -62,7 +63,7 @@ void CalibratedSensor::calibrate(CalibratedSensorState::e state)
 	// derrive cleanup and threshold params between states
 	// assumes other states are also calibrated or non-sense values might be generated
 	if (!mStateDataCollected[CalibratedSensorState::A] || !mStateDataCollected[CalibratedSensorState::B]) // exit if mid data collection process
-		return;
+		return false;
 
 	mCP.stateAIsHigh = mStateAvg[CalibratedSensorState::A] > mStateAvg[CalibratedSensorState::B];
 	CalibratedSensorState::e high = mCP.stateAIsHigh ? CalibratedSensorState::A : CalibratedSensorState::B;
@@ -114,6 +115,8 @@ void CalibratedSensor::calibrate(CalibratedSensorState::e state)
 			debugCalibrationState(file);
 		PersistentLog->close();
 	}
+
+	return true;
 }
 
 void CalibratedSensor::debugCalibrationState()

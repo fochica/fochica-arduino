@@ -16,6 +16,7 @@ struct BeepType {
 		ClientDisconnected,
 		SeatCalibrationStart,
 		SeatCalibrationEnd,
+		SeatCalibrationSuccess,
 		SensorStateChange,
 		SeatStateChange,
 		SeatStateChangeNoClient,

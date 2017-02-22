@@ -46,7 +46,7 @@ public:
 	CalibratedSensorState::e getValue(sensorVal_t * raw=NULL, sensorVal_t * debugFiltered=NULL);
 
 	// calibration
-	void calibrate(CalibratedSensorState::e state);
+	bool calibrate(CalibratedSensorState::e state);
 	void debugCalibrationState();
 	void debugCalibrationState(Print * stream);
 	bool isCalibrated();

@@ -53,6 +53,9 @@ void SoundManager::playBeep(BeepType::e beepType)
 	case BeepType::SeatCalibrationEnd:
 		playTone(mPassiveBuzzerPin, 3000, 330, 30);
 		break;
+	case BeepType::SeatCalibrationSuccess:
+		playTone(mPassiveBuzzerPin, 3000, 330, 30);
+		break;
 	case BeepType::SensorStateChange:
 		playTone(mPassiveBuzzerPin, 2000, 50, 0);
 		playTone(mPassiveBuzzerPin, 3000, 50, 0);

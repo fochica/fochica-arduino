@@ -93,15 +93,17 @@ bool SensorManager::addSensor(seatCount_t seatId, SensorLocation::e location, IS
 
 void SensorManager::calibrate(seatCount_t seatId, SensorState::e state)
 {
+	bool fullCalibrated = true;
 	SoundManager::getInstance().playBeep(BeepType::SeatCalibrationStart);
 	// go over all sensors of seat
 	for (sensorCount_t sensorId = 0; sensorId < mSensorAddedCount; sensorId++) {
 		SensorData& sensor = mSensors[sensorId];
 		if (sensor.seatId == seatId) {
 			// calibrate them per state
-			sensor.sensor->calibrate(seatSensorStateToCalibratedSensorState(state));
+			if(sensor.sensor->calibrate(seatSensorStateToCalibratedSensorState(state))==false) // if calibration process couldn;t be done yet, such as if oly collecting data about first stage
+				fullCalibrated = false;
 			// issue calibration params packet to client
-			if (sensor.sensor->isCalibrated()) {
+			if (sensor.sensor->isCalibrated()) { // could be calibration params that are new or params from a previous run
 				// save persistent params
 				SensorPersistentParams pp(sensor.sensor->getCalibrationParams(), sensor.activityMode);
 				PersistentSettings::getInstance().writeSeatSensorPersistentParams(sensorId, seatId, sensor.sensorRaw->getType(), sensor.location, pp);
@@ -111,6 +113,8 @@ void SensorManager::calibrate(seatCount_t seatId, SensorState::e state)
 		}
 	}
 	SoundManager::getInstance().playBeep(BeepType::SeatCalibrationEnd);
+	if(fullCalibrated) // make a notification that all complete, not just one specific state
+		SoundManager::getInstance().playBeep(BeepType::SeatCalibrationSuccess);
 }
 
 bool SensorManager::sendCalibrationParams()
