@@ -216,13 +216,13 @@ void setup()
 	DebugStream = &Serial;
 	if (DebugStream)
 		DebugStream->println(F("Start"));
+
 	rtc.begin();
 	manager.setRTC(&rtc);
 	if (logger.begin()) // if init ok
 		PersistentLog = &logger;
 	else
 		PersistentLog = NULL;
-
 	PersistentLogWrite(F("Start"));
 
 	// testing of low ram conditions
