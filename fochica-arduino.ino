@@ -208,6 +208,9 @@ void setup()
 	dischargeProtection.begin();
 #endif
 
+	// init buzzer 
+	SoundManager::getInstance().setPassiveBuzzer(BUZZER_PIN, BUZZER_OFF_STATE);
+
 	// init serial
 	Serial.begin(SERIAL_BAUD);
 	delay(10); // wait a little for dev env to connect before sending data	
@@ -217,12 +220,19 @@ void setup()
 	if (DebugStream)
 		DebugStream->println(F("Start"));
 
+	if (DebugStream)
+		DebugStream->println(F("Initializing RTC and Persistent logger"));
 	rtc.begin();
 	manager.setRTC(&rtc);
 	if (logger.begin()) // if init ok
 		PersistentLog = &logger;
-	else
+	else {
 		PersistentLog = NULL;
+		SoundManager::getInstance().playBeep(BeepType::Error);
+	}
+
+	//if (DebugStream)
+	//	DebugStream->println(F("Making first log entry."));
 	PersistentLogWrite(F("Start"));
 
 	// testing of low ram conditions
@@ -304,9 +314,8 @@ void setup()
 	//ram.dumpSRAMBounds(Serial);
 	//for (;;); // don't proceed to normal operation
 
-	// init buzzer and make start sound
+	// make start sound
 	// TODO, change to a fun tune
-	SoundManager::getInstance().setPassiveBuzzer(BUZZER_PIN, BUZZER_OFF_STATE);
 	SoundManager::getInstance().playBeep(BeepType::Start);
 }
 

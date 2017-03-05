@@ -26,7 +26,7 @@ boolean PersistentLogImpl_SD::begin()
 {
 	mPresent=SD.begin(mPin, mMosi, mMiso, mSck); // the additional parameters are supported in the newer SD library from https://github.com/adafruit/SD
 	if (DebugStream) {
-		if(mPresent) {
+		if(mPresent==false) {
 			DebugStream->println(F("SD card failed, or not present"));
 		} else {
 			DebugStream->println(F("SD card initialized."));
@@ -48,6 +48,8 @@ Print * PersistentLogImpl_SD::open()
 	DateTime dt(mRTC.getUnixTime());
 	char fileName[13]; // 8.3 and null
 	snprintf(fileName, sizeof(fileName), "%04d%02d%02d.txt", dt.year(), dt.month(), dt.day());
+	//if (DebugStream)
+	//	DebugStream->println(fileName);
 
 	// open the file. note that only one file can be open at a time,
 	// so you have to close this one before opening another.
