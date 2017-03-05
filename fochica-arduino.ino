@@ -4,7 +4,8 @@
 
 /////////////
 // MAIN FLAGS
-#define DEVICE_LAB // build with sensors and adapter for device #2, used for testing in the lab. Otherwise device #1 used in field testing.
+//#define DEVICE_LAB1 // build with sensors and adapter for device "Lab 1", used for testing in the lab. Uno with one seat.
+#define DEVICE_CAR1 // build with sensors and adapter for device "Beta 1", used for real senario testing. Mega with two seats and SD log.
 
 #ifdef  ARDUINO_AVR_MEGA2560
 #define SUPPORT_SD_MODULE // The SD library uses over 0.5KB of RAM and lots of Flash memory. The SD module is an SPI devices and takes 4 pins. Practical use is only possible of larger bords, such as the Arduino Mega, not Arduino Uno.
@@ -61,9 +62,9 @@ const long BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND = 10000; // 10Kohm
 const long BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE = 20000; // 20Kohm
 
 const int BUZZER_PIN = 4;
-#ifdef DEVICE_LAB
+#ifdef DEVICE_LAB1
 const int BUZZER_OFF_STATE = LOW; // LOW is using a NPN transistor (preffered) to drive the buzzer. HIGH if using a PNP.
-#else
+#else defined(DEVICE_CAR1)
 const int BUZZER_OFF_STATE = HIGH; // LOW is using a NPN transistor (preffered) to drive the buzzer. HIGH if using a PNP.
 #endif
 
@@ -72,7 +73,15 @@ const int CAPACITANCE_REF_PIN = 3; // analog pin#
 
 const int REED_SWITCH_PIN = 6;
 
-const int IR_DISTANCE_READ_PIN = 0; // analog pin#
+#ifdef DEVICE_CAR1
+// capacitance sensor for seat B. Uses the reference pin of capacitance sensor of seat A and vise-versa.
+const int CAPACITANCE_B_READ_PIN = 3; // analog pin#
+const int CAPACITANCE_B_REF_PIN = 2; // analog pin#
+
+const int REED_SWITCH_B_PIN = A0;
+#endif
+
+//const int IR_DISTANCE_READ_PIN = 0; // analog pin#
 
 const int LOOP_DELAY = 1000; // seconds
 
@@ -124,12 +133,14 @@ SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_
 SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
 //SensorDigital digitalTest("Test", BLE_STATE_PIN); // just a test, reuse existing pin
 SensorDigital digitalReed("Reed", REED_SWITCH_PIN, INPUT_PULLUP);
-#ifndef DEVICE_LAB
 //SensorSharpIRDistance irDistance("IRDistance", IR_DISTANCE_READ_PIN);
-#endif
+#ifdef DEVICE_CAR1
+SensorQtouch capSenseB("CapSenseB", CAPACITANCE_B_READ_PIN, CAPACITANCE_B_REF_PIN);
+SensorDigital digitalReedB("ReedB", REED_SWITCH_B_PIN, INPUT_PULLUP);
+#endif // DEVICE_CAR1
 
 // communication devices
-#ifdef DEVICE_LAB
+#ifdef DEVICE_LAB1
 #ifdef HAVE_HWSERIAL1
 GenericBLEModuleClient ble2(Serial1, BLE2_STATE_PIN);
 #else
@@ -146,16 +157,16 @@ GenericBLEModuleClient ble1(bleSerial1, BLE_STATE_PIN);
 #endif
 
 // timing and logging
-#ifdef DEVICE_LAB
+#if defined(DEVICE_LAB1) || defined(DEVICE_CAR1)
 RTCImpl_DS1307 rtc;
 #else
-RTCImpl_Sync rtc;
+RTCImpl_Sync rtc; // when hardware RTC is not available
 #endif
 #ifdef USE_SD_MODULE
-PersistentLogImpl_SD logger(rtc, SD_CS_PIN, SD_MOSI_PIN, SD_MISO_PIN, SD_SCK_PIN); // log to SD card. You will need an Arduino Mega or another board with a lot of Flash to fit this support in program memory.
-//PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
+PersistentLogImpl_SD logger(rtc, SD_CS_PIN, SD_MOSI_PIN, SD_MISO_PIN, SD_SCK_PIN); // log "persistent data" to SD card. You will need an Arduino Mega or another board with a lot of Flash to fit this support in program memory.
+//PersistentLogImpl_Serial logger(Serial, rtc); // log "persistent data" to serial
 #else
-PersistentLogImpl_Serial logger(Serial, rtc); // log to serial
+PersistentLogImpl_Serial logger(Serial, rtc); // log "persistent data" to serial
 #endif
 
 // discharge protection
@@ -170,12 +181,12 @@ CalibratedSensor carEngineState(&bat, CAR_ENGINE_ALPHA, CAR_ENGINE_OFF_TH, CAR_E
 
 // event handlers
 EventHandlerDisconnectedStateChange ehDisconnectedStateChange;
-//EventHandlerConnectedStateChange ehConnectedStateChange; // this makes a sound on seat state changes, which are aggregated states
-EventHandlerConnectedSensorStateChange ehConnectedStateChange; // this makes a sound on sensor changes, which are lower level events
+//EventHandlerConnectedStateChange ehConnectedStateChange; // makes a sound on seat state changes, which are aggregated states
+EventHandlerConnectedSensorStateChange ehConnectedStateChange; // makes a sound on sensor changes, which are lower level events
 EventHandlerFallbackReminder ehFallbackReminder(carEngineState); // doesn't work for cars that turn the engine off automatically during stops
 EventHandlerExternalAlertTrigger ehAlertLed(carEngineState, 10000, 13); // example of an external alert trigger. turn on-board led (13) as an indication of alert.
-EventHandlerWriteToPersistentLog ehPersistentLog;
-EventHandlerNotifyClientConnectionChange ehClientConnectionChange;
+EventHandlerWriteToPersistentLog ehPersistentLog; // writes events to persistent log
+EventHandlerNotifyClientConnectionChange ehClientConnectionChange; // makes a sound notification when an adapter to a client device connects or disconnects.
 
 // general manager
 Manager& manager = Manager::getInstance();
@@ -225,17 +236,26 @@ void setup()
 
 	// init sensors
 	PersistentLogWrite(F("Initializing Sensors"));
+#ifdef DEVICE_LAB1
 	manager.getSensorManager().setSeatCount(1);
-#ifdef DEVICE_LAB
 	manager.getSensorManager().setSensorCount(2);
+#elif defined(DEVICE_CAR1)
+	manager.getSensorManager().setSeatCount(2);
+	manager.getSensorManager().setSensorCount(4);
 #else
-	manager.getSensorManager().setSensorCount(3);
+#error No device was defined
 #endif
 	capSense.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
 	digitalReed.begin();
 	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalReed);
-#ifndef DEVICE_LAB
+#ifdef DEVICE_CAR1
+	capSenseB.begin();
+	manager.getSensorManager().addSensor(1, SensorLocation::UnderSeat, &capSenseB);
+	digitalReedB.begin();
+	manager.getSensorManager().addSensor(1, SensorLocation::Chest, &digitalReedB);
+#endif
+#ifndef DEVICE_LAB1
 	//irDistance.begin();
 	//manager.getSensorManager().addSensor(0, SensorLocation::Above, &irDistance);
 #endif
@@ -245,7 +265,7 @@ void setup()
 	// init comms
 	PersistentLogWrite(F("Initializing communications"));
 	manager.getClientManager().setDeviceCount(1);
-#ifdef DEVICE_LAB
+#ifdef DEVICE_LAB1
 	ble2.begin();
 	manager.getClientManager().addDevice(&ble2);
 #else
@@ -298,7 +318,7 @@ void loop()
 		//DebugStream->println(ram.getValueInt());
 		//DebugStream->println(vcc.getValueFloat());
 		//DebugStream->println(bat.getValueFloat());
-#ifndef DEVICE_LAB
+#ifndef DEVICE_LAB1
 		//DebugStream->println(ble1.isConnected());
 		//DebugStream->println(irDistance.getValueInt());
 #endif
