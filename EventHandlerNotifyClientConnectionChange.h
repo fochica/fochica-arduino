@@ -11,8 +11,8 @@
 
 #include "IEventHandler.h"
 
-// Makes a sound notification when a seat state changes and there is a client (or clients) connected.
-// This indicates an informational messages to the user that system is in an optimal state.
+// Makes a sound notification when an adapter to a client device connects or disconnects.
+// This indicates an informational messages to the user and helps troubleshoot connectivity issues.
 class EventHandlerNotifyClientConnectionChange : public IEventHandler
 {
 public:
