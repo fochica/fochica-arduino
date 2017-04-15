@@ -14,19 +14,19 @@
 // Sensor that uses capacitance to sense what is near the sensor
 // http://www.atmel.com/images/doc8497.pdf - Atmel AVR3001: QTouchADC Measurement and Tuning
 // Usage example in http://www.electrobob.com/sit-up/ project
-// Requires two pins. The secondary pin (reference) can be a main pin of another sensor instance.
-// The secondary reference pin is special for this sensor logic and is not to be confused with MCU ADC reference
+// Requires two pins. The secondary pin (aux) can be a main pin of another capacitive sensor instance.
+// The secondary aux pin is special for this sensor logic and is not to be confused with MCU ADC reference
 class SensorQtouch : public ISensor
 {
 public:
-	SensorQtouch(const char * name, int analogReadPin, int analogReferencePin);
+	SensorQtouch(const char * name, int analogReadPin, int analogAuxPin);
 	sensorVal_t getValueInt(); // returns V*[internal coeff], higher when capacitance is higher
 	float getValueFloat();
 	int getSamplingTime();
 
 private:
 	int mReadPin;
-	int mRefPin;
+	int mAuxPin;
 
 	enum TransferDirection {
 		InToOut, // charge internal cap, then share charge with external cap
