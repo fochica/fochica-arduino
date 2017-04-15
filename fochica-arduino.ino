@@ -1,4 +1,4 @@
-// our new classes, added here automatically on "add code" wizard
+// our new classes, included here automatically on "add code" wizard
 // keep only what we need for the main file
 #define MARKER
 
@@ -8,7 +8,7 @@
 #define DEVICE_CAR1 // build with sensors and adapter for device "Beta 1", used for real senario testing. Mega with two seats and SD log.
 
 #ifdef  ARDUINO_AVR_MEGA2560
-#define SUPPORT_SD_MODULE // The SD library uses over 0.5KB of RAM and lots of Flash memory. The SD module is an SPI devices and takes 4 pins. Practical use is only possible of larger bords, such as the Arduino Mega, not Arduino Uno.
+#define SUPPORT_SD_MODULE // The SD library uses over 0.5KB of RAM and lots of Flash memory. The SD module is an SPI devices and takes 4 pins. Practical use is only possible of larger boards, such as the Arduino Mega, not Arduino Uno.
 #endif
 #ifdef SUPPORT_SD_MODULE
 #define USE_SD_MODULE // by default, use it if we can support it
@@ -68,18 +68,17 @@ const int BUZZER_OFF_STATE = LOW; // LOW is using a NPN transistor (preffered) t
 const int BUZZER_OFF_STATE = HIGH; // LOW is using a NPN transistor (preffered) to drive the buzzer. HIGH if using a PNP.
 #endif
 
+// capacitance sensor for seat A
 const int CAPACITANCE_READ_PIN = 2; // analog pin#
-const int CAPACITANCE_REF_PIN = 3; // analog pin#
+const int CAPACITANCE_AUX_PIN = 3; // analog pin#
 
 const int REED_SWITCH_PIN = 6;
 
-#ifdef DEVICE_CAR1
-// capacitance sensor for seat B. Uses the reference pin of capacitance sensor of seat A and vise-versa.
+// capacitance sensor for seat B. Uses the aux pin of capacitance sensor of seat A and vise-versa.
 const int CAPACITANCE_B_READ_PIN = 3; // analog pin#
-const int CAPACITANCE_B_REF_PIN = 2; // analog pin#
+const int CAPACITANCE_B_AUX_PIN = 2; // analog pin#
 
 const int REED_SWITCH_B_PIN = A0;
-#endif
 
 //const int IR_DISTANCE_READ_PIN = 0; // analog pin#
 
@@ -130,12 +129,12 @@ SensorVcc vcc("Vcc");
 SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND, BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE);
 
 // occupancy (business logic) sensors
-SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_REF_PIN);
+SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_AUX_PIN);
 //SensorDigital digitalTest("Test", BLE_STATE_PIN); // just a test, reuse existing pin
 SensorDigital digitalReed("Reed", REED_SWITCH_PIN, INPUT_PULLUP);
 //SensorSharpIRDistance irDistance("IRDistance", IR_DISTANCE_READ_PIN);
 #ifdef DEVICE_CAR1
-SensorQtouch capSenseB("CapSenseB", CAPACITANCE_B_READ_PIN, CAPACITANCE_B_REF_PIN);
+SensorQtouch capSenseB("CapSenseB", CAPACITANCE_B_READ_PIN, CAPACITANCE_B_AUX_PIN);
 SensorDigital digitalReedB("ReedB", REED_SWITCH_B_PIN, INPUT_PULLUP);
 #endif // DEVICE_CAR1
 
