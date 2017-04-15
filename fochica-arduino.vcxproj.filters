@@ -42,9 +42,6 @@
     <ClInclude Include="SoundManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SensorQtouch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -178,6 +175,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EventHandlerNotifyClientConnectionChange.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SensorQtouch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
