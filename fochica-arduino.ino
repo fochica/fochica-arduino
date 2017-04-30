@@ -142,6 +142,15 @@ const int CAR_ENGINE_ALPHA = 0.2 * CalibratedSensor::MAX_EXP_ALPHA;
 const int CAR_ENGINE_OFF_TH = 13000; // 13V
 const int CAR_ENGINE_RUNNING_TH = 13500; // 13.5V
 
+// "alive" led, flashes during operation. by default on pin 13, the built-in led.
+#if !defined(ALIVE_LED_PIN) && !defined(USE_SD_MODULE)
+#define ALIVE_LED_PIN LED_BUILTIN
+#endif
+#ifdef ALIVE_LED_PIN
+#define USE_ALIVE_LED
+#endif // ALIVE_LED_PIN
+#define ALIVE_LED_DUTY_PERCENT 10
+
 //////////
 // OBJECTS
 // technical sensors
@@ -204,7 +213,7 @@ EventHandlerDisconnectedStateChange ehDisconnectedStateChange;
 //EventHandlerConnectedStateChange ehConnectedStateChange; // makes a sound on seat state changes, which are aggregated states
 EventHandlerConnectedSensorStateChange ehConnectedStateChange; // makes a sound on sensor changes, which are lower level events
 EventHandlerFallbackReminder ehFallbackReminder(carEngineState); // doesn't work for cars that turn the engine off automatically during stops
-EventHandlerExternalAlertTrigger ehAlertLed(carEngineState, 10000, 13); // example of an external alert trigger. turn on-board led (13) as an indication of alert.
+//EventHandlerExternalAlertTrigger ehAlertLed(carEngineState, 10000, LED_BUILTIN); // example of an external alert trigger. turn on-board led (13) as an indication of alert. if using, make sure there is no conflict with other uses of pin 13 (alive LED, SPI for SD card, etc).
 EventHandlerWriteToPersistentLog ehPersistentLog; // writes events to persistent log
 EventHandlerNotifyClientConnectionChange ehClientConnectionChange; // makes a sound notification when an adapter to a client device connects or disconnects.
 
@@ -300,10 +309,15 @@ void setup()
 	manager.addEventHandler(&ehConnectedStateChange);
 	manager.addEventHandler(&ehDisconnectedStateChange);
 	manager.addEventHandler(&ehFallbackReminder);
-	ehAlertLed.begin();
-	manager.addEventHandler(&ehAlertLed);
+	//ehAlertLed.begin();
+	//manager.addEventHandler(&ehAlertLed);
 	manager.addEventHandler(&ehPersistentLog);
 	manager.addEventHandler(&ehClientConnectionChange);
+
+#ifdef USE_ALIVE_LED
+	// alive led
+	pinMode(ALIVE_LED_PIN, OUTPUT);
+#endif
 
 	// misc log
 	if (DebugStream) {
@@ -362,5 +376,12 @@ void loop()
 	dischargeProtection.work();
 #endif
 
+#ifdef USE_ALIVE_LED
+	digitalWrite(ALIVE_LED_PIN, HIGH);
+	delay(ALIVE_LED_DUTY_PERCENT*LOOP_DELAY/100);
+	digitalWrite(ALIVE_LED_PIN, LOW);
+	delay(LOOP_DELAY-ALIVE_LED_DUTY_PERCENT*LOOP_DELAY/100);
+#else
 	delay(LOOP_DELAY);
+#endif
 }
