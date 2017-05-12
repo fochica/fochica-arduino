@@ -1,5 +1,5 @@
 /*
-Fochica™ - Forgotten Child in Car Alert - http://fochica.com/
+Fochicaï¿½ - Forgotten Child in Car Alert - http://fochica.com/
 Copyright (c) 2017, AY Garage Ltd.  All rights reserved.
 
 Please see DISCLAIMER.md for important legal terms.
@@ -11,13 +11,13 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// CalibratedSensor.h
+// CalibratedSensor.h/**/
 
 #ifndef _CALIBRATEDSENSOR_h
 #define _CALIBRATEDSENSOR_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
-	#include "arduino.h"
+	#include "Arduino.h"
 #else
 	#include "WProgram.h"
 #endif
