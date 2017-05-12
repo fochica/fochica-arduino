@@ -9,3 +9,6 @@ Fochica is comprised of a Fochica open hardware, open software, Arduino-based de
 This is the source code repository of the Fochica device. See [fochica.com site](http://fochica.com) or [hackaday page](https://hackaday.io/project/20902-fochica-forgotten-child-in-car-alert) for more information.
 
 ![Device prototype](http://fochica.com/wp-content/uploads/2017/03/device-slide.jpg)
+
+## Dependencies
+* [RTClib](https://github.com/adafruit/RTClib)
