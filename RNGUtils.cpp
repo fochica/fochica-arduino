@@ -49,7 +49,7 @@ double RNGUtils::getGaussian()
 	double u, v, S;
 
 	do {
-		// The random() function computes a sequence of pseudo - random integers in the range of 0 to \c RANDOM_MAX
+		// The random() function computes a sequence of pseudo - random integers in the range of 0 to RANDOM_MAX
 		// Arduino's random actually uses this stdlin random function
 		u = (double)random() / RANDOM_MAX;
 		v = (double)random() / RANDOM_MAX;
@@ -58,7 +58,7 @@ double RNGUtils::getGaussian()
 		S = u*u + v*v; // r^2
 	} while (S >= 1); // perform rejection sampling
 
-					  // we will only use z1 here. consider to save z2 for next request...
+	// we will only use z1 here. consider to save z2 for next request...
 	return u * sqrt(-2.0 * log(S) / S);
 }
 
