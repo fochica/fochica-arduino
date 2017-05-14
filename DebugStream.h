@@ -1,5 +1,5 @@
 /*
-Fochica� - Forgotten Child in Car Alert - http://fochica.com/
+Fochica™ - Forgotten Child in Car Alert - http://fochica.com/
 Copyright (c) 2017, AY Garage Ltd.  All rights reserved.
 
 Please see DISCLAIMER.md for important legal terms.
@@ -26,4 +26,3 @@ You should have received a copy of the GNU General Public License along with thi
 extern Stream * DebugStream;
 
 #endif
-
