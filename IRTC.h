@@ -1,5 +1,5 @@
 /*
-Fochica™ - Forgotten Child in Car Alert - http://fochica.com/
+Fochicaâ„¢ - Forgotten Child in Car Alert - http://fochica.com/
 Copyright (c) 2017, AY Garage Ltd.  All rights reserved.
 
 Please see DISCLAIMER.md for important legal terms.
@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with thi
 #define _IRTC_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
-	#include "arduino.h"
+	#include "Arduino.h"
 #else
 	#include "WProgram.h"
 #endif
