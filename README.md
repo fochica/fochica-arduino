@@ -6,7 +6,9 @@ Kids who are left alone in cars are likely to suffer a heat stroke with dire con
 
 Fochica is comprised of a Fochica open hardware, open software, Arduino-based device that is installed in a car and a Fochica app that is installed on the driver’s smartphone. Sensors monitor whether the child car seats are occupied or empty and send the data to the device. The device communicates with the app via Bluetooth Low Energy passing the information to the driver. When the driver’s smartphone goes out of range and a seat is occupied an alarm will sound on the smartphone.
 
-This is the source code repository of the Fochica device. See [fochica.com site](http://fochica.com) or [hackaday page](https://hackaday.io/project/20902-fochica-forgotten-child-in-car-alert) for more information.
+This is the source code repository of the Fochica device. For build instructions visit the [Fochica Wiki](https://github.com/fochica/fochica-wiki/wiki).
+
+For more information see [fochica.com site](http://fochica.com) or the [hackaday page](https://hackaday.io/project/20902-fochica-forgotten-child-in-car-alert) .
 
 ![Device prototype](http://fochica.com/wp-content/uploads/2017/03/device-slide.jpg)
 
