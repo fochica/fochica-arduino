@@ -113,7 +113,7 @@ void SensorManager::calibrate(seatCount_t seatId, SensorState::e state)
 		SensorData& sensor = mSensors[sensorId];
 		if (sensor.seatId == seatId) {
 			// calibrate them per state
-			if(sensor.sensor->calibrate(seatSensorStateToCalibratedSensorState(state))==false) // if calibration process couldn;t be done yet, such as if oly collecting data about first stage
+			if(sensor.sensor->calibrate(seatSensorStateToCalibratedSensorState(state))==false) // if calibration process couldn't be done yet, such as if only collecting data about first stage
 				fullCalibrated = false;
 			// issue calibration params packet to client
 			if (sensor.sensor->isCalibrated()) { // could be calibration params that are new or params from a previous run

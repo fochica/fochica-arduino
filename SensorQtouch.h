@@ -25,6 +25,7 @@ You should have received a copy of the GNU General Public License along with thi
 #include "ISensor.h"
 
 // Sensor that uses capacitance to sense what is near the sensor
+// Principle of operation is as in Atmel's QTouchADC technology, but not an official implementation
 // http://www.atmel.com/images/doc8497.pdf - Atmel AVR3001: QTouchADC Measurement and Tuning
 // Usage example in http://www.electrobob.com/sit-up/ project
 // Requires two pins. The secondary pin (aux) can be a main pin of another capacitive sensor instance.

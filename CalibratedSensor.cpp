@@ -55,7 +55,7 @@ CalibratedSensorState::e CalibratedSensor::getValue(sensorVal_t * raw, sensorVal
 	return mCurState;
 }
 
-// returns true is calibration parameters were calculated, and false if only one state parameters were registered
+// returns true if calibration parameters were calculated, and false if only one state parameters were registered
 bool CalibratedSensor::calibrate(CalibratedSensorState::e state)
 {
 	// collect params of this state

@@ -59,7 +59,7 @@ bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, b
 {
 	if (DebugStream) {
 		DebugStream->print(F("writePacket "));
-		DebugStream->print(mStatePin);
+		DebugStream->print(mStatePin); // to identify the module
 		DebugStream->print(F(", "));
 		DebugStream->println((char)type);
 	}
