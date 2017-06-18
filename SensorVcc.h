@@ -43,7 +43,7 @@ private:
 	const int BANDGAP_REF_PIN = 14+16; // 11110b
 #endif
 	const float BANDGAP_VOLTAGE = 1.1;
-	const int SETTLE_DURATION_US = 250;
+	const int SETTLE_DURATION_US = 400; // lower values would result in readings that are lower than actual Vcc
 };
 
 
