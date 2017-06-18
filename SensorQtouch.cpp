@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "SensorQtouch.h"
 
-SensorQtouch::SensorQtouch(const char * name, int analogReadPin, int analogAuxPin) : ISensor(name, SensorType::Capacitance)
+SensorQtouch::SensorQtouch(const char * name, int analogReadPin, int analogAuxPin) : ISensor(name, SensorType::CapacitiveProximity)
 {
 	mReadPin = analogReadPin;
 	mAuxPin = analogAuxPin;

@@ -34,6 +34,7 @@ You should have received a copy of the GNU General Public License along with thi
 // example of using overrides of the default config. for vMicro, add the header file to the project.
 //#include "main-flags-override-1.h" // build with sensors and adapter for device "Lab 1", used for testing in the lab. Uno with one seat.
 //#include "main-flags-override-2.h" // build with sensors and adapter for device "Beta 1", used for real senario testing. Mega with two seats and SD log.
+//#include "main-flags-override-3.h" // build with sensors and adapters for device "Beta 2", used for real senario testing. Uno with two seats and two BLE adapters.
 
 ///////////
 // INCLUDES
@@ -47,6 +48,7 @@ You should have received a copy of the GNU General Public License along with thi
 #include "DischargeProtectionManager.h"
 #include "PersistentLog.h"
 #include "PersistentLogImpl_Serial.h"
+#include "PersistentLogImpl_Null.h"
 #ifdef SUPPORT_SD_MODULE
 #include "PersistentLogImpl_SD.h"
 #endif
@@ -55,6 +57,8 @@ You should have received a copy of the GNU General Public License along with thi
 #include "RTCImpl_Sync.h"
 #include "RTCImpl_DS1307.h"
 #include "GenericBLEModuleClient.h"
+#include "SensorCapacitivePressure1Pin.h"
+#include "SensorAnalog.h"
 #include "SensorSharpIRDistance.h"
 #include "SensorDigital.h"
 #include "SensorQtouch.h"
@@ -99,7 +103,11 @@ const int CAPACITANCE_B_AUX_PIN = 2; // analog pin#
 
 const int REED_SWITCH_B_PIN = A0;
 
-//const int IR_DISTANCE_READ_PIN = 0; // analog pin#
+// custom sensors
+const int IR_DISTANCE_READ_PIN = 0; // analog pin#
+const int FSR_PIN = 0; // analog pin#
+const int CAPACITIVE_PRESSURE_PIN = 11;
+//
 
 const int LOOP_DELAY = 1000; // seconds
 
@@ -165,8 +173,13 @@ SensorDigital digitalReed("Reed", REED_SWITCH_PIN, INPUT_PULLUP);
 SensorQtouch capSenseB("CapSenseB", CAPACITANCE_B_READ_PIN, CAPACITANCE_B_AUX_PIN);
 SensorDigital digitalReedB("ReedB", REED_SWITCH_B_PIN, INPUT_PULLUP);
 #endif // SEATS==2
+// custom sensors
+//#define SENSORS 4
 //SensorDigital digitalTest("Test", BLE_STATE_PIN); // just a test, reuse existing pin
 //SensorSharpIRDistance irDistance("IRDistance", IR_DISTANCE_READ_PIN);
+//SensorAnalog fsr("FSR", FSR_PIN, SensorType::FSR);
+//SensorCapacitivePressure1Pin capPressure("CapPressure", CAPACITIVE_PRESSURE_PIN);
+//
 
 // communication devices
 #ifdef HAVE_HWSERIAL1
@@ -195,7 +208,8 @@ RTCImpl_Sync rtc; // when hardware RTC is not available
 PersistentLogImpl_SD logger(rtc, SD_CS_PIN, SD_MOSI_PIN, SD_MISO_PIN, SD_SCK_PIN); // log "persistent data" to SD card. You will need an Arduino Mega or another board with a lot of Flash to fit this support in program memory.
 //PersistentLogImpl_Serial logger(Serial, rtc); // log "persistent data" to serial
 #else
-PersistentLogImpl_Serial logger(Serial, rtc); // log "persistent data" to serial
+//PersistentLogImpl_Serial logger(Serial, rtc); // log "persistent data" to serial
+PersistentLogImpl_Null logger; // log "persistent data" to null, to reduce verbosity
 #endif
 
 // discharge protection
@@ -287,10 +301,16 @@ void setup()
 	digitalReedB.begin();
 	manager.getSensorManager().addSensor(1, SensorLocation::Chest, &digitalReedB);
 #endif
+	// custom sensors
 	//irDistance.begin();
 	//manager.getSensorManager().addSensor(0, SensorLocation::Above, &irDistance);
 	//digitalTest.begin();
 	//manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalTest);
+	//fsr.begin();
+	//manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &fsr);
+	//capPressure.begin();
+	//manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capPressure);
+	//
 
 	// init comms
 	PersistentLogWrite(F("Initializing communications"));
