@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License along with thi
 #include "GenericBLEModuleClient.h"
 #include "DebugStream.h"
 
+//#define DEBUG_LOG_PACKET_INFO
+
 GenericBLEModuleClient::GenericBLEModuleClient(SoftwareSerial & serial, int statePin) : mBLE(serial)
 {
 	mStatePin = statePin;
@@ -57,12 +59,14 @@ bool GenericBLEModuleClient::isConnected()
 
 bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, byte size)
 {
+#ifdef DEBUG_LOG_PACKET_INFO
 	if (DebugStream) {
 		DebugStream->print(F("writePacket "));
 		DebugStream->print(mStatePin); // to identify the module
 		DebugStream->print(F(", "));
 		DebugStream->println((char)type);
 	}
+#endif
 
 	if (!isConnected()) // check if we are connected, otherwise we will send packet data in config mode (and not data/comm mode)
 		return false;
@@ -170,6 +174,7 @@ void GenericBLEModuleClient::listen()
 
 bool GenericBLEModuleClient::processIncomingIfAvailable()
 {
+#ifdef DEBUG_LOG_PACKET_INFO
 	if (DebugStream) {
 		DebugStream->print(F("processIncomingIfAvailable, pin: "));
 		DebugStream->print(mStatePin);
@@ -181,6 +186,7 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 		DebugStream->print(F(", available: "));
 		DebugStream->println(mBLE.available());
 	}
+#endif
 
 	if (mBLE.available() == false)
 		return false;
