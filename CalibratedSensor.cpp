@@ -68,67 +68,58 @@ bool CalibratedSensor::calibrate(CalibratedSensorState::e state)
 		maxV = max(maxV, v);
 	}
 	// save in state
-	mStateAvg[state] = total / SAMPLES_FOR_STATE_CALIBRATION;
-	mStateMax[state] = maxV;
-	mStateMin[state] = minV;
-	mStateDataCollected[state] = true;
+	CalibrationParamsState & curStateParams = mCP.stateParams[state];
+	curStateParams.avg = total / SAMPLES_FOR_STATE_CALIBRATION;
+	curStateParams.max = maxV;
+	curStateParams.min = minV;
+	curStateParams.collected = true;
 
 	// derrive cleanup and threshold params between states
-	// assumes other states are also calibrated or non-sense values might be generated
-	if (!mStateDataCollected[CalibratedSensorState::A] || !mStateDataCollected[CalibratedSensorState::B]) // exit if mid data collection process
+	// check that other states are also calibrated or non-sense values might be generated
+	// assumes CalibratedSensorState.Count==2
+	if (!mCP.stateParams[CalibratedSensorState::A].collected || !mCP.stateParams[CalibratedSensorState::B].collected) // exit if mid data collection process
 		return false;
 
-	mCP.stateAIsHigh = mStateAvg[CalibratedSensorState::A] > mStateAvg[CalibratedSensorState::B];
-	CalibratedSensorState::e high = mCP.stateAIsHigh ? CalibratedSensorState::A : CalibratedSensorState::B;
-	CalibratedSensorState::e low = mCP.stateAIsHigh ? CalibratedSensorState::B : CalibratedSensorState::A;
+	mCP.stateAIsHigh = mCP.stateParams[CalibratedSensorState::A].avg > mCP.stateParams[CalibratedSensorState::B].avg;
+	CalibrationParamsState & highStateParams = mCP.stateAIsHigh ? mCP.stateParams[CalibratedSensorState::A] : mCP.stateParams[CalibratedSensorState::B];
+	CalibrationParamsState & lowStateParams = mCP.stateAIsHigh ? mCP.stateParams[CalibratedSensorState::B] : mCP.stateParams[CalibratedSensorState::A];
 
 	CalibrationState::e resultState = CalibrationState::Good; // optimistic
 
 	// check dynamic range and warn if needed
-	sensorVal_t range = max(mStateMax[low], mStateMax[high]) - min(mStateMin[low], mStateMin[high]);
+	sensorVal_t range = max(lowStateParams.max, highStateParams.max) - min(lowStateParams.min, highStateParams.min);
 	if (range < LIMITED_DYNAMIC_RANGE && DebugStream) {
 		DebugStream->println(F("Sensor dynamic range is constrained. Consider introducing gain. Please see if this can be improved or try to calibrate again or manually."));
 		resultState = CalibrationState::LimitedDynamicRange;
 	}
 
 	// check how states intersect
-	if (mStateMin[high] > mStateMax[low]) { // no intersection
-		sensorVal_t gap = mStateMin[high] - mStateMax[low];
+	if (highStateParams.min > lowStateParams.max) { // no intersection
+		sensorVal_t gap = highStateParams.min - lowStateParams.max;
 		sensorVal_t offset = gap*NO_INTERSECTION_THRESHOLD_PERCENTILE / 100;
-		mCP.schmittThresholdHigh = mStateMin[high] - offset;
-		mCP.schmittThresholdLow = mStateMax[low] + offset;
+		mCP.schmittThresholdHigh = highStateParams.min - offset;
+		mCP.schmittThresholdLow = lowStateParams.max + offset;
 		mCP.expMovingAverageAlpha = MAX_EXP_ALPHA; // don't smooth, we don't need to. just use the raw value
 	} else {
 		if (DebugStream)
 			DebugStream->println(F("States intersect. This is not recommended. Please see if this can be improved or try to calibrate again or manually."));
 		resultState = CalibrationState::StateIntersection;
-		if((mStateMin[high]<mStateMin[low] && mStateMax[high]>mStateMax[low]) || (mStateMin[high]>mStateMin[low] && mStateMax[high]<mStateMax[low])) { // if low contained in high or high contained in low
+		if((highStateParams.min<lowStateParams.min && highStateParams.max>lowStateParams.max) || (highStateParams.min>lowStateParams.min && highStateParams.max<lowStateParams.max)) { // if low contained in high or high contained in low
 			if (DebugStream)
 				DebugStream->println(F("One state is contained in another state. This is highly not recommended. Please see if this can be improved or try to calibrate again or manually."));
 			resultState = CalibrationState::StateContainment;
 		}
-		sensorVal_t meanDist = mStateAvg[high] - mStateAvg[low];
-		sensorVal_t lowSpan = mStateMax[low] - mStateAvg[low];
-		sensorVal_t highSpan = mStateAvg[high] - mStateMin[high];
+		sensorVal_t meanDist = highStateParams.avg - lowStateParams.avg;
+		sensorVal_t lowSpan = lowStateParams.max - lowStateParams.avg;
+		sensorVal_t highSpan = highStateParams.avg - highStateParams.min;
 		// derrive filtering parameter to make samples more stable and cause the states to intersect less
 		float scaleFactor = (float)meanDist/(lowSpan + highSpan); // how much more narrow we want our signal to spread
 		mCP.expMovingAverageAlpha = scaleFactor*scaleFactor*MAX_EXP_ALPHA; // alpha=(spread_scale)^2 , not based on mathematical proof, might need tweaking
-		mCP.schmittThresholdHigh = mStateAvg[high] - (highSpan*scaleFactor*INTERSECTION_THRESHOLD_PERCENTILE/100);
-		mCP.schmittThresholdLow = mStateAvg[low] + (lowSpan*scaleFactor*INTERSECTION_THRESHOLD_PERCENTILE/100);
+		mCP.schmittThresholdHigh = highStateParams.avg - (highSpan*scaleFactor*INTERSECTION_THRESHOLD_PERCENTILE/100);
+		mCP.schmittThresholdLow = lowStateParams.avg + (lowSpan*scaleFactor*INTERSECTION_THRESHOLD_PERCENTILE/100);
 	}
 
 	mCP.state = resultState; // success!
-
-	// log
-	if (DebugStream)
-		debugCalibrationState(DebugStream);
-	if (PersistentLog) {
-		Print * file = PersistentLog->open();
-		if (file)
-			debugCalibrationState(file);
-		PersistentLog->close();
-	}
-
 	return true;
 }
 
@@ -144,21 +135,23 @@ void CalibratedSensor::debugCalibrationState(Print * stream)
 
 	// calibration process data for each state
 	for (int s = 0; s < CalibratedSensorState::Count; s++) {
+		stream->print(F("State params\t"));
 		stream->print(s);
 		stream->print('\t');
-		stream->print(mStateDataCollected[s]);
-		if (mStateDataCollected[s]) {
+		stream->print(mCP.stateParams[s].collected);
+		if (mCP.stateParams[s].collected) {
 			stream->print('\t');
-			stream->print(mStateMin[s]);
+			stream->print(mCP.stateParams[s].min);
 			stream->print('\t');
-			stream->print(mStateAvg[s]);
+			stream->print(mCP.stateParams[s].avg);
 			stream->print('\t');
-			stream->print(mStateMax[s]);
+			stream->print(mCP.stateParams[s].max);
 		}
 		stream->println();
 	}
 
 	// calibration params
+	stream->print(F("Sensor params\t"));
 	stream->print(mCP.state);
 	stream->print('\t');
 	stream->print(mCP.stateAIsHigh);
@@ -182,7 +175,7 @@ void CalibratedSensor::resetCalibrationData()
 {
 	mCP.state = CalibrationState::None;
 	for (int s = 0; s < CalibratedSensorState::Count; s++) {
-		mStateDataCollected[s] = false;
+		mCP.stateParams[s].collected = false;
 	}
 }
 

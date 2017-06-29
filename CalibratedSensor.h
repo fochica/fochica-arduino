@@ -30,15 +30,21 @@ struct CalibratedSensorState {
 	};
 };
 
+// part of the persistent schema, probably need to increase version number if this is changed
 struct CalibrationState {
 	enum e {
 		None, Good, LimitedDynamicRange, StateIntersection, StateContainment
 	};
 };
 
-// part of the persistent schema, probably need to increase version number if this is changed
-struct CalibrationParams {
+struct CalibrationParamsState { // of each state (intermediary)
+	sensorVal_t min, max, avg;
+	bool collected;
+};
+
+struct CalibrationParams { // of the sensor
 	CalibrationState::e state;
+	CalibrationParamsState stateParams[CalibratedSensorState::Count];
 	// cleanup params
 	int expMovingAverageAlpha; // "Exponentially Weighted Moving Average" alpha param. in milli units. value of 1000 means: use just the new value.
 	// thresholding params
@@ -93,15 +99,8 @@ private:
 	CalibratedSensorState::e mCurState;
 	sensorVal_t mLastRawValue;
 
-	// calibration result
+	// calibration result and process data
 	CalibrationParams mCP;
-
-	// calibration process data
-	// min, max, avg for each state.
-	sensorVal_t mStateMin[CalibratedSensorState::Count];
-	sensorVal_t mStateMax[CalibratedSensorState::Count];
-	sensorVal_t mStateAvg[CalibratedSensorState::Count];
-	bool mStateDataCollected[CalibratedSensorState::Count];
 
 	// consts
 	static const CalibratedSensorState::e INITIAL_STATE = CalibratedSensorState::A; // the initial state of this sensor

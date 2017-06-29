@@ -84,6 +84,14 @@ bool SensorManager::addSensor(seatCount_t seatId, SensorLocation::e location, IS
 		mSensors[mSensorAddedCount].sensor->setCalibrationParams(pp.calibrationParams);
 		mSensors[mSensorAddedCount].activityMode = pp.activityMode;
 		// log
+		if (DebugStream) {
+			DebugStream->print(F("Sensor #"));
+			DebugStream->print(mSensorAddedCount);
+			DebugStream->print(F(", activity mode: "));
+			DebugStream->print(pp.activityMode);
+			DebugStream->println(F(", calibration params: "));
+			mSensors[mSensorAddedCount].sensor->debugCalibrationState(DebugStream);
+		}
 		if (PersistentLog) {
 			Print * file = PersistentLog->open();
 			if (file) {
@@ -106,27 +114,42 @@ bool SensorManager::addSensor(seatCount_t seatId, SensorLocation::e location, IS
 
 void SensorManager::calibrate(seatCount_t seatId, SensorState::e state)
 {
-	bool fullCalibrated = true;
+	bool seatFullyCalibrated = true;
 	SoundManager::getInstance().playBeep(BeepType::SeatCalibrationStart);
 	// go over all sensors of seat
 	for (sensorCount_t sensorId = 0; sensorId < mSensorAddedCount; sensorId++) {
 		SensorData& sensor = mSensors[sensorId];
-		if (sensor.seatId == seatId) {
+		if (sensor.seatId == seatId && sensor.activityMode!=SensorActivityMode::Disabled) { // should not calibrate Disabled sensors
 			// calibrate them per state
-			if(sensor.sensor->calibrate(seatSensorStateToCalibratedSensorState(state))==false) // if calibration process couldn't be done yet, such as if only collecting data about first stage
-				fullCalibrated = false;
+			if(sensor.sensor->calibrate(seatSensorStateToCalibratedSensorState(state))==false) // if full calibration process couldn't be done yet, such as if only collecting data about first state
+				seatFullyCalibrated = false;
+			// log
+			if (DebugStream) {
+				DebugStream->print(F("Calibration of sensor #"));
+				DebugStream->println(sensorId);
+				sensor.sensor->debugCalibrationState(DebugStream);
+			}
+			if (PersistentLog) {
+				Print * file = PersistentLog->open();
+				if (file) {
+					file->print(F("Calibration of sensor #"));
+					file->println(sensorId);
+					sensor.sensor->debugCalibrationState(file);
+				}
+				PersistentLog->close();
+			}
+			// save persistent params
+			SensorPersistentParams pp(sensor.sensor->getCalibrationParams(), sensor.activityMode);
+			PersistentSettings::getInstance().writeSeatSensorPersistentParams(sensorId, seatId, sensor.sensorRaw->getType(), sensor.location, pp);
 			// issue calibration params packet to client
 			if (sensor.sensor->isCalibrated()) { // could be calibration params that are new or params from a previous run
-				// save persistent params
-				SensorPersistentParams pp(sensor.sensor->getCalibrationParams(), sensor.activityMode);
-				PersistentSettings::getInstance().writeSeatSensorPersistentParams(sensorId, seatId, sensor.sensorRaw->getType(), sensor.location, pp);
 				// annouce
 				sendCalibrationParams(sensorId);
 			}
 		}
 	}
 	SoundManager::getInstance().playBeep(BeepType::SeatCalibrationEnd);
-	if(fullCalibrated) // make a notification that all complete, not just one specific state
+	if(seatFullyCalibrated) // make a notification that all complete, not just one specific state
 		SoundManager::getInstance().playBeep(BeepType::SeatCalibrationSuccess);
 }
 

@@ -24,6 +24,7 @@ void PersistentSettings::init()
 {
 	// read header
 	EEPROM.get(EEPROM_START, mHeader);
+
 	if (mHeader.token != TOKEN || mHeader.version != SCHEMA_VERSION) { // if bad or unknown data in EEPROM
 		mHeader.token = TOKEN;
 		mHeader.version = SCHEMA_VERSION;
