@@ -50,6 +50,10 @@ boolean PersistentLogImpl_SD::begin()
 
 Print * PersistentLogImpl_SD::open()
 {
+	// check if can be used
+	if (!isPresent())
+		return NULL;
+
 	// check if already open
 	if (mFile) {
 		if(DebugStream)
@@ -65,7 +69,7 @@ Print * PersistentLogImpl_SD::open()
 	//	DebugStream->println(fileName);
 
 	// open the file. note that only one file can be open at a time,
-	// so you have to close this one before opening another.
+	// so you have to close this one before opening another or re-openning this one.
 	mFile = SD.open(fileName, FILE_WRITE);
 
 	// if the file was not opened correctly, print an error
@@ -77,8 +81,16 @@ Print * PersistentLogImpl_SD::open()
 		return NULL;
 	}
 	else {
-		printDate(mFile, dt);
-		mFile.print(F(", "));
+		size_t s=printDate(mFile, dt); // note, this will perform several "print" operations. each operation takes a few ms for SD file object. consider to write to a memory output device and then flush to file in ope operation.
+		s+=mFile.print(F(", "));
+		if (s == 0) { // we couldn't write anything, assume persistent error or no free space
+			mFile.close();
+			mPresent = false; // disable further use to prevent system slowdown, can later implement another behaviour such as rotating log files
+			if (DebugStream) {
+				DebugStream->println(F("Can't write to SD file, assuming card full and shutting down logging"));
+			}
+			return NULL;
+		}
 	}
 
 	return &mFile;

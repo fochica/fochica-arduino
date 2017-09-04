@@ -17,17 +17,19 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "IPersistentLog.h"
 
-void IPersistentLog::printDate(Print & out, const DateTime & d)
+size_t IPersistentLog::printDate(Print & out, const DateTime & d)
 {
-	out.print(d.year(), DEC);
-	out.print('/');
-	out.print(d.month(), DEC);
-	out.print('/');
-	out.print(d.day(), DEC);
-	out.print(' ');
-	out.print(d.hour(), DEC);
-	out.print(':');
-	out.print(d.minute(), DEC);
-	out.print(':');
-	out.print(d.second(), DEC);
+	size_t s = 0;
+	s += out.print(d.year(), DEC);
+	s += out.print('/');
+	s += out.print(d.month(), DEC);
+	s += out.print('/');
+	s += out.print(d.day(), DEC);
+	s += out.print(' ');
+	s += out.print(d.hour(), DEC);
+	s += out.print(':');
+	s += out.print(d.minute(), DEC);
+	s += out.print(':');
+	s += out.print(d.second(), DEC);
+	return s;
 }

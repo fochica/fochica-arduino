@@ -34,7 +34,7 @@ public:
 	virtual void close() = 0;
 
 protected:
-	void printDate(Print & out, const DateTime & d);
+	size_t printDate(Print & out, const DateTime & d);
 };
 
 #endif
