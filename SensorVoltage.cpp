@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "SensorVoltage.h"
 
-SensorVoltage::SensorVoltage(const char * name, int analogPin, long resistorToGround, long resistorToVoltage) : ISensor(name, SensorType::Voltage)
+SensorVoltage::SensorVoltage(const char * name, uint8_t analogPin, long resistorToGround, long resistorToVoltage) : ISensor(name, SensorType::Voltage)
 {
 	mPin = analogPin;
 	mDivider = (resistorToGround + resistorToVoltage) / resistorToGround;
