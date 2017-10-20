@@ -30,12 +30,19 @@ sensorVal_t SensorVcc::getValueInt()
 // value should be around 5 (V)
 float SensorVcc::getValueFloat()
 {
-	// can't set mux to 14 with analogRead
-	// need to set manually
+	// can't set mux to bandgap reference with analogRead, need to set manually
 	// Possibly AVR specific
 	// cross platform issue
 	byte mux = ADMUX; // save current adc mux value
-	ADMUX = (DEFAULT << 6) | BANDGAP_REF_PIN; // select 14 in the mux, have to do manually and select AnalogReference=DEFAULT
+#if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__) // if better chips (Arduino Mega), such as 1280/2560
+	ADMUX = (DEFAULT << 6) | 0b11110; // select 14+16 in the mux, have to do manually and select AnalogReference=DEFAULT
+	bitClear(ADCSRB,MUX5);
+#elif defined (__AVR_ATmega168__) || defined (__AVR_ATmega328P__) // if simpler chips (Arduino Uno), such as 168/328
+	ADMUX = (DEFAULT << 6) | 0b1110; // select 14 in the mux, have to do manually and select AnalogReference=DEFAULT
+#else
+	// No support implemented for other micro controllers
+	return 0;
+#endif
 	delayMicroseconds(SETTLE_DURATION_US);
 	bitSet(ADCSRA, ADSC);
 	while (bit_is_set(ADCSRA, ADSC));

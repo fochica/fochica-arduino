@@ -37,11 +37,6 @@ public:
 private:
 	// Possibly AVR specific
 	// cross platform issue
-#ifndef MUX4 // if simpler chips (Arduino Uno), such as 168/328
-	const int BANDGAP_REF_PIN = 14; // 1110b
-#else // if better chips (Arduino Mega), such as 1280/2560
-	const int BANDGAP_REF_PIN = 14+16; // 11110b
-#endif
 	const float BANDGAP_VOLTAGE = 1.1;
 	const int SETTLE_DURATION_US = 400; // lower values would result in readings that are lower than actual Vcc
 };
