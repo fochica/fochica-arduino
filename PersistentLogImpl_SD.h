@@ -28,6 +28,8 @@ You should have received a copy of the GNU General Public License along with thi
 #include <SD.h> // for File type, should be the newer SD library from https://github.com/adafruit/SD to suport specifying the SPI pins for soft-SPI
 #include "IRTC.h"
 
+// Persistent logger implementation that logs the data to a SD card.
+// You will need an Arduino Mega or another board with a lot of Flash to fit this support in program memory.
 class PersistentLogImpl_SD : public IPersistentLog
 {
 public:
