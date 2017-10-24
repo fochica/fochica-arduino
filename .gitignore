@@ -1,4 +1,5 @@
 ## fochica specific files
+ConfigPrivateVariation-*.h
 main-flags-override-*.h
 
 ## IDE project files

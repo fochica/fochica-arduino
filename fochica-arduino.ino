@@ -13,31 +13,17 @@ You should have received a copy of the GNU General Public License along with thi
 
 // our new classes, included here automatically on "add code" wizard
 // keep only what we need for the main file
-#define MARKER
+#define START_MARKER
 
 /////////////
 // MAIN FLAGS
 #ifdef  ARDUINO_AVR_MEGA2560
 #define SUPPORT_SD_MODULE // The SD library uses over 0.5KB of RAM and lots of Flash memory. The SD module is an SPI devices and takes 4 pins. Practical use is only possible of larger boards, such as the Arduino Mega, not Arduino Uno.
 #endif
-#ifdef SUPPORT_SD_MODULE
-#define USE_SD_MODULE // by default, use it if we can support it
-#endif
-
-#define SEATS 1
-#define SENSORS 2
-#define BLE_MODULES 1
-//#define HAS_RTC
-//#define BUZZER_PNP // define if the buzzer has a PNP transistor and therefore signal pin has to be HIGH to turn current flow off
-//#define USE_DISCHARGE_PROTECTION
-
-// example of using overrides of the default config. for vMicro, add the header file to the project.
-//#include "main-flags-override-1.h" // build with sensors and adapter for device "Lab 1", used for testing in the lab. Uno with one seat.
-//#include "main-flags-override-2.h" // build with sensors and adapter for device "Beta 1", used for real senario testing. Mega with two seats and SD log.
-//#include "main-flags-override-3.h" // build with sensors and adapters for device "Beta 2", used for real senario testing. Uno with two seats and two BLE adapters.
 
 ///////////
 // INCLUDES
+#include "Nullable.h"
 #include "EventHandlerNotifyClientConnectionChange.h"
 #include "EventHandlerWriteToPersistentLog.h"
 #include "EventHandlerExternalAlertTrigger.h"
@@ -67,8 +53,9 @@ You should have received a copy of the GNU General Public License along with thi
 #include "SensorFreeRAM.h"
 #include "Manager.h"
 #include "DebugStream.h"
+#include "ConfigVariationBase.h"
 
-// Includes of libraries that are used in this project, for the sake of visual micro and IntelliSense
+// includes of libraries that are used in this project, for the sake of visual micro and IntelliSense
 #include <SoftwareSerial.h>
 #include <RTClib.h>
 #include <EEPROM.h>
@@ -78,145 +65,38 @@ You should have received a copy of the GNU General Public License along with thi
 
 ///////////
 // SETTINGS
-const long SERIAL_BAUD = 115200;
 
-const int BATTERY_VOLTAGE_SENSOR_PIN = 1; // analog pin#
-const long BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND = 10000; // 10Kohm
-const long BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE = 20000; // 20Kohm
+// include one ConfigVariation based on your hardware setup and wiring
+#include "ConfigVariation-BasicV1.h"
+//#include "ConfigVariation-PrototypeMega1.h"
+//#include "ConfigVariation-UnoShieldV1.h"
+//#include "ConfigVariation-NanoV1.h"
 
-const int BUZZER_PIN = 4;
-#ifndef BUZZER_PNP
-const int BUZZER_OFF_STATE = LOW; // LOW is using a NPN transistor (preffered) to drive the buzzer. HIGH if using a PNP.
-#else
-const int BUZZER_OFF_STATE = HIGH; // LOW is using a NPN transistor (preffered) to drive the buzzer. HIGH if using a PNP.
-#endif
+// or make your custom ConfigPrivateVariation-X.h file and use it (ignored by git)
+//#include "ConfigPrivateVariation-PrototypeUno1.h"
 
-// capacitance sensor for seat A
-const int CAPACITANCE_READ_PIN = 2; // analog pin#
-const int CAPACITANCE_AUX_PIN = 3; // analog pin#
+// make an instance of the config variation
+ConfigVariation configVariation; 
 
-const int REED_SWITCH_PIN = 6;
-
-// capacitance sensor for seat B. Uses the aux pin of capacitance sensor of seat A and vise-versa.
-const int CAPACITANCE_B_READ_PIN = 3; // analog pin#
-const int CAPACITANCE_B_AUX_PIN = 2; // analog pin#
-
-const int REED_SWITCH_B_PIN = A0;
-
-// custom sensors
-const int IR_DISTANCE_READ_PIN = 0; // analog pin#
-const int FSR_PIN = 0; // analog pin#
-const int CAPACITIVE_PRESSURE_PIN = 11;
-//
-
-const int LOOP_DELAY = 1000; // seconds
-
-// Bluetooth Low Energy (HM-10/CC41 module)
-// Software serial
-// module #1
-const int BLE_RX_PIN = 8; // yellow
-const int BLE_TX_PIN = 9; // orange
-const int BLE_STATE_PIN = 7; // gray
-
-// module #2
-const int BLE2_RX_PIN = 2; // yellow
-const int BLE2_TX_PIN = 3; // orange
-const int BLE2_STATE_PIN = 5; // gray
-
-#ifdef USE_SD_MODULE
-const int SD_CS_PIN = 10; // depends on module, probably pin 10. need to free it from being used by other component and allocate here.
-// if you shield doesn't support Arduino Mega SPI pins, you might need to override the defaults here
-const int SD_MOSI_PIN = 11; // 51 native on Mega
-const int SD_MISO_PIN = 12; // 50 native on Mega
-const int SD_SCK_PIN = 13; // 52 native on Mega
-//const int SD_MOSI_PIN = -1; // use default
-//const int SD_MISO_PIN = -1; // use default
-//const int SD_SCK_PIN = -1; // use default
-#endif
-
-#ifdef USE_DISCHARGE_PROTECTION
-// Discharge protection "keep-alive" pin
-#ifndef USE_SD_MODULE // if we are not using pin 10 for SD card
-const int DISCHARGE_PROTECTION_PIN = 10;
-#else
-#error Allocate and define DISCHARGE_PROTECTION_PIN
-#endif
-const int DISCHARGE_PROTECTION_ALPHA = 0.02 * CalibratedSensor::MAX_EXP_ALPHA; // can try values closer to 0.01 if discharge protection kicks in during engine cranking.
-const int DISCHARGE_PROTECTION_LOW_CHARGE_TH = 11500; // 11.5V
-const int DISCHARGE_PROTECTION_HIGH_CHARGE_TH = 12000; // 12V
-#endif
-
+// parameters for detecting that engine is running based on battery voltage
 const int CAR_ENGINE_ALPHA = 0.2 * CalibratedSensor::MAX_EXP_ALPHA;
 const int CAR_ENGINE_OFF_TH = 13000; // 13V
 const int CAR_ENGINE_RUNNING_TH = 13500; // 13.5V
-
-// "alive" led, flashes during operation. by default on pin 13, the built-in led.
-#if !defined(ALIVE_LED_PIN) && !defined(USE_SD_MODULE)
-#define ALIVE_LED_PIN LED_BUILTIN
-#endif
-#ifdef ALIVE_LED_PIN
-#define USE_ALIVE_LED
-#endif // ALIVE_LED_PIN
-#define ALIVE_LED_DUTY_PERCENT 10
 
 //////////
 // OBJECTS
 // technical sensors
 SensorFreeRAM ram("SRAM");
 SensorVcc vcc("Vcc");
-SensorVoltage bat("Battery", BATTERY_VOLTAGE_SENSOR_PIN, BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND, BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE);
-
-// occupancy (business logic) sensors
-SensorQtouch capSense("CapSense", CAPACITANCE_READ_PIN, CAPACITANCE_AUX_PIN);
-SensorDigital digitalReed("Reed", REED_SWITCH_PIN, INPUT_PULLUP);
-#if SEATS==2
-SensorQtouch capSenseB("CapSenseB", CAPACITANCE_B_READ_PIN, CAPACITANCE_B_AUX_PIN);
-SensorDigital digitalReedB("ReedB", REED_SWITCH_B_PIN, INPUT_PULLUP);
-#endif // SEATS==2
-// custom sensors
-//#define SENSORS 4
-//SensorDigital digitalTest("Test", BLE_STATE_PIN); // just a test, reuse existing pin
-//SensorSharpIRDistance irDistance("IRDistance", IR_DISTANCE_READ_PIN);
-//SensorAnalog fsr("FSR", FSR_PIN, SensorType::FSR);
-//SensorCapacitivePressure1Pin capPressure("CapPressure", CAPACITIVE_PRESSURE_PIN);
-//
-
-// communication devices
-#ifdef HAVE_HWSERIAL1
-GenericBLEModuleClient ble1(Serial1, BLE_STATE_PIN);
-#else
-SoftwareSerial bleSerial1(BLE_RX_PIN, BLE_TX_PIN);
-GenericBLEModuleClient ble1(bleSerial1, BLE_STATE_PIN);
-#endif
-
-#if BLE_MODULES==2
-#ifdef HAVE_HWSERIAL2
-GenericBLEModuleClient ble2(Serial2, BLE2_STATE_PIN);
-#else
-SoftwareSerial bleSerial2(BLE2_RX_PIN, BLE2_TX_PIN);
-GenericBLEModuleClient ble2(bleSerial2, BLE2_STATE_PIN);
-#endif
-#endif
+SensorVoltage bat("Battery", configVariation.getBatteryVoltageSensorAnalogPin(), configVariation.getBatteryVoltageSensorResistorToGroundValue(), configVariation.getBatteryVoltageSensorResistorToVoltageValue());
+// TODO, consider to make bat Nullable
 
 // timing and logging
-#ifdef HAS_RTC
-RTCImpl_DS1307 rtc;
-#else
-RTCImpl_Sync rtc; // when hardware RTC is not available
-#endif
-#ifdef USE_SD_MODULE
-PersistentLogImpl_SD logger(rtc, SD_CS_PIN, SD_MOSI_PIN, SD_MISO_PIN, SD_SCK_PIN); // log "persistent data" to SD card. You will need an Arduino Mega or another board with a lot of Flash to fit this support in program memory.
-//PersistentLogImpl_Serial logger(Serial, rtc); // log "persistent data" to serial
-#else
-//PersistentLogImpl_Serial logger(Serial, rtc); // log "persistent data" to serial
-PersistentLogImpl_Null logger; // log "persistent data" to null, to reduce verbosity
-#endif
+IRTC * rtc = configVariation.getRTC();
+IPersistentLog * logger = configVariation.getPersistentLog(rtc);
 
 // discharge protection
-#ifdef USE_DISCHARGE_PROTECTION
-CalibratedSensor lowBatCharge(&bat, DISCHARGE_PROTECTION_ALPHA, DISCHARGE_PROTECTION_LOW_CHARGE_TH, DISCHARGE_PROTECTION_HIGH_CHARGE_TH, CalibratedSensorState::B, DISCHARGE_PROTECTION_HIGH_CHARGE_TH); // set to start in state=B="high charge"
-DischargeProtectionManager dischargeProtection(lowBatCharge, DISCHARGE_PROTECTION_PIN);
-#endif
+DischargeProtectionManager * dischargeProtection = configVariation.getDischargeProtectionManager(&bat);
 
 // car engine running detection
 // State A is off and B is running. start with default A state
@@ -246,16 +126,15 @@ void setup()
 	ram.begin();
 	manager.getTechnicalManager().setFreeRAMSensor(&ram);
 
-#ifdef USE_DISCHARGE_PROTECTION
 	// first thing, make sure we get power
-	dischargeProtection.begin();
-#endif
+	if(dischargeProtection!=NULL)
+		dischargeProtection->begin();
 
 	// init buzzer 
-	SoundManager::getInstance().setPassiveBuzzer(BUZZER_PIN, BUZZER_OFF_STATE);
+	SoundManager::getInstance().setPassiveBuzzer(configVariation.getBuzzerPin(), configVariation.getBuzzerOffState());
 
 	// init serial
-	Serial.begin(SERIAL_BAUD);
+	Serial.begin(configVariation.getSerialBaud());
 	delay(10); // wait a little for dev env to connect before sending data	
 
 	// debug and log interfaces
@@ -265,10 +144,10 @@ void setup()
 
 	if (DebugStream)
 		DebugStream->println(F("Initializing RTC and Persistent logger"));
-	rtc.begin();
-	manager.setRTC(&rtc);
-	if (logger.begin()) // if init ok
-		PersistentLog = &logger;
+	rtc->begin();
+	manager.setRTC(rtc);
+	if (logger->begin()) // if init ok
+		PersistentLog = logger;
 	else {
 		PersistentLog = NULL;
 		SoundManager::getInstance().playBeep(BeepType::Error);
@@ -289,38 +168,11 @@ void setup()
 
 	// init sensors
 	PersistentLogWrite(F("Initializing Sensors"));
-	manager.getSensorManager().setSeatCount(SEATS);
-	manager.getSensorManager().setSensorCount(SENSORS);
-	capSense.begin();
-	manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capSense);
-	digitalReed.begin();
-	manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalReed);
-#if SEATS==2
-	capSenseB.begin();
-	manager.getSensorManager().addSensor(1, SensorLocation::UnderSeat, &capSenseB);
-	digitalReedB.begin();
-	manager.getSensorManager().addSensor(1, SensorLocation::Chest, &digitalReedB);
-#endif
-	// custom sensors
-	//irDistance.begin();
-	//manager.getSensorManager().addSensor(0, SensorLocation::Above, &irDistance);
-	//digitalTest.begin();
-	//manager.getSensorManager().addSensor(0, SensorLocation::Chest, &digitalTest);
-	//fsr.begin();
-	//manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &fsr);
-	//capPressure.begin();
-	//manager.getSensorManager().addSensor(0, SensorLocation::UnderSeat, &capPressure);
-	//
+	configVariation.registerSensors(manager.getSensorManager());
 
 	// init comms
 	PersistentLogWrite(F("Initializing communications"));
-	manager.getClientManager().setDeviceCount(BLE_MODULES);
-	ble1.begin();
-	manager.getClientManager().addDevice(&ble1);
-#if BLE_MODULES==2
-	ble2.begin();
-	manager.getClientManager().addDevice(&ble2);
-#endif
+	configVariation.registerClientDevices(manager.getClientManager());
 	manager.getClientManager().setReceiverCallback(&manager);
 
 	// init event handlers
@@ -334,10 +186,10 @@ void setup()
 	manager.addEventHandler(&ehPersistentLog);
 	manager.addEventHandler(&ehClientConnectionChange);
 
-#ifdef USE_ALIVE_LED
 	// alive led
-	pinMode(ALIVE_LED_PIN, OUTPUT);
-#endif
+	Nullable<uint8_t> aliveLedPin = configVariation.getAliveLedPin();
+	if(aliveLedPin.hasValue())
+		pinMode(aliveLedPin, OUTPUT);
 
 	// misc log
 	if (DebugStream) {
@@ -368,12 +220,8 @@ void loop()
 	if (DebugStream) {
 		//DebugStream->println(F("Loop"));
 		//DebugStream->println(ram.getValueInt());
-		//DebugStream->println(vcc.getValueFloat());
+		//DebugStream->println(vcc.getValueInt());
 		//DebugStream->println(bat.getValueFloat());
-		//DebugStream->println(ble1.isConnected());
-		//DebugStream->println(irDistance.getValueInt());
-		//DebugStream->println(capSense.getValueInt());
-		//DebugStream->println(digitalReed.getValueInt());
 	}
 
 	if (PersistentLog) {
@@ -392,16 +240,23 @@ void loop()
 
 	// work
 	manager.work();
-#ifdef USE_DISCHARGE_PROTECTION
-	dischargeProtection.work();
-#endif
+	// discharge protection
+	if(dischargeProtection!=NULL)
+		dischargeProtection->work();
 
-#ifdef USE_ALIVE_LED
-	digitalWrite(ALIVE_LED_PIN, HIGH);
-	delay(ALIVE_LED_DUTY_PERCENT*LOOP_DELAY/100);
-	digitalWrite(ALIVE_LED_PIN, LOW);
-	delay(LOOP_DELAY-ALIVE_LED_DUTY_PERCENT*LOOP_DELAY/100);
-#else
-	delay(LOOP_DELAY);
-#endif
+	// loop delay and flashing of an "alive" led (if configured as such)
+	Nullable<uint8_t> aliveLedPin = configVariation.getAliveLedPin();
+	if (aliveLedPin.hasValue())
+	{
+		long loopDelay = configVariation.getLoopDelay();
+		long dutyCycleDelay = loopDelay * configVariation.getAliveLedDutyCyclePercent() / 100;
+		digitalWrite(aliveLedPin, HIGH);
+		delay(dutyCycleDelay);
+		digitalWrite(aliveLedPin, LOW);
+		delay(loopDelay - dutyCycleDelay);
+	}
+	else
+	{
+		delay(configVariation.getLoopDelay());
+	}
 }
