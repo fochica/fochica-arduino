@@ -10,6 +10,12 @@ This is the source code repository of the Fochica device. For build instructions
 
 For more information see [fochica.com site](http://fochica.com) or the [hackaday page](https://hackaday.io/project/20902-fochica-forgotten-child-in-car-alert) .
 
+[![Fochica](https://img.youtube.com/vi/8wOeXHNUfBQ/0.jpg)](https://www.youtube.com/watch?v=8wOeXHNUfBQ)
+
+![Fochica NanoV1 prototypes](https://cdn.hackaday.io/images/910051506800531124.jpg)
+
+![Fochica ProtoShield](http://fochica.com/wiki/protoshield/fochica%20protoshield%20with%20extras.jpg "Fochica ProtoShield")
+
 ![Device prototype](http://fochica.com/wp-content/uploads/2017/03/device-slide.jpg)
 
 ## Dependencies
