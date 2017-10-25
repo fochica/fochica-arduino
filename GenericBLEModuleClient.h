@@ -37,9 +37,9 @@ class GenericBLEModuleClient : public IClientDevice
 {
 public:
 #ifdef HAVE_SOFTWARE_SERIAL
-	GenericBLEModuleClient(SoftwareSerial & serial, int statePin);
+	GenericBLEModuleClient(SoftwareSerial & serial, uint8_t statePin);
 #endif
-	GenericBLEModuleClient(HardwareSerial & serial, int statePin);
+	GenericBLEModuleClient(HardwareSerial & serial, uint8_t statePin);
 
 	// sending packets
 	bool sendTime(const PacketTime& packet);
@@ -61,7 +61,7 @@ public:
 private:
 	Stream & mBLE;
 	bool mIsSoftwareSerial;
-	int mStatePin;
+	uint8_t mStatePin;
 	bool mConnected; // last known connection state. true for connected.
 	unsigned long mLastSendTime;
 

@@ -35,14 +35,14 @@ You should have received a copy of the GNU General Public License along with thi
 class SensorQtouch : public ISensor
 {
 public:
-	SensorQtouch(const char * name, int analogReadPin, int analogAuxPin);
+	SensorQtouch(uint8_t analogReadPin, uint8_t analogAuxPin);
 	sensorVal_t getValueInt(); // returns V*[internal coeff], higher when capacitance is higher
 	float getValueFloat();
 	int getSamplingTime();
 
 private:
-	int mReadPin;
-	int mAuxPin;
+	uint8_t mReadPin;
+	uint8_t mAuxPin;
 
 	enum TransferDirection {
 		InToOut, // charge internal cap, then share charge with external cap

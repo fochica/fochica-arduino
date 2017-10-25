@@ -99,10 +99,10 @@ void ConfigVariation::registerClientDevices(ClientManager & cm)
 
 void ConfigVariation::registerSensors(SensorManager & sm)
 {
-	SensorQtouch * capSense = new SensorQtouch("CapSense", CAPACITIVE_TOUCH_SENSOR_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR_AUX_ANALOG_PIN);
-	SensorDigital * digitalReed = new SensorDigital("Reed", REED_SWITCH_SENSOR_PIN, INPUT_PULLUP);
-	SensorQtouch * capSense2 = new SensorQtouch("CapSense2", CAPACITIVE_TOUCH_SENSOR2_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR2_AUX_ANALOG_PIN);
-	SensorDigital * digitalReed2 = new SensorDigital("Reed2", REED_SWITCH_SENSOR2_PIN, INPUT_PULLUP);
+	SensorQtouch * capSense = new SensorQtouch(CAPACITIVE_TOUCH_SENSOR_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR_AUX_ANALOG_PIN);
+	SensorDigital * digitalReed = new SensorDigital(REED_SWITCH_SENSOR_PIN, INPUT_PULLUP);
+	SensorQtouch * capSense2 = new SensorQtouch(CAPACITIVE_TOUCH_SENSOR2_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR2_AUX_ANALOG_PIN);
+	SensorDigital * digitalReed2 = new SensorDigital(REED_SWITCH_SENSOR2_PIN, INPUT_PULLUP);
 
 	sm.setSeatCount(2);
 	sm.setSensorCount(4);

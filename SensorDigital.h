@@ -27,7 +27,7 @@ You should have received a copy of the GNU General Public License along with thi
 class SensorDigital : public ISensor
 {
 public:
-	SensorDigital(const char * name, uint8_t pin, int8_t pinMode=-1); // can optionlly define pin mode (INPUT, INPUT_PULLUP or -1 for keep-as-is)
+	SensorDigital(uint8_t pin, int8_t pinMode=-1); // can optionlly define pin mode (INPUT, INPUT_PULLUP or -1 for keep-as-is)
 	void begin();
 
 	sensorVal_t getValueInt(); // return 0 or 1*GAIN

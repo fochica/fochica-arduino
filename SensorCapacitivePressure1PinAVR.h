@@ -36,7 +36,7 @@ You should have received a copy of the GNU General Public License along with thi
 class SensorCapacitivePressure1PinAVR : public ISensor
 {
 public:
-	SensorCapacitivePressure1PinAVR(const char * name, uint8_t pin);
+	SensorCapacitivePressure1PinAVR(uint8_t pin);
 	sensorVal_t getValueInt(); // returns analogRead
 	float getValueFloat();
 	int getSamplingTime();

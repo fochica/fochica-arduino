@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with thi
 class SensorSharpIRDistance : public ISensor
 {
 public:
-	SensorSharpIRDistance(const char * name, uint8_t analogReadPin);
+	SensorSharpIRDistance(uint8_t analogReadPin);
 	sensorVal_t getValueInt(); // returns distance in mm
 	float getValueFloat();
 	int getSamplingTime();

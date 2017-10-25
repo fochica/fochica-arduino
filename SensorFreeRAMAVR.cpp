@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "SensorFreeRAMAVR.h"
 
-SensorFreeRAMAVR::SensorFreeRAMAVR(const char * name) : ISensor(name, SensorType::RAM)
+SensorFreeRAMAVR::SensorFreeRAMAVR() : ISensor(SensorType::RAM)
 {
 }
 

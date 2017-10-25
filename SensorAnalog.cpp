@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "SensorAnalog.h"
 
-SensorAnalog::SensorAnalog(const char * name, uint8_t analogPin, SensorType::e type) : ISensor(name, type)
+SensorAnalog::SensorAnalog(uint8_t analogPin, SensorType::e type) : ISensor(type)
 {
 	mPin = analogPin;
 }

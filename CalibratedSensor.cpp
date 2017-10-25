@@ -19,6 +19,17 @@ You should have received a copy of the GNU General Public License along with thi
 #include "DebugStream.h"
 #include "PersistentLog.h"
 
+// Calibration note/warning messages, these are too large for limited flash of smaller AVRs
+#ifdef __AVR_ATmega328P__
+#define CALIB_NOTE1 F("Calib note #1")
+#define CALIB_NOTE2 F("Calib note #2")
+#define CALIB_NOTE3 F("Calib note #3")
+#else
+#define CALIB_NOTE1 F("Sensor dynamic range is constrained. Consider introducing gain. Please see if this can be improved or try to calibrate again or manually.")
+#define CALIB_NOTE2 F("States intersect. This is not recommended. Please see if this can be improved or try to calibrate again or manually.")
+#define CALIB_NOTE3 F("One state is contained in another state. This is highly not recommended. Please see if this can be improved or try to calibrate again or manually.")
+#endif
+
 CalibratedSensor::CalibratedSensor(ISensor * raw, int expAlpha, sensorVal_t thLow, sensorVal_t thHigh, CalibratedSensorState::e initialState, sensorVal_t initialValue)
 {
 	mRaw = raw;
@@ -89,7 +100,7 @@ bool CalibratedSensor::calibrate(CalibratedSensorState::e state)
 	// check dynamic range and warn if needed
 	sensorVal_t range = max(lowStateParams.max, highStateParams.max) - min(lowStateParams.min, highStateParams.min);
 	if (range < LIMITED_DYNAMIC_RANGE && DebugStream) {
-		DebugStream->println(F("Sensor dynamic range is constrained. Consider introducing gain. Please see if this can be improved or try to calibrate again or manually."));
+		DebugStream->println(CALIB_NOTE1);
 		resultState = CalibrationState::LimitedDynamicRange;
 	}
 
@@ -102,11 +113,11 @@ bool CalibratedSensor::calibrate(CalibratedSensorState::e state)
 		mCP.expMovingAverageAlpha = MAX_EXP_ALPHA; // don't smooth, we don't need to. just use the raw value
 	} else {
 		if (DebugStream)
-			DebugStream->println(F("States intersect. This is not recommended. Please see if this can be improved or try to calibrate again or manually."));
+			DebugStream->println(CALIB_NOTE2);
 		resultState = CalibrationState::StateIntersection;
 		if((highStateParams.min<lowStateParams.min && highStateParams.max>lowStateParams.max) || (highStateParams.min>lowStateParams.min && highStateParams.max<lowStateParams.max)) { // if low contained in high or high contained in low
 			if (DebugStream)
-				DebugStream->println(F("One state is contained in another state. This is highly not recommended. Please see if this can be improved or try to calibrate again or manually."));
+				DebugStream->println(CALIB_NOTE3);
 			resultState = CalibrationState::StateContainment;
 		}
 		sensorVal_t meanDist = highStateParams.avg - lowStateParams.avg;
@@ -160,8 +171,7 @@ void CalibratedSensor::debugCalibrationState(Print * stream)
 	stream->print('\t');
 	stream->print(mCP.schmittThresholdHigh);
 	stream->print('\t');
-	stream->print(mCP.expMovingAverageAlpha);
-	stream->println();
+	stream->println(mCP.expMovingAverageAlpha);
 }
 
 bool CalibratedSensor::isCalibrated()

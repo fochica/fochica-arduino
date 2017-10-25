@@ -51,10 +51,10 @@ You should have received a copy of the GNU General Public License along with thi
 // SETTINGS
 
 // include one ConfigVariation based on your hardware setup and wiring
-//#include "ConfigVariation-BasicV1.h"
+#include "ConfigVariation-BasicV1.h"
 //#include "ConfigVariation-PrototypeMega1.h"
 //#include "ConfigVariation-UnoShieldV1.h"
-#include "ConfigVariation-NanoV1.h"
+//#include "ConfigVariation-NanoV1.h"
 //#include "ConfigVariation-ESP32V1.h"
 
 // or make your custom ConfigPrivateVariation-X.h file and use it (ignored by git)
@@ -84,7 +84,7 @@ DischargeProtectionManager * dischargeProtection = NULL;
 
 // car engine running detection
 // State A is off and B is running. start with default A state
-CalibratedSensor carEngineState(bat != NULL ? bat : (new SensorMock("Fixed", SensorMockType::Fixed, 0, 0, 0)), // TODO, can we make this optional if no feature or no sensing?
+CalibratedSensor carEngineState(bat != NULL ? bat : (new SensorMock(SensorMockType::Fixed, 0, 0, 0)), // TODO, can we make this optional if no feature or no sensing?
 	CAR_ENGINE_ALPHA, CAR_ENGINE_OFF_TH, CAR_ENGINE_RUNNING_TH);
 
 // event handlers
@@ -136,7 +136,7 @@ void setup()
 		DebugStream->println(F("Start"));
 
 	if (DebugStream)
-		DebugStream->println(F("Initializing RTC and Persistent logger"));
+		DebugStream->println(F("Init RTC and Persistent logger"));
 	rtc->begin();
 	manager.setRTC(rtc);
 	if (logger->begin()) // if init ok
@@ -160,16 +160,16 @@ void setup()
 	//for (;;); // don't proceed to normal operation
 
 	// init sensors
-	PersistentLogWrite(F("Initializing Sensors"));
+	PersistentLogWrite(F("Init Sensors"));
 	configVariation.registerSensors(manager.getSensorManager());
 
 	// init comms
-	PersistentLogWrite(F("Initializing communications"));
+	PersistentLogWrite(F("Init comms"));
 	configVariation.registerClientDevices(manager.getClientManager());
 	manager.getClientManager().setReceiverCallback(&manager);
 
 	// init event handlers
-	PersistentLogWrite(F("Initializing event handlers"));
+	PersistentLogWrite(F("Init event handlers"));
 	manager.setEventHandlerCount(6);
 	manager.addEventHandler(&ehConnectedStateChange);
 	manager.addEventHandler(&ehDisconnectedStateChange);
@@ -217,6 +217,8 @@ void loop()
 		//DebugStream->println(bat.getValueFloat());
 	}
 
+	// Fit program in limited flash of smaller AVRs
+#ifndef __AVR_ATmega328P__
 	if (PersistentLog) {
 		Print * f = PersistentLog->open();
 		if (f) {
@@ -225,11 +227,11 @@ void loop()
 			f->print(F(", Vcc: "));
 			f->print(vcc->getValueFloat());
 			f->print(F(", Vbat: "));
-			f->print(bat->getValueFloat());
-			f->println();
+			f->println(bat->getValueFloat());
 			PersistentLog->close();
 		}
 	}
+#endif
 
 	// work
 	manager.work();

@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with thi
 #include "SensorMock.h"
 #include "RNGUtils.h"
 
-SensorMock::SensorMock(const char * name, SensorMockType::e type, sensorVal_t min, sensorVal_t max, sensorVal_t param) : ISensor(name, SensorType::Mock)
+SensorMock::SensorMock(SensorMockType::e type, sensorVal_t min, sensorVal_t max, sensorVal_t param) : ISensor(SensorType::Mock)
 {
 	setParams(type, min, max, param);
 }

@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "SensorCapacitivePressure1PinAVR.h"
 
-SensorCapacitivePressure1PinAVR::SensorCapacitivePressure1PinAVR(const char * name, uint8_t pin) : ISensor(name, SensorType::CapacitivePressure)
+SensorCapacitivePressure1PinAVR::SensorCapacitivePressure1PinAVR(uint8_t pin) : ISensor(SensorType::CapacitivePressure)
 {
 	mPin = pin;
 	// optimize access to pin if using AVR platform

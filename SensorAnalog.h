@@ -28,7 +28,7 @@ You should have received a copy of the GNU General Public License along with thi
 class SensorAnalog : public ISensor
 {
 public:
-	SensorAnalog(const char * name, uint8_t analogPin, SensorType::e type);
+	SensorAnalog(uint8_t analogPin, SensorType::e type);
 	sensorVal_t getValueInt(); // returns analogRead
 	float getValueFloat();
 	int getSamplingTime();

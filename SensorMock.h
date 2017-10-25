@@ -37,7 +37,7 @@ struct SensorMockType {
 class SensorMock : public ISensor
 {
 public:
-	SensorMock(const char * name, SensorMockType::e type, sensorVal_t min, sensorVal_t max, sensorVal_t param);
+	SensorMock(SensorMockType::e type, sensorVal_t min, sensorVal_t max, sensorVal_t param);
 	void setParams(SensorMockType::e type, sensorVal_t min, sensorVal_t max, sensorVal_t param);
 	void resetState();
 

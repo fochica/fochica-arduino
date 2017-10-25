@@ -205,12 +205,15 @@ void SensorManager::work()
 				if (sensor.activityMode == SensorActivityMode::Disabled) {
 					state = SensorState::Disabled;
 
+					// Fit program in limited flash of smaller AVRs
+#ifndef __AVR_ATmega328P__
 					// log
 					if (file) {
 						file->print(F("Sensor: "));
 						file->print(sensorId);
 						file->println(F(", is disabled"));
 					}
+#endif
 				}
 				else {
 					CalibratedSensorState::e sensorState;
@@ -220,6 +223,8 @@ void SensorManager::work()
 					else
 						state = SensorState::NotCalibrated;
 
+					// Fit program in limited flash of smaller AVRs
+#ifndef __AVR_ATmega328P__
 					// log
 					if (file) {
 						file->print(F("Sensor: "));
@@ -233,9 +238,9 @@ void SensorManager::work()
 						file->print(F(", calibrated state (0=A=Occupied/1=B=Empty): "));
 						file->print(sensorState);
 						file->print(F(", sensor state (logical): "));
-						file->print(state);
-						file->println();
+						file->println(state);
 					}
+#endif
 				}
 
 				// close log

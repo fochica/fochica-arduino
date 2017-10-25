@@ -32,22 +32,22 @@ bool CalibratedSensorTester::runTests()
 
 	// test mock sources
 	DebugStream->println(F("Uniform source [100,200]"));
-	SensorMock s1("Uniform", SensorMockType::Uniform, 100, 200, 0);
+	SensorMock s1(SensorMockType::Uniform, 100, 200, 0);
 	for (int i = 0; i < 100; i++)
 		DebugStream->println(s1.getValueInt());
 
 	DebugStream->println(F("Normal source [100,200]"));
-	SensorMock s2("Normal", SensorMockType::Normal, 100, 200, 0);
+	SensorMock s2(SensorMockType::Normal, 100, 200, 0);
 	for (int i = 0; i < 200; i++)
 		DebugStream->println(s2.getValueInt());
 
 	DebugStream->println(F("Saw source [100,200]"));
-	SensorMock s3("Saw", SensorMockType::Saw, 100, 200, 8);
+	SensorMock s3(SensorMockType::Saw, 100, 200, 8);
 	for (int i = 0; i < 100; i++)
 		DebugStream->println(s3.getValueInt());
 
 	DebugStream->println(F("Sine source [100,200]"));
-	SensorMock s4("Sine", SensorMockType::Sine, 100, 200, 8);
+	SensorMock s4(SensorMockType::Sine, 100, 200, 8);
 	for (int i = 0; i < 100; i++)
 		DebugStream->println(s4.getValueInt());
 

@@ -85,14 +85,14 @@ ConfigVariation::ConfigVariation()
 
 void ConfigVariation::registerSensors(SensorManager & sm)
 {
-	SensorQtouch * capSense = new SensorQtouch("CapSense", CAPACITIVE_TOUCH_SENSOR_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR_AUX_ANALOG_PIN);
-	SensorDigital * digitalReed = new SensorDigital("Reed", REED_SWITCH_SENSOR_PIN, INPUT_PULLUP);
-	SensorAnalog * fsr = new SensorAnalog("FSR", FSR_SENSOR_ANALOG_PIN, SensorType::FSR);
-	SensorCapacitivePressure1PinAVR * capPressure = new SensorCapacitivePressure1PinAVR("CapPressure", CAPACITIVE_PRESSURE_SENSOR_PIN);
-	SensorQtouch * capSense2 = new SensorQtouch("CapSense2", CAPACITIVE_TOUCH_SENSOR2_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR2_AUX_ANALOG_PIN);
-	SensorDigital * digitalReed2 = new SensorDigital("Reed2", REED_SWITCH_SENSOR2_PIN, INPUT_PULLUP);
-	SensorAnalog * fsr2 = new SensorAnalog("FSR2", FSR_SENSOR2_ANALOG_PIN, SensorType::FSR);
-	SensorCapacitivePressure1PinAVR * capPressure2 = new SensorCapacitivePressure1PinAVR("CapPressure2", CAPACITIVE_PRESSURE_SENSOR2_PIN);
+	SensorQtouch * capSense = new SensorQtouch(CAPACITIVE_TOUCH_SENSOR_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR_AUX_ANALOG_PIN);
+	SensorDigital * digitalReed = new SensorDigital(REED_SWITCH_SENSOR_PIN, INPUT_PULLUP);
+	SensorAnalog * fsr = new SensorAnalog(FSR_SENSOR_ANALOG_PIN, SensorType::FSR);
+	SensorCapacitivePressure1PinAVR * capPressure = new SensorCapacitivePressure1PinAVR(CAPACITIVE_PRESSURE_SENSOR_PIN);
+	SensorQtouch * capSense2 = new SensorQtouch(CAPACITIVE_TOUCH_SENSOR2_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR2_AUX_ANALOG_PIN);
+	SensorDigital * digitalReed2 = new SensorDigital(REED_SWITCH_SENSOR2_PIN, INPUT_PULLUP);
+	SensorAnalog * fsr2 = new SensorAnalog(FSR_SENSOR2_ANALOG_PIN, SensorType::FSR);
+	SensorCapacitivePressure1PinAVR * capPressure2 = new SensorCapacitivePressure1PinAVR(CAPACITIVE_PRESSURE_SENSOR2_PIN);
 
 	sm.setSeatCount(2);
 	sm.setSensorCount(8);

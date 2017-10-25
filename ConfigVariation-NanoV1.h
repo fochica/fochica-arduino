@@ -81,8 +81,8 @@ void ConfigVariation::registerClientDevices(ClientManager & cm)
 
 void ConfigVariation::registerSensors(SensorManager & sm)
 {
-	SensorCapacitivePressure1PinAVR * capPressure = new SensorCapacitivePressure1PinAVR("CapPressure", CAPACITIVE_PRESSURE_SENSOR_PIN);
-	SensorCapacitivePressure1PinAVR * capPressure2 = new SensorCapacitivePressure1PinAVR("CapPressure2", CAPACITIVE_PRESSURE_SENSOR2_PIN);
+	SensorCapacitivePressure1PinAVR * capPressure = new SensorCapacitivePressure1PinAVR(CAPACITIVE_PRESSURE_SENSOR_PIN);
+	SensorCapacitivePressure1PinAVR * capPressure2 = new SensorCapacitivePressure1PinAVR(CAPACITIVE_PRESSURE_SENSOR2_PIN);
 
 	sm.setSeatCount(2);
 	sm.setSensorCount(2);

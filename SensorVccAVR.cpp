@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "SensorVccAVR.h"
 
-SensorVccAVR::SensorVccAVR(const char * name) : ISensor(name, SensorType::Vcc)
+SensorVccAVR::SensorVccAVR() : ISensor(SensorType::Vcc)
 {
 }
 

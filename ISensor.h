@@ -33,11 +33,10 @@ typedef int sensorVal_t; // define with typedef so if we want to change this to 
 class ISensor
 {
  public:
-	ISensor(const char * name, SensorType::e type);
+	ISensor(SensorType::e type);
 
 	virtual void begin() {}
 
-	const char * getName() { return mName.c_str(); }
 	SensorType::e getType() { return mType; }
 	 
 	virtual sensorVal_t getValueInt() =0; // read sensor value
@@ -50,9 +49,7 @@ class ISensor
 	const int MAX_ADC_VALUE = 1023; // including this value
 
 private:
-	String mName;
 	SensorType::e mType;
-
 };
 
 #endif

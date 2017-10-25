@@ -17,6 +17,13 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "DischargeProtectionManager.h"
 
+// DPM messages, these are too large for limited flash of smaller AVRs
+#ifdef __AVR_ATmega328P__
+#define DPM_ALERT F("DPM alert at pin=")
+#else
+#define DPM_ALERT F("Detecting low charge state and terminating keep-alive signal at pin=")
+#endif
+
 DischargeProtectionManager::DischargeProtectionManager(CalibratedSensor & lowChargeSensor, uint8_t keepAlivePin) : mLowChargeSensor(lowChargeSensor)
 {
 	mKeepAlivePin = keepAlivePin;
@@ -35,22 +42,19 @@ void DischargeProtectionManager::work()
 	CalibratedSensorState::e state = mLowChargeSensor.getValue();
 	if (DebugStream) {
 		DebugStream->print(F("DischargeProtectionManager, state="));
-		DebugStream->print(state);
-		DebugStream->println();
+		DebugStream->println(state);
 	}
 
 	if (state == CalibratedSensorState::A && mShutdownDone==false) { // if low state
 		if (DebugStream) {
-			DebugStream->print(F("Detecting low charge state and terminating keep-alive signal at pin="));
-			DebugStream->print(mKeepAlivePin);
-			DebugStream->println();
+			DebugStream->print(DPM_ALERT);
+			DebugStream->println(mKeepAlivePin);
 		}
 		if (PersistentLog) {
 			Print * f = PersistentLog->open();
 			if (f) {
-				f->print(F("Detecting low charge state and terminating keep-alive signal at pin="));
-				f->print(mKeepAlivePin);
-				f->println();
+				f->print(DPM_ALERT);
+				f->println(mKeepAlivePin);
 				PersistentLog->close();
 			}
 		}

@@ -37,9 +37,9 @@ public:
 
 	virtual void registerClientDevices(ClientManager & cm);
 
-	virtual ISensor * getVccSensor() { return new SensorVccAVR("Vcc"); };
-	virtual ISensor * getFreeRAMSensor() { return new SensorFreeRAMAVR("SRAM"); };
-	virtual ISensor * getBatterySensor() { return new SensorVoltage("Battery", getBatteryVoltageSensorAnalogPin(), getBatteryVoltageSensorResistorToGroundValue(), getBatteryVoltageSensorResistorToVoltageValue()); };
+	virtual ISensor * getVccSensor() { return new SensorVccAVR(); };
+	virtual ISensor * getFreeRAMSensor() { return new SensorFreeRAMAVR(); };
+	virtual ISensor * getBatterySensor() { return new SensorVoltage(getBatteryVoltageSensorAnalogPin(), getBatteryVoltageSensorResistorToGroundValue(), getBatteryVoltageSensorResistorToVoltageValue()); };
 
 protected:
 	// Bluetooth Low Energy (HM-10/CC41 module)

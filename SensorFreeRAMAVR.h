@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License along with thi
 class SensorFreeRAMAVR : public ISensor
 {
  public:
-	 SensorFreeRAMAVR(const char * name);
+	 SensorFreeRAMAVR();
 	 sensorVal_t getValueInt(); // return bytes
 	 float getValueFloat(); // return bytes
 	 int getSamplingTime();

@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "SensorSharpIRDistance.h"
 
-SensorSharpIRDistance::SensorSharpIRDistance(const char * name, uint8_t analogReadPin) : ISensor(name, SensorType::IRDistance)
+SensorSharpIRDistance::SensorSharpIRDistance(uint8_t analogReadPin) : ISensor(SensorType::IRDistance)
 {
 	mReadPin = analogReadPin;
 }

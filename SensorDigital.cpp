@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "SensorDigital.h"
 
-SensorDigital::SensorDigital(const char * name, uint8_t pin, int8_t pinMode) : ISensor(name, SensorType::OnOff)
+SensorDigital::SensorDigital(uint8_t pin, int8_t pinMode) : ISensor(SensorType::OnOff)
 {
 	mPin = pin;
 	mPinMode = pinMode;

@@ -31,7 +31,7 @@ You should have received a copy of the GNU General Public License along with thi
 class SensorVccAVR : public ISensor
 {
 public:
-	SensorVccAVR(const char * name);
+	SensorVccAVR();
 	sensorVal_t getValueInt(); // return in mV
 	float getValueFloat(); // return in V
 	int getSamplingTime();

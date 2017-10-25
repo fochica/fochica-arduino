@@ -17,8 +17,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "ISensor.h"
 
-ISensor::ISensor(const char * name, SensorType::e type)
+ISensor::ISensor(SensorType::e type)
 {
-	mName = name;
 	mType = type;
 }

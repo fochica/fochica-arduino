@@ -47,8 +47,8 @@ ConfigVariation::ConfigVariation()
 
 void ConfigVariation::registerSensors(SensorManager & sm)
 {
-	SensorQtouch * capSense=new SensorQtouch("CapSense", CAPACITIVE_TOUCH_SENSOR_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR_AUX_ANALOG_PIN);
-	SensorDigital * digitalReed=new SensorDigital("Reed", REED_SWITCH_SENSOR_PIN, INPUT_PULLUP);
+	SensorQtouch * capSense=new SensorQtouch(CAPACITIVE_TOUCH_SENSOR_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR_AUX_ANALOG_PIN);
+	SensorDigital * digitalReed=new SensorDigital(REED_SWITCH_SENSOR_PIN, INPUT_PULLUP);
 
 	sm.setSeatCount(1);
 	sm.setSensorCount(2);
