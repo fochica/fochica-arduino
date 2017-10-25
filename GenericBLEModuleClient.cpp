@@ -20,6 +20,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 //#define DEBUG_LOG_PACKET_INFO
 
+#ifdef HAVE_SOFTWARE_SERIAL
 GenericBLEModuleClient::GenericBLEModuleClient(SoftwareSerial & serial, int statePin) : mBLE(serial)
 {
 	mStatePin = statePin;
@@ -27,6 +28,7 @@ GenericBLEModuleClient::GenericBLEModuleClient(SoftwareSerial & serial, int stat
 	mLastSendTime = 0;
 	mIsSoftwareSerial = true;
 }
+#endif
 
 GenericBLEModuleClient::GenericBLEModuleClient(HardwareSerial & serial, int statePin) : mBLE(serial)
 {
@@ -42,8 +44,10 @@ void GenericBLEModuleClient::begin()
 	// http://forum.arduino.cc/index.php?topic=212844.0
 	pinMode(mStatePin, INPUT);
 	if (mIsSoftwareSerial) {
+#ifdef HAVE_SOFTWARE_SERIAL
 		SoftwareSerial & ss((SoftwareSerial &)mBLE);
 		ss.begin(BAUD_RATE);
+#endif
 	}
 	else {
 		HardwareSerial & hs((HardwareSerial &)mBLE);
@@ -152,10 +156,12 @@ void GenericBLEModuleClient::work()
 
 bool GenericBLEModuleClient::isCanReceivePackets()
 {
+#ifdef HAVE_SOFTWARE_SERIAL
 	if (mIsSoftwareSerial) {
 		SoftwareSerial & ss((SoftwareSerial &)mBLE);
-		return ss.isListening();
+		return ss.isListening(); // limitation of AVR's SoftwareSerial implementation
 	}
+#endif
 	return true; // hardware serial is always ready to receive
 }
 
@@ -166,10 +172,12 @@ bool GenericBLEModuleClient::isListenLimited()
 
 void GenericBLEModuleClient::listen()
 {
+#ifdef HAVE_SOFTWARE_SERIAL
 	if (mIsSoftwareSerial) {
 		SoftwareSerial & ss((SoftwareSerial &)mBLE);
 		ss.listen();
 	}
+#endif
 }
 
 bool GenericBLEModuleClient::processIncomingIfAvailable()

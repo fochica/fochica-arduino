@@ -11,10 +11,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// SensorCapacitivePressure1Pin.h
+// SensorCapacitivePressure1PinAVR.h
 
-#ifndef _SENSORCAPACITIVEPRESSURE1PIN_h
-#define _SENSORCAPACITIVEPRESSURE1PIN_h
+#ifndef _SENSORCAPACITIVEPRESSURE1PINAVR_h
+#define _SENSORCAPACITIVEPRESSURE1PINAVR_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "Arduino.h"
@@ -24,6 +24,8 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "ISensor.h"
 
+#ifdef __AVR__ // this implementation is AVR specific
+
 // A capacitive pressure sensor made of two plates of conductive foil with an insulating material between them forming a capacitor
 // When pressure is applied the capacitance increases
 // This implementation measures the time to charge the capacitor to a "HIGH" level, this value is in a linear relationship to the capacitance
@@ -31,10 +33,10 @@ You should have received a copy of the GNU General Public License along with thi
 // This implementation uses only one pin of the microcontroller. The capacitor bottom plate is conencted to ground
 // At all times the capacitor top plate is connected to ground through a 70K to 100K ohm discharge resistor
 // When taking a measurement, the capacitor top plate is sensed through a digital pin while at the same time the same pin charges it through a built-in PULLUP resistor (~40K ohm)
-class SensorCapacitivePressure1Pin : public ISensor
+class SensorCapacitivePressure1PinAVR : public ISensor
 {
 public:
-	SensorCapacitivePressure1Pin(const char * name, uint8_t pin);
+	SensorCapacitivePressure1PinAVR(const char * name, uint8_t pin);
 	sensorVal_t getValueInt(); // returns analogRead
 	float getValueFloat();
 	int getSamplingTime();
@@ -46,10 +48,12 @@ private:
 	uint8_t mPin_mask;
 
 	const int DISCHARGE_FACTOR = 4; // ratio between discharge time and charge time
-	const int AVERAGE_SAMPING_TIME = 50*(DISCHARGE_FACTOR+1); // the time to charge varies depending on how big the capacitor is
+	const int AVERAGE_SAMPING_TIME = 50*(DISCHARGE_FACTOR+1); // the time to charge varies depending on how big the capacitor is, value in microseconds
 	const int TIMEOUT_ATTEMPTS = 1000; // max number of read attempts to make while waiting for the cap to charge
 	const int GAIN = 5; // a gain to make a better use of the expected sensor range
 };
+
+#endif // AVR
 
 #endif
 

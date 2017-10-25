@@ -15,14 +15,16 @@ You should have received a copy of the GNU General Public License along with thi
 // 
 // 
 
-#include "SensorFreeRAM.h"
+#ifdef __AVR__ // this implementation is AVR specific
 
-SensorFreeRAM::SensorFreeRAM(const char * name) : ISensor(name, SensorType::RAM)
+#include "SensorFreeRAMAVR.h"
+
+SensorFreeRAMAVR::SensorFreeRAMAVR(const char * name) : ISensor(name, SensorType::RAM)
 {
 }
 
 // should be around 1K-2K for Uno
-sensorVal_t SensorFreeRAM::getValueInt()
+sensorVal_t SensorFreeRAMAVR::getValueInt()
 {
 	// based on https://learn.adafruit.com/memories-of-an-arduino/measuring-free-memory
 	// Possibly AVR specific
@@ -32,17 +34,17 @@ sensorVal_t SensorFreeRAM::getValueInt()
 	return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
 }
 
-float SensorFreeRAM::getValueFloat()
+float SensorFreeRAMAVR::getValueFloat()
 {
 	return getValueInt();
 }
 
-int SensorFreeRAM::getSamplingTime()
+int SensorFreeRAMAVR::getSamplingTime()
 {
 	return 0; // no ADC for this sensor
 }
 
-void SensorFreeRAM::dumpSRAMBounds(Stream & s)
+void SensorFreeRAMAVR::dumpSRAMBounds(Stream & s)
 {
 	extern int __heap_start, *__brkval; // start and end of the heap area
 	int v; // variable on the stack, tells us stack boundary
@@ -55,7 +57,7 @@ void SensorFreeRAM::dumpSRAMBounds(Stream & s)
 
 }
 
-void SensorFreeRAM::dumpSRAMContent(Stream &s)
+void SensorFreeRAMAVR::dumpSRAMContent(Stream &s)
 {
 	// dump all addresses
 	for (byte * p = (byte *)RAMSTART; p < (byte *)RAMEND; p++) {
@@ -68,3 +70,5 @@ void SensorFreeRAM::dumpSRAMContent(Stream &s)
 		s.println((int)*p);
 	}
 }
+
+#endif

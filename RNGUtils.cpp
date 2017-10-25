@@ -18,6 +18,10 @@ You should have received a copy of the GNU General Public License along with thi
 #include "RNGUtils.h"
 #include "DebugStream.h"
 
+#ifndef RANDOM_MAX
+#define	RANDOM_MAX 0x7FFFFFFF
+#endif
+
 unsigned long RNGUtils::generateEntropyWithAnalogInputs()
 {
 	unsigned long entropy = millis() + micros(); // this alone might not be a good source of entropy because seeding might happen at the same time each boot. consider to add RTC value if available.
@@ -49,10 +53,10 @@ double RNGUtils::getGaussian()
 	double u, v, S;
 
 	do {
-		// The random() function computes a sequence of pseudo - random integers in the range of 0 to RANDOM_MAX
-		// Arduino's random actually uses this stdlin random function
-		u = (double)random() / RANDOM_MAX;
-		v = (double)random() / RANDOM_MAX;
+		// The random() function computes a sequence of pseudo - random integers in the range of 0 to 1 [0,1)
+		// Use Arduino's random for cross platform compatibility
+		u = (double)random(RANDOM_MAX) / RANDOM_MAX;
+		v = (double)random(RANDOM_MAX) / RANDOM_MAX;
 		u = 2.0*u - 1; // shift to [-1,1] range
 		v = 2.0*v - 1; // shift to [-1,1] range
 		S = u*u + v*v; // r^2
@@ -74,5 +78,5 @@ long RNGUtils::getLong(long max)
 
 long RNGUtils::getLong()
 {
-	return random();
+	return random(RANDOM_MAX);
 }

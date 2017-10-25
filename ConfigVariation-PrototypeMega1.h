@@ -18,10 +18,18 @@ You should have received a copy of the GNU General Public License along with thi
 #error This configuration is assuming Mega build settings
 #endif
 
+#include "ConfigVariationAVRBase.h"
+#include "RTCImpl_DS1307.h"
+#include "PersistentLogImpl_SD.h"
+#include "SensorQtouch.h"
+#include "SensorDigital.h"
+#include "SensorAnalog.h"
+#include "SensorCapacitivePressure1PinAVR.h"
+
 // Configuration variations for the Mega prototype
-// 1 BLEm 4 sensors and 2 seats
+// 1 BLE, 4 sensors and 2 seats
 // Uses a SD card for persistent log
-class ConfigVariation : public ConfigVariationBase
+class ConfigVariation : public ConfigVariationAVRBase
 {
 public:
 	ConfigVariation();
@@ -80,11 +88,11 @@ void ConfigVariation::registerSensors(SensorManager & sm)
 	SensorQtouch * capSense = new SensorQtouch("CapSense", CAPACITIVE_TOUCH_SENSOR_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR_AUX_ANALOG_PIN);
 	SensorDigital * digitalReed = new SensorDigital("Reed", REED_SWITCH_SENSOR_PIN, INPUT_PULLUP);
 	SensorAnalog * fsr = new SensorAnalog("FSR", FSR_SENSOR_ANALOG_PIN, SensorType::FSR);
-	SensorCapacitivePressure1Pin * capPressure = new SensorCapacitivePressure1Pin("CapPressure", CAPACITIVE_PRESSURE_SENSOR_PIN);
+	SensorCapacitivePressure1PinAVR * capPressure = new SensorCapacitivePressure1PinAVR("CapPressure", CAPACITIVE_PRESSURE_SENSOR_PIN);
 	SensorQtouch * capSense2 = new SensorQtouch("CapSense2", CAPACITIVE_TOUCH_SENSOR2_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR2_AUX_ANALOG_PIN);
 	SensorDigital * digitalReed2 = new SensorDigital("Reed2", REED_SWITCH_SENSOR2_PIN, INPUT_PULLUP);
 	SensorAnalog * fsr2 = new SensorAnalog("FSR2", FSR_SENSOR2_ANALOG_PIN, SensorType::FSR);
-	SensorCapacitivePressure1Pin * capPressure2 = new SensorCapacitivePressure1Pin("CapPressure2", CAPACITIVE_PRESSURE_SENSOR2_PIN);
+	SensorCapacitivePressure1PinAVR * capPressure2 = new SensorCapacitivePressure1PinAVR("CapPressure2", CAPACITIVE_PRESSURE_SENSOR2_PIN);
 
 	sm.setSeatCount(2);
 	sm.setSensorCount(8);

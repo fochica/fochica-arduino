@@ -15,9 +15,25 @@ You should have received a copy of the GNU General Public License along with thi
 // 
 // 
 
-#include "ConfigVariationBase.h"
+#ifdef ESP32
 
-ConfigVariationBase::ConfigVariationBase()
+#include "ConfigVariationESP32Base.h"
+#include "GenericBLEModuleClient.h"
+
+HardwareSerial Serial2(2);
+
+ConfigVariationESP32Base::ConfigVariationESP32Base()
 {
 }
 
+void ConfigVariationESP32Base::registerClientDevices(ClientManager & cm)
+{
+	GenericBLEModuleClient * ble = new GenericBLEModuleClient(Serial2, 1);
+
+	cm.setDeviceCount(1);
+	ble->begin();
+	cm.addDevice(ble);
+	// this call is only done at init, the module is never deallocated
+}
+
+#endif

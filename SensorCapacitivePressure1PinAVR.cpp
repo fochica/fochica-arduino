@@ -15,18 +15,20 @@ You should have received a copy of the GNU General Public License along with thi
 // 
 // 
 
-#include "SensorCapacitivePressure1Pin.h"
+#ifdef __AVR__ // this implementation is AVR specific
 
-SensorCapacitivePressure1Pin::SensorCapacitivePressure1Pin(const char * name, uint8_t pin) : ISensor(name, SensorType::CapacitivePressure)
+#include "SensorCapacitivePressure1PinAVR.h"
+
+SensorCapacitivePressure1PinAVR::SensorCapacitivePressure1PinAVR(const char * name, uint8_t pin) : ISensor(name, SensorType::CapacitivePressure)
 {
 	mPin = pin;
+	// optimize access to pin if using AVR platform
 	// do this once at setup - https://forum.arduino.cc/index.php?topic=337578.0
 	mPin_mask = digitalPinToBitMask(pin);
 	mPin_port = portInputRegister(digitalPinToPort(pin));
-
 }
 
-sensorVal_t SensorCapacitivePressure1Pin::getValueInt()
+sensorVal_t SensorCapacitivePressure1PinAVR::getValueInt()
 {
 	int tests, left = TIMEOUT_ATTEMPTS;
 	noInterrupts(); // assumes interupts were enabled before
@@ -53,12 +55,14 @@ sensorVal_t SensorCapacitivePressure1Pin::getValueInt()
 	return tests*GAIN;
 }
 
-float SensorCapacitivePressure1Pin::getValueFloat()
+float SensorCapacitivePressure1PinAVR::getValueFloat()
 {
 	return getValueInt();
 }
 
-int SensorCapacitivePressure1Pin::getSamplingTime()
+int SensorCapacitivePressure1PinAVR::getSamplingTime()
 {
 	return AVERAGE_SAMPING_TIME;
 }
+
+#endif

@@ -58,7 +58,11 @@ public:
 	virtual Nullable<uint8_t> getAliveLedPin() { return Nullable<uint8_t>(); } // "alive" led, flashes during operation. off by defaults, due to common conficts with SPI and lack of LED_BUILTIN in all platforms
 	virtual int getAliveLedDutyCyclePercent() { return ALIVE_LED_DUTY_CYCLE_PERCENT; }
 
-	virtual void registerClientDevices(ClientManager & cm);
+	virtual ISensor * getVccSensor() = 0;
+	virtual ISensor * getFreeRAMSensor() = 0;
+	virtual ISensor * getBatterySensor() = 0;
+
+	virtual void registerClientDevices(ClientManager & cm) = 0;
 	virtual void registerSensors(SensorManager & sm) = 0;
 
 protected:
@@ -68,21 +72,12 @@ protected:
 	const int LOOP_DELAY = 1000; // seconds
 	const int ALIVE_LED_DUTY_CYCLE_PERCENT = 10; // percent
 
-	// Bluetooth Low Energy (HM-10/CC41 module)
-	// Software serial
-	const int BLE_RX_PIN = 8;
-	const int BLE_TX_PIN = 9;
-	const int BLE_STATE_PIN = 7;
+	const uint8_t BUZZER_PIN = 4;
+	const uint8_t BUZZER_OFF_STATE = LOW; // LOW is using a NPN transistor (preffered) to drive the buzzer or no transistor at all. HIGH if using a PNP.
 
 	const uint8_t BATTERY_VOLTAGE_SENSOR_ANALOG_PIN = 1; // analog pin#
 	const long BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND = 10000; // 10Kohm
 	const long BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE = 20000; // 20Kohm
-
-	const uint8_t BUZZER_PIN = 4;
-	const uint8_t BUZZER_OFF_STATE = LOW; // LOW is using a NPN transistor (preffered) to drive the buzzer or no transistor at all. HIGH if using a PNP.
-
-	// capacitive pressure sensor
-	const int CAPACITIVE_PRESSURE_SENSOR_PIN = A2;
 
 	// Discharge protection parameters
 	const int DISCHARGE_PROTECTION_ALPHA = 0.02 * CalibratedSensor::MAX_EXP_ALPHA; // can try values closer to 0.01 if discharge protection kicks in during engine cranking.

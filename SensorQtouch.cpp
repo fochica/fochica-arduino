@@ -15,6 +15,8 @@ You should have received a copy of the GNU General Public License along with thi
 // 
 // 
 
+#ifdef __AVR__ // this implementation is AVR specific
+
 #include "SensorQtouch.h"
 
 SensorQtouch::SensorQtouch(const char * name, int analogReadPin, int analogAuxPin) : ISensor(name, SensorType::CapacitiveProximity)
@@ -90,3 +92,5 @@ int SensorQtouch::makeMeasurement(bool dir, bool altRead)
 		return analogRead(mAuxPin); // why use aux-pin? this methond has a similar span, but about 400units lower... not sure how this works, against documentation.
 	return analogRead(mReadPin); // preferred
 }
+
+#endif

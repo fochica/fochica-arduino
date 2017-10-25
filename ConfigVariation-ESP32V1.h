@@ -14,14 +14,15 @@ You should have received a copy of the GNU General Public License along with thi
 #ifndef _CONFIGVARIATION_h
 #define _CONFIGVARIATION_h
 
-#include "ConfigVariationAVRBase.h"
-#include "SensorQtouch.h"
-#include "SensorDigital.h"
+#ifndef ESP32
+#error This configuration is for ESP32 build settings
+#endif
 
-// Configuration variations for the Basic build
-// https://github.com/fochica/fochica-wiki/wiki/Basic-build
-// 1 BLE modules, 1 seat, 2 sensors
-class ConfigVariation : public ConfigVariationAVRBase
+#include "ConfigVariationESP32Base.h"
+
+// Configuration variations for an ESP32 build
+// Internal BLE module, 2 seat, 2 sensors
+class ConfigVariation : public ConfigVariationESP32Base
 {
 public:
 	ConfigVariation();
@@ -31,12 +32,14 @@ public:
 protected:
 
 private:
+	/*
 	// capacitive touch sensor
 	const int CAPACITIVE_TOUCH_SENSOR_READ_ANALOG_PIN = 2; // analog pin#
 	const int CAPACITIVE_TOUCH_SENSOR_AUX_ANALOG_PIN = 3; // analog pin#
 
 	// chest buckle sensor
 	const int REED_SWITCH_SENSOR_PIN = 6;
+	*/
 
 };
 
@@ -47,6 +50,7 @@ ConfigVariation::ConfigVariation()
 
 void ConfigVariation::registerSensors(SensorManager & sm)
 {
+	/*
 	SensorQtouch * capSense=new SensorQtouch("CapSense", CAPACITIVE_TOUCH_SENSOR_READ_ANALOG_PIN, CAPACITIVE_TOUCH_SENSOR_AUX_ANALOG_PIN);
 	SensorDigital * digitalReed=new SensorDigital("Reed", REED_SWITCH_SENSOR_PIN, INPUT_PULLUP);
 
@@ -57,7 +61,7 @@ void ConfigVariation::registerSensors(SensorManager & sm)
 	sm.addSensor(0, SensorLocation::UnderSeat, capSense);
 	digitalReed->begin();
 	sm.addSensor(0, SensorLocation::Chest, digitalReed);
-
+	*/
 }
 
 #else

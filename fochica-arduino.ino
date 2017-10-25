@@ -24,6 +24,11 @@ You should have received a copy of the GNU General Public License along with thi
 ///////////
 // INCLUDES
 #include "Nullable.h"
+#include "SoundManager.h"
+#include "Manager.h"
+#include "DebugStream.h"
+#include "SensorMock.h"
+
 #include "EventHandlerNotifyClientConnectionChange.h"
 #include "EventHandlerWriteToPersistentLog.h"
 #include "EventHandlerExternalAlertTrigger.h"
@@ -31,32 +36,11 @@ You should have received a copy of the GNU General Public License along with thi
 #include "EventHandlerConnectedSensorStateChange.h"
 #include "EventHandlerDisconnectedStateChange.h"
 #include "EventHandlerConnectedStateChange.h"
-#include "DischargeProtectionManager.h"
-#include "PersistentLog.h"
-#include "PersistentLogImpl_Serial.h"
-#include "PersistentLogImpl_Null.h"
-#ifdef SUPPORT_SD_MODULE
-#include "PersistentLogImpl_SD.h"
-#endif
-#include "CalibratedSensorTester.h"
-#include "SoundManager.h"
-#include "RTCImpl_Sync.h"
-#include "RTCImpl_DS1307.h"
-#include "GenericBLEModuleClient.h"
-#include "SensorCapacitivePressure1Pin.h"
-#include "SensorAnalog.h"
-#include "SensorSharpIRDistance.h"
-#include "SensorDigital.h"
-#include "SensorQtouch.h"
-#include "SensorVoltage.h"
-#include "SensorVcc.h"
-#include "SensorFreeRAM.h"
-#include "Manager.h"
-#include "DebugStream.h"
-#include "ConfigVariationBase.h"
 
 // includes of libraries that are used in this project, for the sake of visual micro and IntelliSense
+#ifdef __AVR__ // default SoftwareSerial is AVR specific, some other platforms have compatible implementations which can be included here for those platforms
 #include <SoftwareSerial.h>
+#endif
 #include <RTClib.h>
 #include <EEPROM.h>
 #ifdef SUPPORT_SD_MODULE
@@ -67,10 +51,11 @@ You should have received a copy of the GNU General Public License along with thi
 // SETTINGS
 
 // include one ConfigVariation based on your hardware setup and wiring
-#include "ConfigVariation-BasicV1.h"
+//#include "ConfigVariation-BasicV1.h"
 //#include "ConfigVariation-PrototypeMega1.h"
 //#include "ConfigVariation-UnoShieldV1.h"
-//#include "ConfigVariation-NanoV1.h"
+#include "ConfigVariation-NanoV1.h"
+//#include "ConfigVariation-ESP32V1.h"
 
 // or make your custom ConfigPrivateVariation-X.h file and use it (ignored by git)
 //#include "ConfigPrivateVariation-PrototypeUno1.h"
@@ -86,21 +71,21 @@ const int CAR_ENGINE_RUNNING_TH = 13500; // 13.5V
 //////////
 // OBJECTS
 // technical sensors
-SensorFreeRAM ram("SRAM");
-SensorVcc vcc("Vcc");
-SensorVoltage bat("Battery", configVariation.getBatteryVoltageSensorAnalogPin(), configVariation.getBatteryVoltageSensorResistorToGroundValue(), configVariation.getBatteryVoltageSensorResistorToVoltageValue());
-// TODO, consider to make bat Nullable
+ISensor * ram = configVariation.getFreeRAMSensor();
+ISensor * vcc = configVariation.getVccSensor();
+ISensor * bat = configVariation.getBatterySensor();
 
 // timing and logging
 IRTC * rtc = configVariation.getRTC();
 IPersistentLog * logger = configVariation.getPersistentLog(rtc);
 
 // discharge protection
-DischargeProtectionManager * dischargeProtection = configVariation.getDischargeProtectionManager(&bat);
+DischargeProtectionManager * dischargeProtection = NULL;
 
 // car engine running detection
 // State A is off and B is running. start with default A state
-CalibratedSensor carEngineState(&bat, CAR_ENGINE_ALPHA, CAR_ENGINE_OFF_TH, CAR_ENGINE_RUNNING_TH);
+CalibratedSensor carEngineState(bat != NULL ? bat : (new SensorMock("Fixed", SensorMockType::Fixed, 0, 0, 0)), // TODO, can we make this optional if no feature or no sensing?
+	CAR_ENGINE_ALPHA, CAR_ENGINE_OFF_TH, CAR_ENGINE_RUNNING_TH);
 
 // event handlers
 EventHandlerDisconnectedStateChange ehDisconnectedStateChange;
@@ -119,15 +104,23 @@ Manager& manager = Manager::getInstance();
 void setup()
 {
 	// init tech sensors and params
-	vcc.begin();
-	manager.getTechnicalManager().setVccSensor(&vcc);
-	bat.begin();
-	manager.getTechnicalManager().setCarBatteryVoltageSensor(&bat);
-	ram.begin();
-	manager.getTechnicalManager().setFreeRAMSensor(&ram);
+	if (vcc != NULL) {
+		vcc->begin();
+		manager.getTechnicalManager().setVccSensor(vcc);
+	}
+	if (bat != NULL) {
+		bat->begin();
+		manager.getTechnicalManager().setCarBatteryVoltageSensor(bat);
+	}
+	if (ram != NULL) {
+		ram->begin();
+		manager.getTechnicalManager().setFreeRAMSensor(ram);
+	}
 
 	// first thing, make sure we get power
-	if(dischargeProtection!=NULL)
+	if(bat!=NULL)
+		dischargeProtection=configVariation.getDischargeProtectionManager(bat);
+	if(dischargeProtection!=NULL) // if created
 		dischargeProtection->begin();
 
 	// init buzzer 
@@ -194,20 +187,20 @@ void setup()
 	// misc log
 	if (DebugStream) {
 		DebugStream->print(F("Free RAM: "));
-		DebugStream->println(ram.getValueInt());
+		DebugStream->println(ram->getValueInt());
 	}
 	Print * persistentFile;
 	if (PersistentLog)
 		persistentFile = PersistentLog->open();
 	if (persistentFile) {
 		persistentFile->print(F("Free RAM: "));
-		persistentFile->println(ram.getValueInt());
+		persistentFile->println(ram->getValueInt());
 		PersistentLog->close(); // close persistent log of the start process
 	}
 
 	// ram dump for debug
-	//ram.dumpSRAMContent(Serial);
-	//ram.dumpSRAMBounds(Serial);
+	//ram->dumpSRAMContent(Serial);
+	//ram->dumpSRAMBounds(Serial);
 	//for (;;); // don't proceed to normal operation
 
 	// make start sound
@@ -228,11 +221,11 @@ void loop()
 		Print * f = PersistentLog->open();
 		if (f) {
 			f->print(F("Loop, RAM: "));
-			f->print(ram.getValueInt());
+			f->print(ram->getValueInt());
 			f->print(F(", Vcc: "));
-			f->print(vcc.getValueFloat());
+			f->print(vcc->getValueFloat());
 			f->print(F(", Vbat: "));
-			f->print(bat.getValueFloat());
+			f->print(bat->getValueFloat());
 			f->println();
 			PersistentLog->close();
 		}

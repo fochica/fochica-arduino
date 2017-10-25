@@ -15,20 +15,22 @@ You should have received a copy of the GNU General Public License along with thi
 // 
 // 
 
-#include "SensorVcc.h"
+#ifdef __AVR__ // this implementation is AVR specific
 
-SensorVcc::SensorVcc(const char * name) : ISensor(name, SensorType::Vcc)
+#include "SensorVccAVR.h"
+
+SensorVccAVR::SensorVccAVR(const char * name) : ISensor(name, SensorType::Vcc)
 {
 }
 
 // value should be around 5000 (mV)
-sensorVal_t SensorVcc::getValueInt()
+sensorVal_t SensorVccAVR::getValueInt()
 {
 	return getValueFloat() * 1000;
 }
 
 // value should be around 5 (V)
-float SensorVcc::getValueFloat()
+float SensorVccAVR::getValueFloat()
 {
 	// can't set mux to bandgap reference with analogRead, need to set manually
 	// Possibly AVR specific
@@ -52,7 +54,9 @@ float SensorVcc::getValueFloat()
 	return (BANDGAP_VOLTAGE * ISensor::MAX_ADC_VALUE) / refReading;
 }
 
-int SensorVcc::getSamplingTime()
+int SensorVccAVR::getSamplingTime()
 {
 	return SETTLE_DURATION_US+ISensor::DEFAULT_ADC_SAMPLING_TIME;
 }
+
+#endif

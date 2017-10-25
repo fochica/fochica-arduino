@@ -11,31 +11,34 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// SensorFreeRAM.h
+// 
+// 
+// 
 
-#ifndef _SENSORFREERAM_h
-#define _SENSORFREERAM_h
+#ifdef __AVR__
 
-#if defined(ARDUINO) && ARDUINO >= 100
-	#include "Arduino.h"
-#else
-	#include "WProgram.h"
-#endif
+#include "ConfigVariationAVRBase.h"
+#include <SoftwareSerial.h>
+#include "GenericBLEModuleClient.h"
 
-#include "ISensor.h"
-
-// Sensor that reads the amount of available SRAM
-class SensorFreeRAM : public ISensor
+ConfigVariationAVRBase::ConfigVariationAVRBase()
 {
- public:
-	 SensorFreeRAM(const char * name);
-	 sensorVal_t getValueInt(); // return bytes
-	 float getValueFloat(); // return bytes
-	 int getSamplingTime();
+}
 
-	 void dumpSRAMContent(Stream &s);
-	 void dumpSRAMBounds(Stream &s);
-};
-
+void ConfigVariationAVRBase::registerClientDevices(ClientManager & cm)
+{
+	// communication devices
+#ifdef HAVE_HWSERIAL1
+	GenericBLEModuleClient * ble = new GenericBLEModuleClient(Serial1, BLE_STATE_PIN);
+#elif defined(__AVR__)
+	SoftwareSerial * bleSerial = new SoftwareSerial(BLE_RX_PIN, BLE_TX_PIN);
+	GenericBLEModuleClient * ble = new GenericBLEModuleClient(*bleSerial, BLE_STATE_PIN);
 #endif
 
+	cm.setDeviceCount(1);
+	ble->begin();
+	cm.addDevice(ble);
+	// this call is only done at init, the module is never deallocated
+}
+
+#endif

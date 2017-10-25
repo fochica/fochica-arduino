@@ -18,10 +18,14 @@ You should have received a copy of the GNU General Public License along with thi
 #error This configuration is for Nano build settings
 #endif
 
+#include "ConfigVariationAVRBase.h"
+#include "SensorCapacitivePressure1PinAVR.h"
+#include "GenericBLEModuleClient.h"
+
 // Configuration variations for the Nano V1 build
 // https://hackaday.io/project/20902/log/68057-finals-submission-and-the-nano-build
 // 2 BLE modules, 2 seats, 2 sensors
-class ConfigVariation : public ConfigVariationBase
+class ConfigVariation : public ConfigVariationAVRBase
 {
 public:
 	ConfigVariation();
@@ -77,8 +81,8 @@ void ConfigVariation::registerClientDevices(ClientManager & cm)
 
 void ConfigVariation::registerSensors(SensorManager & sm)
 {
-	SensorCapacitivePressure1Pin * capPressure = new SensorCapacitivePressure1Pin("CapPressure", CAPACITIVE_PRESSURE_SENSOR_PIN);
-	SensorCapacitivePressure1Pin * capPressure2 = new SensorCapacitivePressure1Pin("CapPressure2", CAPACITIVE_PRESSURE_SENSOR2_PIN);
+	SensorCapacitivePressure1PinAVR * capPressure = new SensorCapacitivePressure1PinAVR("CapPressure", CAPACITIVE_PRESSURE_SENSOR_PIN);
+	SensorCapacitivePressure1PinAVR * capPressure2 = new SensorCapacitivePressure1PinAVR("CapPressure2", CAPACITIVE_PRESSURE_SENSOR2_PIN);
 
 	sm.setSeatCount(2);
 	sm.setSensorCount(2);

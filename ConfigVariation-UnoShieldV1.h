@@ -14,10 +14,15 @@ You should have received a copy of the GNU General Public License along with thi
 #ifndef _CONFIGVARIATION_h
 #define _CONFIGVARIATION_h
 
+#include "ConfigVariationAVRBase.h"
+#include "SensorQtouch.h"
+#include "SensorDigital.h"
+#include "GenericBLEModuleClient.h"
+
 // Configuration variations for the Uno Shield V1 build
 // https://hackaday.io/project/20902/log/60964-goodbye-breadboard
 // 2 BLE modules, 2 seats, 4 sensors, discharge protection and "alive" LED
-class ConfigVariation : public ConfigVariationBase
+class ConfigVariation : public ConfigVariationAVRBase
 {
 public:
 	ConfigVariation();

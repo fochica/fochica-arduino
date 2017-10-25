@@ -24,6 +24,8 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "ISensor.h"
 
+#ifdef __AVR__ // this implementation is AVR specific
+
 // Sensor that uses capacitance to sense what is near the sensor
 // Principle of operation is as in Atmel's QTouchADC technology, but not an official implementation
 // http://www.atmel.com/images/doc8497.pdf - Atmel AVR3001: QTouchADC Measurement and Tuning
@@ -53,6 +55,8 @@ private:
 
 	int makeMeasurement(bool dir, bool altRead = false);
 };
+
+#endif // AVR
 
 #endif
 

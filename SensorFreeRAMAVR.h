@@ -11,10 +11,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// SensorVcc.h
+// SensorFreeRAMAVR.h
 
-#ifndef _SENSORVCC_h
-#define _SENSORVCC_h
+#ifndef _SENSORFREERAMAVR_h
+#define _SENSORFREERAMAVR_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "Arduino.h"
@@ -24,23 +24,22 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "ISensor.h"
 
-// Sensor that read the Vcc voltage of the controller
-// Uses bandgap voltage reference. Measures the known bandgap value using Vcc as the reference. Calculates Vcc based on how the bandgap is sampled.
-class SensorVcc : public ISensor
-{
-public:
-	SensorVcc(const char * name);
-	sensorVal_t getValueInt(); // return in mV
-	float getValueFloat(); // return in V
-	int getSamplingTime();
+#ifdef __AVR__ // this implementation is AVR specific
 
-private:
-	// Possibly AVR specific
-	// cross platform issue
-	const float BANDGAP_VOLTAGE = 1.1;
-	const int SETTLE_DURATION_US = 400; // lower values would result in readings that are lower than actual Vcc
+// Sensor that reads the amount of available SRAM
+class SensorFreeRAMAVR : public ISensor
+{
+ public:
+	 SensorFreeRAMAVR(const char * name);
+	 sensorVal_t getValueInt(); // return bytes
+	 float getValueFloat(); // return bytes
+	 int getSamplingTime();
+
+	 void dumpSRAMContent(Stream &s);
+	 void dumpSRAMBounds(Stream &s);
 };
 
+#endif // AVR
 
 #endif
 

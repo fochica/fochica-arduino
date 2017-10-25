@@ -22,7 +22,10 @@ You should have received a copy of the GNU General Public License along with thi
 	#include "WProgram.h"
 #endif
 
+#ifdef __AVR__ // default SoftwareSerial is AVR specific, some other platforms have compatible implementations which can be included here for those platforms
 #include <SoftwareSerial.h>
+#define HAVE_SOFTWARE_SERIAL
+#endif
 #include "IClientDevice.h"
 #include "PacketType.h"
 #include "PacketHeader.h"
@@ -33,7 +36,9 @@ You should have received a copy of the GNU General Public License along with thi
 class GenericBLEModuleClient : public IClientDevice
 {
 public:
+#ifdef HAVE_SOFTWARE_SERIAL
 	GenericBLEModuleClient(SoftwareSerial & serial, int statePin);
+#endif
 	GenericBLEModuleClient(HardwareSerial & serial, int statePin);
 
 	// sending packets

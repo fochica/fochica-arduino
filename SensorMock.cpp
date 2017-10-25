@@ -79,6 +79,8 @@ sensorVal_t SensorMock::getValueInt()
 		s += (mMin + d / 2); // set mean of distribution
 		return s;
 	}
+	case SensorMockType::Fixed:
+		return mMin;
 	default:
 		return 0;
 	}

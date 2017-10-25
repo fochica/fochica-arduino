@@ -11,10 +11,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// SensorMock.h
+// SensorVccAVR.h
 
-#ifndef _SENSORMOCK_h
-#define _SENSORMOCK_h
+#ifndef _SENSORVCCAVR_h
+#define _SENSORVCCAVR_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "Arduino.h"
@@ -24,39 +24,26 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "ISensor.h"
 
-struct SensorMockType {
-	enum e {
-		Saw, // goes from min to max to min with a linear function (param=step size)
-		Sine, // goes from min to max to min with a sine function (param=step size in milli 2*pi radians)
-		Uniform, // returns sampes from a uniform distribution between in and max
-		Normal, // returns normal distribution between min and max
-		Fixed // always returns the same fixed value (min)
-	};
-};
+#ifdef __AVR__ // this implementation is AVR specific
 
-class SensorMock : public ISensor
+// Sensor that read the Vcc voltage of the controller
+// Uses bandgap voltage reference. Measures the known bandgap value using Vcc as the reference. Calculates Vcc based on how the bandgap is sampled.
+class SensorVccAVR : public ISensor
 {
 public:
-	SensorMock(const char * name, SensorMockType::e type, sensorVal_t min, sensorVal_t max, sensorVal_t param);
-	void setParams(SensorMockType::e type, sensorVal_t min, sensorVal_t max, sensorVal_t param);
-	void resetState();
-
+	SensorVccAVR(const char * name);
 	sensorVal_t getValueInt(); // return in mV
 	float getValueFloat(); // return in V
 	int getSamplingTime();
 
 private:
-	// params
-	SensorMockType::e mType;
-	sensorVal_t mMin, mMax, mParam;
-
-	// state
-	sensorVal_t mCurValue;
-	bool mCurDirUp;
-
-	// const
-	static const int SINE_STEPS = 1000; // number of sine steps we take in 2pi rads
+	// Possibly AVR specific
+	// cross platform issue
+	const float BANDGAP_VOLTAGE = 1.1;
+	const int SETTLE_DURATION_US = 400; // lower values would result in readings that are lower than actual Vcc
 };
+
+#endif // AVR
 
 #endif
 
