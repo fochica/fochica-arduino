@@ -25,15 +25,14 @@ You should have received a copy of the GNU General Public License along with thi
 class RNGUtils
 {
 public:
-	static unsigned long generateEntropyWithAnalogInputs();
-	static void seedWithAnalogInputs();
+	static void seed();
 	static double getGaussian();
 	static long getLong(long min, long max);
 	static long getLong(long max);
 	static long getLong();
 
 private:
-	static const int ANALOGS_FOR_SEED = 5;
+	static unsigned long generateEntropy();
 };
 
 #endif

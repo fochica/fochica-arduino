@@ -41,7 +41,7 @@ float SensorFreeRAMAVR::getValueFloat()
 
 int SensorFreeRAMAVR::getSamplingTime()
 {
-	return 0; // no ADC for this sensor
+	return 0; // no ADC time for this sensor
 }
 
 void SensorFreeRAMAVR::dumpSRAMBounds(Stream & s)

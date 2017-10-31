@@ -26,7 +26,7 @@ You should have received a copy of the GNU General Public License along with thi
 struct PacketTime {
 	uint32_t utcTime;
 	int16_t offsetToLocal;
-};
+} __attribute__((packed));
 
 #endif
 

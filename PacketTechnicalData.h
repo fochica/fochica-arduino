@@ -29,7 +29,7 @@ struct PacketTechnicalData {
 	uint16_t carBatteryVoltage; // mV
 	uint16_t deviceCurrent; // mA
 	uint16_t freeRAM;
-};
+} __attribute__((packed));
 
 #endif
 

@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with thi
 #define	RANDOM_MAX 0x7FFFFFFF
 #endif
 
-unsigned long RNGUtils::generateEntropyWithAnalogInputs()
+unsigned long RNGUtils::generateEntropy()
 {
 	unsigned long entropy = millis() + micros(); // this alone might not be a good source of entropy because seeding might happen at the same time each boot. consider to add RTC value if available.
 	if (DebugStream) {
@@ -30,19 +30,32 @@ unsigned long RNGUtils::generateEntropyWithAnalogInputs()
 		DebugStream->println(entropy);
 	}
 
+#ifdef ESP32
+	// in prefered mode of operation, this will not be used and the hardware RNG will be used as long as BT or Wifi is initialized
+	entropy += xthal_get_ccount();
+	if (DebugStream) {
+		DebugStream->print(F("Entropy value 2: "));
+		DebugStream->println(entropy);
+	}
+#endif
+
+#ifdef __AVR__
+	static const int ANALOGS_FOR_SEED = 5;
+
 	for (int pin = 0; pin <= ANALOGS_FOR_SEED; pin++)
 		entropy += analogRead(pin);
 	if (DebugStream) {
-		DebugStream->print(F("Entropy value: "));
+		DebugStream->print(F("Entropy value 2: "));
 		DebugStream->println(entropy);
 	}
+#endif
 
 	return entropy;
 }
 
-void RNGUtils::seedWithAnalogInputs()
+void RNGUtils::seed()
 {
-	randomSeed(generateEntropyWithAnalogInputs());
+	randomSeed(generateEntropy());
 }
 
 // get random gaussian distributed value

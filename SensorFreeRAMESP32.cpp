@@ -15,25 +15,29 @@ You should have received a copy of the GNU General Public License along with thi
 // 
 // 
 
-#ifdef ESP32
+#include "SensorFreeRAMESP32.h"
 
-#include "ConfigVariationESP32Base.h"
-#include "GenericBLEModuleClient.h"
+#ifdef ESP32 // this implementation is ESP32 specific
 
-HardwareSerial Serial2(2); // Tx2 17, Rx2 16
-
-ConfigVariationESP32Base::ConfigVariationESP32Base()
+SensorFreeRAMESP32::SensorFreeRAMESP32() : ISensor(SensorType::RAM)
 {
 }
 
-void ConfigVariationESP32Base::registerClientDevices(ClientManager & cm)
+// should be around 1K-2K for Uno
+sensorVal_t SensorFreeRAMESP32::getValueInt()
 {
-	GenericBLEModuleClient * ble = new GenericBLEModuleClient(Serial2, 5);
-
-	cm.setDeviceCount(1);
-	ble->begin();
-	cm.addDevice(ble);
-	// this call is only done at init, the module is never deallocated
+	return esp_get_free_heap_size();
 }
+
+float SensorFreeRAMESP32::getValueFloat()
+{
+	return getValueInt();
+}
+
+int SensorFreeRAMESP32::getSamplingTime()
+{
+	return 0; // no ADC time for this sensor
+}
+
 
 #endif

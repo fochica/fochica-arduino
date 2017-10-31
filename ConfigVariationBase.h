@@ -65,6 +65,8 @@ public:
 	virtual void registerClientDevices(ClientManager & cm) = 0;
 	virtual void registerSensors(SensorManager & sm) = 0;
 
+	virtual void loop() {}
+
 protected:
 	// consts
 	const long SERIAL_BAUD = 115200;

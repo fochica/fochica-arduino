@@ -267,7 +267,11 @@ unsigned long Manager::getDeviceUniqueId()
 		return mDeviceUniqueId;
 	do
 	{
-		mDeviceUniqueId = RNGUtils::generateEntropyWithAnalogInputs();
+		mDeviceUniqueId = RNGUtils::getLong();
+		if (DebugStream) {
+			DebugStream->print(F("Device unique ID: "));
+			DebugStream->println(mDeviceUniqueId);
+		}
 	} while (mDeviceUniqueId == 0); // generate from entropy source until we get a value that is not 0
 	return mDeviceUniqueId;
 }

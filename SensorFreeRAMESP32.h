@@ -11,29 +11,32 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// 
-// 
-// 
+// SensorFreeRAMESP32.h
 
-#ifdef ESP32
+#ifndef _SENSORFREERAMESP32_h
+#define _SENSORFREERAMESP32_h
 
-#include "ConfigVariationESP32Base.h"
-#include "GenericBLEModuleClient.h"
+#if defined(ARDUINO) && ARDUINO >= 100
+	#include "Arduino.h"
+#else
+	#include "WProgram.h"
+#endif
 
-HardwareSerial Serial2(2); // Tx2 17, Rx2 16
+#include "ISensor.h"
 
-ConfigVariationESP32Base::ConfigVariationESP32Base()
+#ifdef ESP32 // this implementation is ESP32 specific
+
+// Sensor that reads the amount of available SRAM
+class SensorFreeRAMESP32 : public ISensor
 {
-}
+public:
+	SensorFreeRAMESP32();
+	sensorVal_t getValueInt(); // return bytes
+	float getValueFloat(); // return bytes
+	int getSamplingTime();
+};
 
-void ConfigVariationESP32Base::registerClientDevices(ClientManager & cm)
-{
-	GenericBLEModuleClient * ble = new GenericBLEModuleClient(Serial2, 5);
-
-	cm.setDeviceCount(1);
-	ble->begin();
-	cm.addDevice(ble);
-	// this call is only done at init, the module is never deallocated
-}
+#endif // ESP32
 
 #endif
+

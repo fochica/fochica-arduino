@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "SoundManager.h"
 #include "DebugStream.h"
+#ifdef ESP32 // tone implementation for ESP32
+#include "ESP32Tone.h"
+#endif
 
 void SoundManager::playTone(int tonepin, int freq, int dur, int pause)
 {

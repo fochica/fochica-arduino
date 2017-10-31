@@ -43,10 +43,17 @@ class ISensor
 	virtual float getValueFloat() = 0; // read sensor value
 	virtual int getSamplingTime() = 0; // get the time it takes to read a value (estimate) in microseconds
 
-	const int DEFAULT_ADC_SAMPLING_TIME=100; // microseconds
-	const int DEFAULT_DIGITAL_SAMPLING_TIME = 1; // microseconds
-	const float DEFAULT_ADC_ANALOG_REFERENCE = 5;
-	const int MAX_ADC_VALUE = 1023; // including this value
+#ifdef ESP32
+	static const int DEFAULT_ADC_SAMPLING_TIME = 10; // microseconds
+	static const int DEFAULT_DIGITAL_SAMPLING_TIME = 1; // microseconds
+	static constexpr float DEFAULT_ADC_ANALOG_REFERENCE = 3.3f;
+	static const int MAX_ADC_VALUE = 4095; // including this value
+#else // assume AVR
+	static const int DEFAULT_ADC_SAMPLING_TIME=100; // microseconds
+	static const int DEFAULT_DIGITAL_SAMPLING_TIME = 1; // microseconds
+	static const float DEFAULT_ADC_ANALOG_REFERENCE = 5;
+	static const int MAX_ADC_VALUE = 1023; // including this value
+#endif
 
 private:
 	SensorType::e mType;

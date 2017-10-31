@@ -28,7 +28,7 @@ bool CalibratedSensorTester::runTests()
 	DebugStream->println(F("CalibratedSensorTester start"));
 
 	// setup randomness
-	RNGUtils::seedWithAnalogInputs();
+	RNGUtils::seed();
 
 	// test mock sources
 	DebugStream->println(F("Uniform source [100,200]"));

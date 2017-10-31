@@ -20,6 +20,10 @@ You should have received a copy of the GNU General Public License along with thi
 
 //#define DEBUG_LOG_PACKET_INFO
 
+#ifndef __AVR_ATmega328P__ // Exclude debugging messages to fit program in limited flash of smaller AVRs
+#define DEBUG_BLE_ERRORS
+#endif
+
 #ifdef HAVE_SOFTWARE_SERIAL
 GenericBLEModuleClient::GenericBLEModuleClient(SoftwareSerial & serial, uint8_t statePin) : mBLE(serial)
 {
@@ -97,6 +101,15 @@ bool GenericBLEModuleClient::writePacket(PacketType::e type, const byte * buf, b
 	mBLE.write((byte)type);
 	// write the data
 	mBLE.write(buf, size);
+
+#ifdef DEBUG_LOG_PACKET_INFO
+	/*
+	printf("write packet, len %d, ver %d, type %d, data size %d, passed %d,  ", len, PROTOCOL_VERSION, type, size, passed);
+	for (int i = 0; i < size; i++)
+		printf("%2X ", buf[i]);
+	printf("\n");
+	*/
+#endif
 
 	return true;
 }
@@ -202,10 +215,12 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 	// peek at length
 	byte length = mBLE.peek();
 	if (length<MIN_PACKET_LENGTH || length>MAX_BLE_PACKET_LENGTH) {
+#ifdef DEBUG_BLE_ERRORS
 		if (DebugStream != NULL) {
 			DebugStream->print(F("Invalid data in BLE, l="));
 			DebugStream->println(length);
 		}
+#endif
 		flushIncomingBuffer();
 		return false;
 	}
@@ -216,32 +231,38 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 	PacketHeader header;
 	int count = mBLE.readBytes((uint8_t *)&header, sizeof(PacketHeader));
 	if (count != sizeof(PacketHeader)) {
+#ifdef DEBUG_BLE_ERRORS
 		if (DebugStream != NULL) {
 			DebugStream->print(F("Failure reading header in BLE, read="));
 			DebugStream->println(count);
 		}
+#endif
 		flushIncomingBuffer();
 		return false;
 	}
 	if (header.length != length) {
+#ifdef DEBUG_BLE_ERRORS
 		if (DebugStream != NULL) {
 			DebugStream->print(F("Invalid header data in BLE, header.l="));
 			DebugStream->print(header.length);
 			DebugStream->print(F(", length="));
 			DebugStream->println(length);
 		}
+#endif
 		flushIncomingBuffer();
 		return false;
 	}
 
 	// verify protocol version
 	if (header.protocolVersion != PROTOCOL_VERSION) {
+#ifdef DEBUG_BLE_ERRORS
 		if (DebugStream != NULL) {
-			DebugStream->print(F("Invalid protocol version in BLE, expected"));
+			DebugStream->print(F("Invalid protocol version in BLE, expected="));
 			DebugStream->print(PROTOCOL_VERSION);
 			DebugStream->print(F(", received="));
 			DebugStream->println(header.protocolVersion);
 		}
+#endif
 		flushIncomingBuffer();
 		return false;
 	}
@@ -250,20 +271,24 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 	PacketType::e type = (PacketType::e)header.packetType;
 	int expectedLength = getPacketLength(type);
 	if (expectedLength == -1) {
+#ifdef DEBUG_BLE_ERRORS
 		if (DebugStream != NULL) {
 			DebugStream->print(F("Invalid packet type in BLE, type="));
 			DebugStream->println(type);
 		}
+#endif
 		flushIncomingBuffer(); // consider to just read expectedLength instead...
 		return false;
 	}
 	if (payloadLength != expectedLength) {
+#ifdef DEBUG_BLE_ERRORS
 		if (DebugStream != NULL) {
-			DebugStream->print(F("Invalid data length for packet type in BLE, expected"));
+			DebugStream->print(F("Invalid data length for packet type in BLE, expected="));
 			DebugStream->print(expectedLength);
 			DebugStream->print(F(", available="));
 			DebugStream->println(payloadLength);
 		}
+#endif
 		flushIncomingBuffer(); // consider to just read expectedLength instead...
 		return false;
 	}
@@ -290,16 +315,19 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 			mServerCallback->receiveSensorOperation(packetSnO);
 		break;
 	default:
+#ifdef DEBUG_BLE_ERRORS
 		if (DebugStream != NULL) {
 			DebugStream->print(F("Not handled packet type in BLE, type="));
 			DebugStream->println(type);
 		}
+#endif
 		flushIncomingBuffer();
 		return false;
 	}
 
 	// handle error in reading
 	if (count != expectedLength) {
+#ifdef DEBUG_BLE_ERRORS
 		if (DebugStream != NULL) {
 			DebugStream->print(F("Invalid data received for packet type in BLE, type="));
 			DebugStream->print(type);
@@ -308,6 +336,7 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 			DebugStream->print(F(", expected="));
 			DebugStream->println(expectedLength);
 		}
+#endif
 		flushIncomingBuffer();
 		return false;
 	}

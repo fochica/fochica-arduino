@@ -23,26 +23,25 @@ You should have received a copy of the GNU General Public License along with thi
 #endif
 
 #include "ConfigVariationBase.h"
+#include "SensorVoltage.h"
+#include "SensorFreeRAMESP32.h"
+
 
 #ifdef ESP32
 
-// A base abstract class for configuration variations for AVR based devices.
+// A base abstract class for configuration variations for ESP32 based devices.
 class ConfigVariationESP32Base : public ConfigVariationBase
 {
 public:
 	ConfigVariationESP32Base();
 
-	virtual ISensor * getVccSensor() {};
-	virtual ISensor * getFreeRAMSensor() {};
-	virtual ISensor * getBatterySensor() {};
+	virtual ISensor * getVccSensor() { return NULL; };
+	virtual ISensor * getFreeRAMSensor() { return new SensorFreeRAMESP32(); };
+	virtual ISensor * getBatterySensor() { return NULL; };
 
 	virtual void registerClientDevices(ClientManager & cm);
 
 protected:
-	// override
-	const uint8_t BATTERY_VOLTAGE_SENSOR_ANALOG_PIN = 1; // analog pin#
-	const long BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND = 10000; // 10Kohm
-	const long BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE = 20000; // 20Kohm
 
 private:
 };

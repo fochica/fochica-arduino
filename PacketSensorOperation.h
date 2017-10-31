@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with thi
 struct PacketSensorOperation {
 	uint8_t sensorId;
 	uint8_t operationId; // SensorOperation::e
-};
+} __attribute__((packed));
 
 
 #endif

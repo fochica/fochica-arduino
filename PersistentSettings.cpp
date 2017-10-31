@@ -22,6 +22,14 @@ You should have received a copy of the GNU General Public License along with thi
 
 void PersistentSettings::init()
 {
+#ifdef ESP32 // EEPROM implementation on ESP32 requires a begin at start, specify as little operational space as needed to converve memory, default EEPROM partition is 1KB
+#define EEPROM_SIZE 256 // this will not be enough for some sensors, but not for any sensor count
+	if (!EEPROM.begin(EEPROM_SIZE) && DebugStream)
+	{
+		DebugStream->println("failed to initialise EEPROM");
+		// proceed, but data will be zeros
+	}
+#endif
 	// read header
 	EEPROM.get(EEPROM_START, mHeader);
 
@@ -30,6 +38,9 @@ void PersistentSettings::init()
 		mHeader.version = SCHEMA_VERSION;
 		mHeader.seatSensorPersistentParamsCount = 0;
 		EEPROM.put(EEPROM_START, mHeader);
+#ifdef ESP32 // EEPROM implementation on ESP32 requires a commit after writes
+		EEPROM.commit();
+#endif
 	}
 	if (DebugStream) {
 		DebugStream->print(F("Loaded header of EEPROM with entries: "));
@@ -93,4 +104,8 @@ void PersistentSettings::writeSeatSensorPersistentParams(sensorCount_t sensorId,
 		mHeader.seatSensorPersistentParamsCount = sensorId + 1;
 		EEPROM.put(EEPROM_START, mHeader);
 	}
+
+#ifdef ESP32 // EEPROM implementation on ESP32 requires a commit after writes
+	EEPROM.commit();
+#endif
 }

@@ -26,6 +26,7 @@ You should have received a copy of the GNU General Public License along with thi
 #include "Nullable.h"
 #include "SoundManager.h"
 #include "Manager.h"
+#include "RNGUtils.h"
 #include "DebugStream.h"
 #include "SensorMock.h"
 
@@ -51,11 +52,15 @@ You should have received a copy of the GNU General Public License along with thi
 // SETTINGS
 
 // include one ConfigVariation based on your hardware setup and wiring
+#ifdef __AVR__
 #include "ConfigVariation-BasicV1.h"
 //#include "ConfigVariation-PrototypeMega1.h"
 //#include "ConfigVariation-UnoShieldV1.h"
 //#include "ConfigVariation-NanoV1.h"
-//#include "ConfigVariation-ESP32V1.h"
+#endif
+#ifdef ESP32
+#include "ConfigVariation-ESP32V1.h"
+#endif
 
 // or make your custom ConfigPrivateVariation-X.h file and use it (ignored by git)
 //#include "ConfigPrivateVariation-PrototypeUno1.h"
@@ -185,23 +190,28 @@ void setup()
 		pinMode(aliveLedPin, OUTPUT);
 
 	// misc log
-	if (DebugStream) {
-		DebugStream->print(F("Free RAM: "));
-		DebugStream->println(ram->getValueInt());
-	}
-	Print * persistentFile;
-	if (PersistentLog)
-		persistentFile = PersistentLog->open();
-	if (persistentFile) {
-		persistentFile->print(F("Free RAM: "));
-		persistentFile->println(ram->getValueInt());
-		PersistentLog->close(); // close persistent log of the start process
+	if (ram != NULL) {
+		if (DebugStream) {
+			DebugStream->print(F("Free RAM: "));
+			DebugStream->println(ram->getValueInt());
+		}
+		Print * persistentFile;
+		if (PersistentLog)
+			persistentFile = PersistentLog->open();
+		if (persistentFile) {
+			persistentFile->print(F("Free RAM: "));
+			persistentFile->println(ram->getValueInt());
+			PersistentLog->close(); // close persistent log of the start process
+		}
+
+		// ram dump for debug
+		//ram->dumpSRAMContent(Serial);
+		//ram->dumpSRAMBounds(Serial);
+		//for (;;); // don't proceed to normal operation
 	}
 
-	// ram dump for debug
-	//ram->dumpSRAMContent(Serial);
-	//ram->dumpSRAMBounds(Serial);
-	//for (;;); // don't proceed to normal operation
+	// seed RNG, for some devices (such as ESP32), this needs to happen after communication device has been initialized
+	RNGUtils::seed();
 
 	// make start sound
 	SoundManager::getInstance().playBeep(BeepType::Start);
@@ -209,13 +219,18 @@ void setup()
 
 void loop()
 {
+	configVariation.loop();
+
 	// debug
-	if (DebugStream) {
-		//DebugStream->println(F("Loop"));
-		//DebugStream->println(ram.getValueInt());
-		//DebugStream->println(vcc.getValueInt());
-		//DebugStream->println(bat.getValueFloat());
-	}
+	/*if (DebugStream) {
+		DebugStream->println(F("Loop"));
+		if(ram!=NULL)
+			DebugStream->println(ram->getValueInt());
+		if(vcc!=NULL)
+			DebugStream->println(vcc->getValueInt());
+		if(bat!=NULL)
+			DebugStream->println(bat->getValueFloat());
+	}*/
 
 	// Fit program in limited flash of smaller AVRs
 #ifndef __AVR_ATmega328P__

@@ -30,7 +30,7 @@ struct PacketSensorData {
 	uint16_t value;
 	uint8_t state; // SensorState::e
 	uint8_t activityMode; // SensorActivityMode::e
-};
+} __attribute__((packed));
 
 #endif
 

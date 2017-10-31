@@ -29,14 +29,14 @@ You should have received a copy of the GNU General Public License along with thi
 class SensorVoltage : public ISensor
 {
 public:
-	 SensorVoltage(uint8_t analogPin, long resistorToGround, long resistorToVoltage);
+	 SensorVoltage(uint8_t analogPin, long resistorToGround, long resistorToVoltage, float aReference = ISensor::DEFAULT_ADC_ANALOG_REFERENCE);
 	 sensorVal_t getValueInt(); // return in mV
 	 float getValueFloat(); // return in V
 	 int getSamplingTime();
 
 private:
 	uint8_t mPin;
-	float mDivider;
+	float mDivider, mAReference;
 };
 
 #endif

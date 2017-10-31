@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with thi
 struct PacketSeatOperation {
 	uint8_t seatId;
 	uint8_t operationId; // SeatOperation::e
-};
+} __attribute__((packed));
 
 #endif
 

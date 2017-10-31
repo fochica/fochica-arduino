@@ -65,7 +65,7 @@ private:
 	bool mConnected; // last known connection state. true for connected.
 	unsigned long mLastSendTime;
 
-	const int DELAY_AFTER_PACKET_SENT = 30; // ms, how long to wait between sending two packets
+	const int DELAY_AFTER_PACKET_SENT = 40; // ms, how long to wait between sending two packets (had to increase from 30ms to 40ms for faster uCs)
 	const int PACKET_RECEIVE_TIMEOUT = 10; // ms, what is considered a timeout when waiting for parts of a single packet
 	const long BAUD_RATE = 9600; // default baud rate for HM-10/CC41. This is not a high throughput link, so keep slow for lower performance impact
 	const int MAX_BLE_PACKET_LENGTH = 20; // max due to BLE restrictions

@@ -17,10 +17,11 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "SensorVoltage.h"
 
-SensorVoltage::SensorVoltage(uint8_t analogPin, long resistorToGround, long resistorToVoltage) : ISensor(SensorType::Voltage)
+SensorVoltage::SensorVoltage(uint8_t analogPin, long resistorToGround, long resistorToVoltage, float aReference) : ISensor(SensorType::Voltage)
 {
 	mPin = analogPin;
 	mDivider = (resistorToGround + resistorToVoltage) / resistorToGround;
+	mAReference = aReference;
 }
 
 // returns value in mV. don't use as-it-is now for measuring voltage over 32V
@@ -32,7 +33,7 @@ sensorVal_t SensorVoltage::getValueInt()
 float SensorVoltage::getValueFloat()
 {
 	int v = analogRead(mPin);
-	return (float)mDivider*ISensor::DEFAULT_ADC_ANALOG_REFERENCE*v / ISensor::MAX_ADC_VALUE;
+	return (float)mDivider*mAReference*v / ISensor::MAX_ADC_VALUE;
 }
 
 int SensorVoltage::getSamplingTime()

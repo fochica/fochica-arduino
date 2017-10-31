@@ -26,7 +26,7 @@ struct PacketHeader {
 	uint8_t length;
 	uint8_t protocolVersion;
 	uint8_t packetType;
-};
+} __attribute__((packed));
 
 #endif
 

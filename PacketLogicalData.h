@@ -36,7 +36,7 @@ struct PacketLogicalData {
 	uint8_t connectedClientCount; // number of clients connected
 	uint8_t seatCount;
 	uint8_t sensorCount;
-};
+} __attribute__((packed));
 
 #endif
 

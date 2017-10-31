@@ -29,6 +29,7 @@ void TechnicalManager::work(IClient * client)
 	packet.vcc = mVccSensor ? mVccSensor->getValueInt() : 0;
 	packet.deviceCurrent = mDeviceCurrentSensor ? mDeviceCurrentSensor->getValueInt() : 0;
 	packet.carBatteryVoltage = mCarBatteryVoltageSensor ? mCarBatteryVoltageSensor->getValueInt() : 0;
-	packet.freeRAM = mFreeRAMSensor ? mFreeRAMSensor->getValueInt() : 0;
+	int freeRAM = mFreeRAMSensor ? mFreeRAMSensor->getValueInt() : 0;
+	packet.freeRAM = min(freeRAM, UINT16_MAX); // cap at what this packet format supports, extend in the future
 	client->sendTechnicalData(packet);
 }
