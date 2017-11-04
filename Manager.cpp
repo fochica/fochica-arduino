@@ -88,7 +88,7 @@ void Manager::work()
 
 // get notified of a connect or disconnect on one of the modules/adapters
 // note that a disconnect in one adapter doesn't mean all adpaters are disconnected
-void Manager::onClientConnectionChange(bool isConnected)
+void Manager::onClientConnectionChange(IClientDevice * device, bool isConnected)
 {
 	if (DebugStream != NULL) {
 		DebugStream->print(F("onClientConnectionChange, connected="));
@@ -113,7 +113,7 @@ void Manager::onClientConnectionChange(bool isConnected)
 	eventClientConnectionChange(isConnected);
 }
 
-bool Manager::receiveTime(const PacketTime & packet)
+bool Manager::receiveTime(IClientDevice * device, const PacketTime & packet)
 {
 	if (DebugStream != NULL) {
 		DebugStream->print(F("Got utc time: "));
@@ -147,7 +147,7 @@ bool Manager::receiveTime(const PacketTime & packet)
 	return true;
 }
 
-bool Manager::receiveSeatOperation(const PacketSeatOperation & packet)
+bool Manager::receiveSeatOperation(IClientDevice * device, const PacketSeatOperation & packet)
 {
 	if (DebugStream != NULL) {
 		DebugStream->print(F("Got seat id "));
@@ -171,7 +171,7 @@ bool Manager::receiveSeatOperation(const PacketSeatOperation & packet)
 	return false;
 }
 
-bool Manager::receiveSensorOperation(const PacketSensorOperation & packet)
+bool Manager::receiveSensorOperation(IClientDevice * device, const PacketSensorOperation & packet)
 {
 	if (DebugStream != NULL) {
 		DebugStream->print(F("Got sensor id "));

@@ -44,7 +44,7 @@ void ClientManager::setDeviceCount(clientCount_t deviceCount)
 		delete[] mDevices;
 	// allocate and update state
 	mDeviceCount = deviceCount;
-	mDevices = new IClientDevice*[deviceCount]();
+	mDevices = new ClientDevice*[deviceCount]();
 	mDeviceAddedCount = 0;
 }
 
@@ -57,7 +57,7 @@ clientCount_t ClientManager::getConnectedCount()
 	return count;
 }
 
-bool ClientManager::addDevice(IClientDevice * device)
+bool ClientManager::addDevice(ClientDevice * device)
 {
 	if (mDeviceAddedCount >= mDeviceCount) {
 		if(DebugStream!=NULL) DebugStream->println(F("ClientManager::addDevice, trying to add more devices than declared"));

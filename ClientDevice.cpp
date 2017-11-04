@@ -11,33 +11,27 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// IClientDevice.h
+// 
+// 
+// 
 
-#ifndef _ICLIENTDEVICE_h
-#define _ICLIENTDEVICE_h
+#include "ClientDevice.h"
 
-#if defined(ARDUINO) && ARDUINO >= 100
-	#include "Arduino.h"
-#else
-	#include "WProgram.h"
-#endif
-
-#include "IClient.h"
-
-// Defines an interface of a client device, which is typically a BLE module connected to Arduino
-class IClientDevice : public IClient
+void ClientDevice::setReceiverCallback(IServer * callback)
 {
-public:
-	// state
-	virtual void begin() = 0;
-	virtual bool isConnected() = 0;
-	// receiving
-	virtual void work() = 0;
-	// capabilities
-	virtual bool isCanReceivePackets() = 0; // is in a mode right now in which adapter can receive data from client
-	virtual bool isListenLimited() = 0; // does this device belong to a class where only one can listen at a time?
-	virtual void listen() = 0;
-};
+	mServerCallback = callback;
+}
 
-#endif
+bool ClientDevice::isCanReceivePackets()
+{
+	return true; // default
+}
 
+bool ClientDevice::isListenLimited()
+{
+	return false;
+}
+
+void ClientDevice::listen()
+{
+}

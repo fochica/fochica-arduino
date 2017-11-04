@@ -158,7 +158,7 @@ void GenericBLEModuleClient::work()
 	bool conn = isConnected();
 	if (conn != mConnected) {
 		if (mServerCallback)
-			mServerCallback->onClientConnectionChange(conn); // notify about change
+			mServerCallback->onClientConnectionChange(this, conn); // notify about change
 		mConnected = conn;
 	}
 	// process incoming data
@@ -269,7 +269,7 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 
 	// read packet type and validate expected size
 	PacketType::e type = (PacketType::e)header.packetType;
-	int expectedLength = getPacketLength(type);
+	int expectedLength = IServer::getPacketLength(type);
 	if (expectedLength == -1) {
 #ifdef DEBUG_BLE_ERRORS
 		if (DebugStream != NULL) {
@@ -300,19 +300,19 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 		PacketTime packet;
 		count = mBLE.readBytes((uint8_t *)&packet, expectedLength);
 		if (mServerCallback && count==expectedLength)
-			mServerCallback->receiveTime(packet);
+			mServerCallback->receiveTime(this, packet);
 		break;
 	case PacketType::SeatOperation:
 		PacketSeatOperation packetSO;
 		count = mBLE.readBytes((uint8_t *)&packetSO, expectedLength);
 		if (mServerCallback && count == expectedLength)
-			mServerCallback->receiveSeatOperation(packetSO);
+			mServerCallback->receiveSeatOperation(this, packetSO);
 		break;
 	case PacketType::SensorOperation:
 		PacketSensorOperation packetSnO;
 		count = mBLE.readBytes((uint8_t *)&packetSnO, expectedLength);
 		if (mServerCallback && count == expectedLength)
-			mServerCallback->receiveSensorOperation(packetSnO);
+			mServerCallback->receiveSensorOperation(this, packetSnO);
 		break;
 	default:
 #ifdef DEBUG_BLE_ERRORS
@@ -343,17 +343,3 @@ bool GenericBLEModuleClient::processIncomingIfAvailable()
 
 	return true; // got (and processed?) something
 }
-
-int GenericBLEModuleClient::getPacketLength(PacketType::e type)
-{
-	switch (type) {
-	case PacketType::Time:
-		return sizeof(PacketTime);
-	case PacketType::SeatOperation:
-		return sizeof(PacketSeatOperation);
-	case PacketType::SensorOperation:
-		return sizeof(PacketSensorOperation);
-	}
-	return -1; // error, invalid or unknown packet type
-}
-

@@ -26,14 +26,14 @@ You should have received a copy of the GNU General Public License along with thi
 #include <SoftwareSerial.h>
 #define HAVE_SOFTWARE_SERIAL
 #endif
-#include "IClientDevice.h"
+#include "ClientDevice.h"
 #include "PacketType.h"
 #include "PacketHeader.h"
 
 // Implements a client using a HM-10 BLE module, or a clone (CC41).
 // Supports any BLE module with a single characteristic.
 // Serializes and deserializes the packets.
-class GenericBLEModuleClient : public IClientDevice
+class GenericBLEModuleClient : public ClientDevice
 {
 public:
 #ifdef HAVE_SOFTWARE_SERIAL
@@ -79,7 +79,6 @@ private:
 	// receiving logic
 	bool processIncomingIfAvailable();
 	void flushIncomingBuffer(); // if we have issues parsing incoming message, flush the stream
-	int getPacketLength(PacketType::e type);
 };
 
 #endif

@@ -17,4 +17,15 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "IServer.h"
 
-
+int IServer::getPacketLength(PacketType::e type)
+{
+	switch (type) {
+	case PacketType::Time:
+		return sizeof(PacketTime);
+	case PacketType::SeatOperation:
+		return sizeof(PacketSeatOperation);
+	case PacketType::SensorOperation:
+		return sizeof(PacketSensorOperation);
+	}
+	return -1; // error, invalid or unknown packet type
+}

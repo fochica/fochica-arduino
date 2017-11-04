@@ -71,11 +71,11 @@ private:
 	~Manager();
 
 	// client notification
-	void onClientConnectionChange(bool isConnected);
+	virtual void onClientConnectionChange(IClientDevice * device, bool isConnected);
 	// incoming packets
-	bool receiveTime(const PacketTime& packet);
-	bool receiveSeatOperation(const PacketSeatOperation& packet);
-	bool receiveSensorOperation(const PacketSensorOperation& packet);
+	bool receiveTime(IClientDevice * device, const PacketTime& packet);
+	bool receiveSeatOperation(IClientDevice * device, const PacketSeatOperation& packet);
+	bool receiveSensorOperation(IClientDevice * device, const PacketSensorOperation& packet);
 
 	// sending packets
 	bool sendTime();
@@ -84,6 +84,7 @@ private:
 	// sending repeat logic
 	// after connecting, it will take the client a second or two to perform service discovery and to subscribe to notifications. During that time it can't receive packets from the device. We will repeat sending of relevant packets to resolve this.
 	// this might not be relevant to all modules/transports. Consider to move this implementation to other classes of the projects if we ever need to add transport other than BLE.
+	// BLE modules which consider "connected" only once connected and enabled notifications don't have this problem.
 	const int PACKET_SEND_REPEATS = 3;
 	bool sendLogicalDataOnce();
 	int mRepeatSendLogicalData;

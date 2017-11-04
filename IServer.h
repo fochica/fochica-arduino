@@ -22,19 +22,23 @@ You should have received a copy of the GNU General Public License along with thi
 	#include "WProgram.h"
 #endif
 
+#include "PacketType.h"
 #include "PacketTime.h"
 #include "PacketSeatOperation.h"
 #include "PacketSensorOperation.h"
+#include "IClientDevice.h"
 
-// Defines an interface to the server deivce (the Arduino MCU). The interface is used to get packets from client devices.
+// Defines an interface to the server device (the Arduino MCU). The interface is used to get packets from client devices.
 class IServer
 {
 public:
-	virtual void onClientConnectionChange(bool isConnected) = 0;
+	virtual void onClientConnectionChange(IClientDevice * device, bool isConnected) = 0;
 
-	virtual bool receiveTime(const PacketTime& packet) = 0;
-	virtual bool receiveSeatOperation(const PacketSeatOperation& packet) = 0;
-	virtual bool receiveSensorOperation(const PacketSensorOperation& packet) = 0;
+	virtual bool receiveTime(IClientDevice * device, const PacketTime& packet) = 0;
+	virtual bool receiveSeatOperation(IClientDevice * device, const PacketSeatOperation& packet) = 0;
+	virtual bool receiveSensorOperation(IClientDevice * device, const PacketSensorOperation& packet) = 0;
+
+	static int getPacketLength(PacketType::e type);
 };
 
 #endif

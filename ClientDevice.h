@@ -11,10 +11,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// IClientDevice.h
+// ClientDevice.h
 
-#ifndef _ICLIENTDEVICE_h
-#define _ICLIENTDEVICE_h
+#ifndef _CLIENTDEVICE_h
+#define _CLIENTDEVICE_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "Arduino.h"
@@ -22,21 +22,23 @@ You should have received a copy of the GNU General Public License along with thi
 	#include "WProgram.h"
 #endif
 
-#include "IClient.h"
+#include "IClientDevice.h"
+#include "IServer.h"
 
-// Defines an interface of a client device, which is typically a BLE module connected to Arduino
-class IClientDevice : public IClient
+// Defines a base implementation of a client device, which is typically a BLE module connected to Arduino
+class ClientDevice : public IClientDevice
 {
 public:
-	// state
-	virtual void begin() = 0;
-	virtual bool isConnected() = 0;
+	ClientDevice() : mServerCallback(NULL) {}
 	// receiving
-	virtual void work() = 0;
+	virtual void setReceiverCallback(IServer * callback);
 	// capabilities
-	virtual bool isCanReceivePackets() = 0; // is in a mode right now in which adapter can receive data from client
-	virtual bool isListenLimited() = 0; // does this device belong to a class where only one can listen at a time?
-	virtual void listen() = 0;
+	virtual bool isCanReceivePackets(); // is in a mode right now in which adapter can receive data from client
+	virtual bool isListenLimited(); // does this device belong to a class where only one can listen at a time?
+	virtual void listen();
+
+protected:
+	IServer * mServerCallback; // pointer to a callback interface for incoming data
 };
 
 #endif
