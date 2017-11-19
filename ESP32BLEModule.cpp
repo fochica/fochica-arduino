@@ -385,7 +385,7 @@ bool ESP32BLEModule::isConnected(uint16_t connId)
 bool ESP32BLEModule::sendPacket(uint16_t connId, PacketType::e type, const byte * buf, uint16_t size)
 {
 	clientDevice_t & c = mClients[connId];
-	printf("connId %d, connected %d, notify %d, mtu %d, packet type %d, size %d\n", connId, c.isConnected, c.enableNotification, c.mtu, type, size);
+	//printf("ESP32BLEModule::sendPacket: connId %d, connected %d, notify %d, mtu %d, packet type %d, size %d\n", connId, c.isConnected, c.enableNotification, c.mtu, type, size);
 	if (c.isConnected && c.enableNotification) {
 		if (size <= (c.mtu - BLE_DATA_OVERHEAD)) {
 			// serialize full packet with header
@@ -397,11 +397,11 @@ bool ESP32BLEModule::sendPacket(uint16_t connId, PacketType::e type, const byte 
 			// send
 			esp_err_t ret=esp_ble_gatts_send_indicate(mGattsIf, connId, mHandleTable[SPP_IDX_SPP_DATA_NTY_VAL], len, mTempPacketBuffer, false);
 			if (ret != ESP_OK) {
-				printf("Error sending notification %d\n", ret);
+				printf("ESP32BLEModule::sendPacket: Error sending notification %d\n", ret);
 			}
 		}
 		else {
-			printf("Can't notify, too long\n");
+			printf("ESP32BLEModule::sendPacket: Can't notify, data too long\n");
 			return false;
 		}
 	}
@@ -495,7 +495,7 @@ static char *esp_key_type_to_str(esp_ble_key_type_t key_type)
 
 void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
-	ESP_LOGI(TAG, "gap event, %d %s\n", event, esp_gap_ble_cb_event_text[event]);
+	ESP_LOGD(TAG, "gap event, %d %s\n", event, esp_gap_ble_cb_event_text[event]);
 
 	switch (event) {
 	case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT: // was able to set adv data params (after esp_ble_gap_config_adv_data_raw), can start advertize
@@ -566,7 +566,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 	esp_ble_gatts_cb_param_t *p_data = (esp_ble_gatts_cb_param_t *)param;
 	uint8_t res = 0xff;
 
-	ESP_LOGI(TAG, "gatts event, %d %s, gatts if %d\n", event, esp_gatts_cb_event_text[event], gatts_if);
+	ESP_LOGD(TAG, "gatts event, %d %s, gatts if %d\n", event, esp_gatts_cb_event_text[event], gatts_if);
 	ESP32BLEModule & module = ESP32BLEModule::getInstance();
 	if (module.mGattsIf != ESP_GATT_IF_NONE && module.mGattsIf != gatts_if)
 		ESP_LOGW(TAG, "Unexpected gatts_if %d, expecting %d\n", gatts_if, module.mGattsIf);
