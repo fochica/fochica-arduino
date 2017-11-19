@@ -174,7 +174,6 @@ ESP32BLEModule::ESP32BLEModule()
 	esp_err_t ret;
 
 	// Initialize NVS — it is used to store PHY calibration data
-	//nvs_flash_init();  
 	ret = nvs_flash_init();
 	if (ret == ESP_ERR_NVS_NO_FREE_PAGES) {
 		ESP_ERROR_CHECK(nvs_flash_erase());
@@ -221,7 +220,30 @@ ESP32BLEModule::ESP32BLEModule()
 
 	esp_ble_gatts_register_callback(gatts_event_handler);
 	esp_ble_gap_register_callback(gap_event_handler);
-	esp_ble_gatts_app_register(APP_ID);
+	esp_ble_gatts_app_register(APP_ID); // now we wait for success events
+	configSecurity();
+}
+
+// from https://github.com/espressif/esp-idf/blob/master/examples/bluetooth/gatt_security_server/main/example_ble_sec_gatts_demo.c
+// BLE security summary at https://eewiki.net/display/Wireless/A+Basic+Introduction+to+BLE+Security
+// we will declare no IO capabilities and this will result in a Just WorksTM mode. Good security for BT 4.2 and up. Less strong for older versions. Assume pairing step is vulnerable against MitM, perform in a secure location.
+void ESP32BLEModule::configSecurity()
+{
+	/* set the security iocap & auth_req & key size & init key response key parameters to the stack*/
+	esp_ble_auth_req_t auth_req = ESP_LE_AUTH_BOND;     //bonding with peer device after authentication
+	esp_ble_io_cap_t iocap = ESP_IO_CAP_NONE;           //set the IO capability to No output No input
+	uint8_t key_size = 16;      //the key size should be 7~16 bytes
+	uint8_t init_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
+	uint8_t rsp_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
+	esp_ble_gap_set_security_param(ESP_BLE_SM_AUTHEN_REQ_MODE, &auth_req, sizeof(uint8_t));
+	esp_ble_gap_set_security_param(ESP_BLE_SM_IOCAP_MODE, &iocap, sizeof(uint8_t));
+	esp_ble_gap_set_security_param(ESP_BLE_SM_MAX_KEY_SIZE, &key_size, sizeof(uint8_t));
+	/* If your BLE device act as a Slave, the init_key means you hope which types of key of the master should distribut to you,
+	and the response key means which key you can distribut to the Master;
+	If your BLE device act as a master, the response key means you hope which types of key of the slave should distribut to you,
+	and the init key means which key you can distribut to the slave. */
+	esp_ble_gap_set_security_param(ESP_BLE_SM_SET_INIT_KEY, &init_key, sizeof(uint8_t));
+	esp_ble_gap_set_security_param(ESP_BLE_SM_SET_RSP_KEY, &rsp_key, sizeof(uint8_t));
 }
 
 ESP32BLEModule::~ESP32BLEModule()
@@ -433,6 +455,44 @@ const char *esp_gap_ble_cb_event_text[] = {
 	"ESP_GAP_BLE_EVT_MAX"
 };
 
+static char *esp_key_type_to_str(esp_ble_key_type_t key_type)
+{
+	char *key_str = NULL;
+	switch (key_type) {
+	case ESP_LE_KEY_NONE:
+		key_str = "ESP_LE_KEY_NONE";
+		break;
+	case ESP_LE_KEY_PENC:
+		key_str = "ESP_LE_KEY_PENC";
+		break;
+	case ESP_LE_KEY_PID:
+		key_str = "ESP_LE_KEY_PID";
+		break;
+	case ESP_LE_KEY_PCSRK:
+		key_str = "ESP_LE_KEY_PCSRK";
+		break;
+	case ESP_LE_KEY_PLK:
+		key_str = "ESP_LE_KEY_PLK";
+		break;
+	case ESP_LE_KEY_LLK:
+		key_str = "ESP_LE_KEY_LLK";
+		break;
+	case ESP_LE_KEY_LENC:
+		key_str = "ESP_LE_KEY_LENC";
+		break;
+	case ESP_LE_KEY_LID:
+		key_str = "ESP_LE_KEY_LID";
+		break;
+	case ESP_LE_KEY_LCSRK:
+		key_str = "ESP_LE_KEY_LCSRK";
+		break;
+	default:
+		key_str = "INVALID BLE KEY TYPE";
+		break;
+	}
+	return key_str;
+}
+
 void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
 	ESP_LOGI(TAG, "gap event, %d %s\n", event, esp_gap_ble_cb_event_text[event]);
@@ -450,6 +510,23 @@ void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 		break;
 	case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
 		ESP_LOGI(TAG, "update conn params, status %d, min_int %d, max_int %d, latency %d, conn_int %d, timeout %d", param->update_conn_params.status, param->update_conn_params.min_int, param->update_conn_params.max_int, param->update_conn_params.latency, param->update_conn_params.conn_int, param->update_conn_params.timeout);
+		break;
+	case ESP_GAP_BLE_SEC_REQ_EVT:
+		/* send the positive(true) security response to the peer device to accept the security request.
+		If not accept the security request, should sent the security response with negative(false) accept value*/
+		esp_ble_gap_security_rsp(param->ble_security.ble_req.bd_addr, true);
+		ESP_LOGI(GATTS_TABLE_TAG, "SEC_REQ, sending positive response");
+		break;
+	case ESP_GAP_BLE_PASSKEY_NOTIF_EVT:
+		ESP_LOGI(GATTS_TABLE_TAG, "PASSKEY_NOTIF, %d", param->ble_security.key_notif.passkey);
+		break;
+	case ESP_GAP_BLE_KEY_EVT:
+		//shows the ble key info share with peer device to the user.
+		ESP_LOGI(GATTS_TABLE_TAG, "KEY, key type %d %s", param->ble_security.ble_key.key_type, esp_key_type_to_str(param->ble_security.ble_key.key_type));
+		break;
+	case ESP_GAP_BLE_AUTH_CMPL_EVT:
+		ESP_LOGI(GATTS_TABLE_TAG, "AUTH_CMPL, address type = %d, pair status = %s", param->ble_security.auth_cmpl.addr_type, param->ble_security.auth_cmpl.success ? "success" : "fail");
+		//show_bonded_devices();
 		break;
 	default:
 		break;
@@ -578,12 +655,28 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 		break;
 	case ESP_GATTS_CONNECT_EVT:
 	{
+		// update connection parameters to have faster timeout
+		esp_ble_conn_update_params_t conn_params = { 0 };
+		memcpy(conn_params.bda, param->connect.remote_bda, sizeof(esp_bd_addr_t));
+		// For the IOS system, please reference the apple official documents about the ble connection parameters restrictions.
+		// https://developer.apple.com/library/content/qa/qa1931/_index.html
+		conn_params.latency = 0; // was 0
+		conn_params.min_int = 0x10;    // min_int = 0x10*1.25ms = 20ms
+		conn_params.max_int = 0x20;    // max_int = 0x20*1.25ms = 40ms
+		conn_params.timeout = 400; // timeout = 400*10ms = 4000ms
+		ESP_LOGI(GATTS_TABLE_TAG, "sending esp_ble_gap_update_conn_params\n");
+		esp_ble_gap_update_conn_params(&conn_params);
+
+		// start security connect with peer device when receive the connect event sent by the master
+		esp_ble_set_encryption(param->connect.remote_bda, ESP_BLE_SEC_ENCRYPT_MITM);
+
+		// handle connection state
 		module.mClients[p_data->connect.conn_id].isConnected = true;
-		//memcpy(&c.remote_bda, &p_data->connect.remote_bda, sizeof(esp_bd_addr_t));
 		ESP_LOGI(TAG, "connect, connection id %d, address " BT_BD_ADDR_STR "\n", p_data->connect.conn_id, BT_BD_ADDR_HEX(p_data->connect.remote_bda));
 		if (++module.mConnectedClientCount < module.MAX_CLIENTS)
 			esp_ble_gap_start_advertising(&spp_adv_params); // advertise once again if there is a slot
-		// this is not enough to notify the server module of connection, wait for remote to enable notifications
+
+		// this is not enough to send notify to the fochica server module about a connection, wait for remote side to enable notifications before announcing connection.
 	}
 	break;
 	case ESP_GATTS_DISCONNECT_EVT:
