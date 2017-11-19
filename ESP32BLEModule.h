@@ -56,7 +56,8 @@ public:
 		return singleton;
 	}
 
-	static const uint16_t MAX_CLIENTS = 4; // max number of concurent connections we support
+	// there are currently issues with multi connect, once resolved, increase max concurent clients
+	static const uint16_t MAX_CLIENTS = 1; // max number of concurent connections we support
 
 	// interface for module clients to call back
 	bool isConnected(uint16_t connId);
