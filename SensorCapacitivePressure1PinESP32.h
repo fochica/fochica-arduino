@@ -37,7 +37,7 @@ class SensorCapacitivePressure1PinESP32 : public ISensor
 {
 public:
 	SensorCapacitivePressure1PinESP32(uint8_t pin);
-	sensorVal_t getValueInt(); // returns analogRead
+	sensorVal_t getValueInt();
 	float getValueFloat();
 	int getSamplingTime();
 
