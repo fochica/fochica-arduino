@@ -40,7 +40,7 @@ You should have received a copy of the GNU General Public License along with thi
 #define TAG  "BLE" // TAG for logs
 
 #define APP_ID              0x56 // some app id const for esp_ble_gatts_app_register
-#define DEVICE_NAME          "ESP32_v2" // device name for use with esp_ble_gap_set_device_name
+#define DEVICE_NAME          "ESP32_Fochica" // default device name for use with esp_ble_gap_set_device_name, max length is ESP_DEV_DEVICE_NAME_MAX==32
 #define SPP_SVC_INST_ID	            0 // service instance id for use with esp_ble_gatts_create_attr_tab
 
 // UUIDS
@@ -163,6 +163,7 @@ ESP32BLEModule::ESP32BLEModule()
 {
 	mGattsIf = ESP_GATT_IF_NONE;
 	mConnectedClientCount = 0;
+	mDeviceName = DEVICE_NAME; // default name
 
 	// init clients
 	for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -375,6 +376,18 @@ void ESP32BLEModule::onClientConnectionChange(uint16_t connId, bool isConnected)
 	client->getServerCallback()->onClientConnectionChange(client, false);
 }
 
+void ESP32BLEModule::setDeviceName(const char * name)
+{
+	mDeviceName = name;
+	if (mGattsIf != ESP_GATT_IF_NONE) // if already initiated
+		esp_ble_gap_set_device_name(mDeviceName);
+}
+
+const uint8_t * ESP32BLEModule::getAddress()
+{
+	return esp_bt_dev_get_address();
+}
+
 bool ESP32BLEModule::isConnected(uint16_t connId)
 {
 	if(connId>=MAX_CLIENTS)
@@ -584,7 +597,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 		module.mGattsIf = gatts_if; // save
 
 		ESP_LOGI(TAG, "set_device_name\n" /*, __func__, __LINE__*/);
-		esp_ble_gap_set_device_name(DEVICE_NAME);
+		esp_ble_gap_set_device_name(module.mDeviceName); // perhaps it is also possible to set this earlier, but set here to be safe
 
 		//ESP_LOGI(TAG, "config_adv_data_raw\n"/*, __func__, __LINE__*/);
 		//esp_ble_gap_config_adv_data_raw((uint8_t *)spp_adv_data_raw, sizeof(spp_adv_data_raw));

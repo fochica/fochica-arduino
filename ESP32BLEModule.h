@@ -24,7 +24,8 @@ You should have received a copy of the GNU General Public License along with thi
 
 #ifdef ESP32 // this implementation is ESP32 specific
 
-#include "esp_gatts_api.h"
+#include "btc_dev.h" // for ESP_DEV_DEVICE_NAME_MAX
+#include "esp_gatts_api.h" // for esp_gatt_if_t, event handler, etc
 
 #include "ClientDevice.h"
 #include "PacketType.h"
@@ -59,6 +60,10 @@ public:
 	// there are currently issues with multi connect, once resolved, increase max concurent clients
 	static const uint16_t MAX_CLIENTS = 1; // max number of concurent connections we support
 
+	void setDeviceName(const char * name); // this class will keep the pointer for later use, so don't free currently passed string pointer
+	static const uint16_t MAX_DEVICE_NAME = ESP_DEV_DEVICE_NAME_MAX;
+	const uint8_t * getAddress(); // returns BT address, 6 bytes
+
 	// interface for module clients to call back
 	bool isConnected(uint16_t connId);
 	bool sendPacket(uint16_t connId, PacketType::e type, const byte * buf, uint16_t size);
@@ -75,6 +80,7 @@ private:
 	~ESP32BLEModule();
 	void configSecurity();
 
+	// give c functions access to this module
 	friend void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
 	typedef struct {
@@ -89,6 +95,7 @@ private:
 	uint16_t mHandleTable[SPP_IDX_NB]; // Handles list
 	clientDevice_t mClients[MAX_CLIENTS];
 	int mConnectedClientCount;
+	const char * mDeviceName;
 
 	void initClient(clientDevice_t & c, uint16_t connId);
 	uint8_t findCharAndDesrIndex(uint16_t handle);
