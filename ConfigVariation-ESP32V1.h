@@ -59,17 +59,17 @@ private:
 	// override
 	const uint8_t BUZZER_PIN = 14;
 
-	const uint8_t BATTERY_VOLTAGE_SENSOR_ANALOG_PIN = 35; // analog pin#
+	const uint8_t BATTERY_VOLTAGE_SENSOR_ANALOG_PIN = 33; // analog pin#
 	const long BATTERY_VOLTAGE_SENSOR_RESISTOR_GROUND = 10000; // 10Kohm
 	const long BATTERY_VOLTAGE_SENSOR_RESISTOR_VOLTAGE = 20000; // 20Kohm
 
-	const uint8_t VCC_VOLTAGE_SENSOR_ANALOG_PIN = 34; // analog pin#
+	const uint8_t VCC_VOLTAGE_SENSOR_ANALOG_PIN = 32; // analog pin#
 	const long VCC_VOLTAGE_SENSOR_RESISTOR_GROUND = 10000; // 10Kohm
 	const long VCC_VOLTAGE_SENSOR_RESISTOR_VOLTAGE = 20000; // 20Kohm
 
 	// pressure sensors
-	const int CAPACITIVE_PRESSURE_SENSOR_PIN = 33;
-	const int CAPACITIVE_PRESSURE_SENSOR2_PIN = 32;
+	const int CAPACITIVE_PRESSURE_SENSOR_PIN = 25;
+	const int CAPACITIVE_PRESSURE_SENSOR2_PIN = 27;
 
 };
 
