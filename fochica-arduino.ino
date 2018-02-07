@@ -75,6 +75,9 @@ const int CAR_ENGINE_RUNNING_TH = 13500; // 13.5V
 
 //////////
 // OBJECTS
+// start mode detector
+StartModeDetector * startModeDetector = configVariation.getStartModeDetector();
+
 // technical sensors
 ISensor * ram = configVariation.getFreeRAMSensor();
 ISensor * vcc = configVariation.getVccSensor();
@@ -108,6 +111,10 @@ Manager& manager = Manager::getInstance();
 // CODE
 void setup()
 {
+	// init detector ASAP
+	if (startModeDetector != NULL)
+		startModeDetector->begin();
+
 	// init tech sensors and params
 	if (vcc != NULL) {
 		vcc->begin();
@@ -214,7 +221,20 @@ void setup()
 	RNGUtils::seed();
 
 	// make start sound
-	SoundManager::getInstance().playBeep(BeepType::Start);
+	BeepType::e startBeep = BeepType::Start;
+	if (startModeDetector != NULL) {
+		if (startModeDetector->getMode() == StartMode::PowerCycle)
+			startBeep = BeepType::StartPowerCycle;
+		else if (startModeDetector->getMode() == StartMode::Restart)
+			startBeep = BeepType::StartRestart;
+	}
+	SoundManager::getInstance().playBeep(startBeep);
+
+	// debug start mode
+	if (startModeDetector != NULL) {
+		//delay(5000); // allow for some time to reconnect serial
+		startModeDetector->debug();
+	}
 }
 
 void loop()

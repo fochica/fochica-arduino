@@ -29,6 +29,7 @@ You should have received a copy of the GNU General Public License along with thi
 #include "PersistentLogImpl_Null.h"
 #include "PersistentLogImpl_Serial.h"
 #include "DischargeProtectionManager.h"
+#include "StartModeDetector.h"
 
 // A base abstract class for configuration variations. Also holds some basic default configuration.
 // Don't hold memory wasting objects that might not be relevant for the derived classes.
@@ -61,6 +62,8 @@ public:
 	virtual ISensor * getVccSensor() = 0;
 	virtual ISensor * getFreeRAMSensor() = 0;
 	virtual ISensor * getBatterySensor() = 0;
+
+	virtual StartModeDetector * getStartModeDetector() = 0;
 
 	virtual void registerClientDevices(ClientManager & cm) = 0;
 	virtual void registerSensors(SensorManager & sm) = 0;

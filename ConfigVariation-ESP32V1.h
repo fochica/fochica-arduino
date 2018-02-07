@@ -46,6 +46,9 @@ public:
 		analogSetPinAttenuation(getBatteryVoltageSensorAnalogPin(), ADC_6db); // try to work in a more accurate range
 		return new SensorVoltage(getBatteryVoltageSensorAnalogPin(), getBatteryVoltageSensorResistorToGroundValue(), getBatteryVoltageSensorResistorToVoltageValue(), ADC_6db_REFERENCE);
 	};
+	virtual StartModeDetector * getStartModeDetector() { 
+		return new StartModeDetector(START_MODE_CHARGE_PIN, START_MODE_MEASURE_PIN, START_MODE_RESTART_TH, START_MODE_POWER_CYCLE_TH);
+	};
 
 	virtual uint8_t getBuzzerPin() { return BUZZER_PIN; }
 
@@ -71,6 +74,11 @@ private:
 	const int CAPACITIVE_PRESSURE_SENSOR_PIN = 25;
 	const int CAPACITIVE_PRESSURE_SENSOR2_PIN = 27;
 
+	// start mode
+	const int START_MODE_CHARGE_PIN = 19;
+	const int START_MODE_MEASURE_PIN = 35;
+	const int START_MODE_RESTART_TH = 1000;
+	const int START_MODE_POWER_CYCLE_TH = 50;
 };
 
 ConfigVariation::ConfigVariation()

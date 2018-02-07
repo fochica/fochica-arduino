@@ -39,6 +39,8 @@ public:
 	virtual ISensor * getFreeRAMSensor() { return new SensorFreeRAMESP32(); };
 	virtual ISensor * getBatterySensor() { return NULL; };
 
+	virtual StartModeDetector * getStartModeDetector() { return NULL; };
+
 	virtual void registerClientDevices(ClientManager & cm);
 
 protected:

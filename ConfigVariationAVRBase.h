@@ -41,6 +41,8 @@ public:
 	virtual ISensor * getFreeRAMSensor() { return new SensorFreeRAMAVR(); };
 	virtual ISensor * getBatterySensor() { return new SensorVoltage(getBatteryVoltageSensorAnalogPin(), getBatteryVoltageSensorResistorToGroundValue(), getBatteryVoltageSensorResistorToVoltageValue()); };
 
+	virtual StartModeDetector * getStartModeDetector() { return NULL; };
+
 protected:
 	// Bluetooth Low Energy (HM-10/CC41 module)
 	// Software serial

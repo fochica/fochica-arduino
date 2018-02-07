@@ -25,6 +25,8 @@ You should have received a copy of the GNU General Public License along with thi
 struct BeepType {
 	enum e {
 		Start,
+		StartPowerCycle,
+		StartRestart,
 		ClientConnected,
 		ClientDisconnected,
 		SeatCalibrationStart,
