@@ -75,7 +75,7 @@ private:
 	const int CAPACITIVE_PRESSURE_SENSOR2_PIN = 27;
 
 	// start mode
-	const int START_MODE_CHARGE_PIN = 19;
+	const int START_MODE_CHARGE_PIN = 21;
 	const int START_MODE_MEASURE_PIN = 35;
 	const int START_MODE_RESTART_TH = 1000;
 	const int START_MODE_POWER_CYCLE_TH = 50;
