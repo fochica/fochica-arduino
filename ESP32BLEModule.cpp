@@ -695,7 +695,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 	case ESP_GATTS_DISCONNECT_EVT:
 		module.initClient(module.mClients[p_data->disconnect.conn_id], p_data->disconnect.conn_id); // reset state
 		module.mConnectedClientCount--;
-		ESP_LOGI(TAG, "disonnect, connection id %d\n", p_data->disconnect.conn_id);
+		ESP_LOGI(TAG, "disconnect, connection id %d, reason %d\n", p_data->disconnect.conn_id, p_data->disconnect.reason);
 		esp_ble_gap_start_advertising(&spp_adv_params); // advertise once again
 		// update server module
 		module.onClientConnectionChange(p_data->disconnect.conn_id, false);
