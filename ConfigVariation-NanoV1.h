@@ -35,6 +35,10 @@ public:
 	virtual void registerClientDevices(ClientManager & cm);
 	virtual void registerSensors(SensorManager & sm);
 
+	virtual StartModeDetector * getStartModeDetector() {
+		return new StartModeDetector(START_MODE_CHARGE_PIN, START_MODE_MEASURE_PIN, START_MODE_RESTART_TH, START_MODE_POWER_CYCLE_TH);
+	};
+
 protected:
 
 private:
@@ -46,6 +50,12 @@ private:
 	// pressure sensors
 	const int CAPACITIVE_PRESSURE_SENSOR_PIN = A2;
 	const int CAPACITIVE_PRESSURE_SENSOR2_PIN = A3;
+
+	// start mode
+	const int START_MODE_CHARGE_PIN = A0;
+	const int START_MODE_MEASURE_PIN = A0;
+	const int START_MODE_RESTART_TH = 500;
+	const int START_MODE_POWER_CYCLE_TH = 40;
 
 };
 
