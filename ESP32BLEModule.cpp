@@ -164,6 +164,7 @@ ESP32BLEModule::ESP32BLEModule()
 	mGattsIf = ESP_GATT_IF_NONE;
 	mConnectedClientCount = 0;
 	mDeviceName = DEVICE_NAME; // default name
+	mUseSecurity = true;
 
 	// init clients
 	for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -222,7 +223,7 @@ ESP32BLEModule::ESP32BLEModule()
 	esp_ble_gatts_register_callback(gatts_event_handler);
 	esp_ble_gap_register_callback(gap_event_handler);
 	esp_ble_gatts_app_register(APP_ID); // now we wait for success events
-	configSecurity();
+	configSecurity(); // TODO, does configuring the options actually cause encryption and pairing?
 }
 
 // from https://github.com/espressif/esp-idf/blob/master/examples/bluetooth/gatt_security_server/main/example_ble_sec_gatts_demo.c
@@ -373,7 +374,7 @@ bool ESP32BLEModule::processIncomingPacket(uint16_t connId, uint8_t * buf, uint1
 void ESP32BLEModule::onClientConnectionChange(uint16_t connId, bool isConnected)
 {
 	ESP32BLEModuleClient * client = (ESP32BLEModuleClient *)(mClients[connId].client);
-	client->getServerCallback()->onClientConnectionChange(client, false);
+	client->getServerCallback()->onClientConnectionChange(client, isConnected);
 }
 
 void ESP32BLEModule::setDeviceName(const char * name)
@@ -510,6 +511,8 @@ void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 {
 	ESP_LOGD(TAG, "gap event, %d %s\n", event, esp_gap_ble_cb_event_text[event]);
 
+	ESP32BLEModule & module = ESP32BLEModule::getInstance();
+
 	switch (event) {
 	case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT: // was able to set adv data params (after esp_ble_gap_config_adv_data_raw), can start advertize
 	case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
@@ -527,8 +530,14 @@ void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 	case ESP_GAP_BLE_SEC_REQ_EVT:
 		/* send the positive(true) security response to the peer device to accept the security request.
 		If not accept the security request, should sent the security response with negative(false) accept value*/
-		esp_ble_gap_security_rsp(param->ble_security.ble_req.bd_addr, true);
-		ESP_LOGI(GATTS_TABLE_TAG, "SEC_REQ, sending positive response");
+		if (module.mUseSecurity) {
+			esp_ble_gap_security_rsp(param->ble_security.ble_req.bd_addr, true);
+			ESP_LOGI(GATTS_TABLE_TAG, "SEC_REQ, sending positive response");
+		}
+		else {
+			ESP_LOGI(GATTS_TABLE_TAG, "SEC_REQ, ignoring");
+		}
+
 		break;
 	case ESP_GAP_BLE_PASSKEY_NOTIF_EVT:
 		ESP_LOGI(GATTS_TABLE_TAG, "PASSKEY_NOTIF, %d", param->ble_security.key_notif.passkey);
@@ -681,7 +690,10 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 		esp_ble_gap_update_conn_params(&conn_params);
 
 		// start security connect with peer device when receive the connect event sent by the master
-		esp_ble_set_encryption(param->connect.remote_bda, ESP_BLE_SEC_ENCRYPT_MITM);
+		if (module.mUseSecurity) {
+			esp_ble_set_encryption(param->connect.remote_bda, ESP_BLE_SEC_ENCRYPT_MITM);
+			// TODO, would also need to configure any sensitive characteristis with a security flag
+		}
 
 		// handle connection state
 		module.mClients[p_data->connect.conn_id].isConnected = true;

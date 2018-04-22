@@ -26,6 +26,7 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "btc_dev.h" // for ESP_DEV_DEVICE_NAME_MAX
 #include "esp_gatts_api.h" // for esp_gatt_if_t, event handler, etc
+#include "esp_gap_ble_api.h" // for esp_gap_ble_cb_event_t, esp_ble_gap_cb_param_t, gap event handler
 
 #include "ClientDevice.h"
 #include "PacketType.h"
@@ -64,6 +65,8 @@ public:
 	static const uint16_t MAX_DEVICE_NAME = ESP_DEV_DEVICE_NAME_MAX;
 	const uint8_t * getAddress(); // returns BT address, 6 bytes
 
+	void setUseSecurity(bool use) { mUseSecurity = use; }
+
 	// interface for module clients to call back
 	bool isConnected(uint16_t connId);
 	bool sendPacket(uint16_t connId, PacketType::e type, const byte * buf, uint16_t size);
@@ -82,6 +85,7 @@ private:
 
 	// give c functions access to this module
 	friend void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
+	friend void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 
 	typedef struct {
 		bool isConnected;
@@ -96,6 +100,7 @@ private:
 	clientDevice_t mClients[MAX_CLIENTS];
 	int mConnectedClientCount;
 	const char * mDeviceName;
+	bool mUseSecurity; // should we use pairing, encryption, etc. Might be an issue for some masters.
 
 	void initClient(clientDevice_t & c, uint16_t connId);
 	uint8_t findCharAndDesrIndex(uint16_t handle);
