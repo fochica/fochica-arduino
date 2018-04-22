@@ -47,10 +47,10 @@ void SoundManager::playBeep(BeepType::e beepType)
 	switch (beepType)
 	{
 	case BeepType::ClientConnected:
-		playTone(mPassiveBuzzerPin, 950, 330, 30);
+		playTone(mPassiveBuzzerPin, 950, 230, 30);
 		break;
 	case BeepType::ClientDisconnected:
-		playTone(mPassiveBuzzerPin, 1400, 330, 30);
+		playTone(mPassiveBuzzerPin, 1400, 530, 30);
 		break;
 	case BeepType::SeatStateChangeNoClient:
 	case BeepType::Error: // generic error, preferably use specific beep
