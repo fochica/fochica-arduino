@@ -30,14 +30,6 @@ You should have received a copy of the GNU General Public License along with thi
 #include "DebugStream.h"
 #include "SensorMock.h"
 
-#include "EventHandlerNotifyClientConnectionChange.h"
-#include "EventHandlerWriteToPersistentLog.h"
-#include "EventHandlerExternalAlertTrigger.h"
-#include "EventHandlerFallbackReminder.h"
-#include "EventHandlerConnectedSensorStateChange.h"
-#include "EventHandlerDisconnectedStateChange.h"
-#include "EventHandlerConnectedStateChange.h"
-
 // includes of libraries that are used in this project, for the sake of visual micro and IntelliSense
 #ifdef __AVR__ // default SoftwareSerial is AVR specific, some other platforms have compatible implementations which can be included here for those platforms
 #include <SoftwareSerial.h>
@@ -90,19 +82,10 @@ IPersistentLog * logger = configVariation.getPersistentLog(rtc);
 // discharge protection
 DischargeProtectionManager * dischargeProtection = NULL;
 
-// car engine running detection
+// car engine running detection, depends on bat voltage sensing
 // State A is off and B is running. start with default A state
 CalibratedSensor carEngineState(bat != NULL ? bat : (new SensorMock(SensorMockType::Fixed, 0, 0, 0)), // TODO, can we make this optional if no feature or no sensing?
 	CAR_ENGINE_ALPHA, CAR_ENGINE_OFF_TH, CAR_ENGINE_RUNNING_TH);
-
-// event handlers
-EventHandlerDisconnectedStateChange ehDisconnectedStateChange;
-//EventHandlerConnectedStateChange ehConnectedStateChange; // makes a sound on seat state changes, which are aggregated states
-EventHandlerConnectedSensorStateChange ehConnectedStateChange; // makes a sound on sensor changes, which are lower level events
-EventHandlerFallbackReminder ehFallbackReminder(carEngineState); // doesn't work for cars that turn the engine off automatically during stops
-//EventHandlerExternalAlertTrigger ehAlertLed(carEngineState, 10000, LED_BUILTIN); // example of an external alert trigger. turn on-board led (13) as an indication of alert. if using, make sure there is no conflict with other uses of pin 13 (alive LED, SPI for SD card, etc).
-EventHandlerWriteToPersistentLog ehPersistentLog; // writes events to persistent log
-EventHandlerNotifyClientConnectionChange ehClientConnectionChange; // makes a sound notification when an adapter to a client device connects or disconnects.
 
 // general manager
 Manager& manager = Manager::getInstance();
@@ -182,14 +165,8 @@ void setup()
 
 	// init event handlers
 	PersistentLogWrite(F("Init event handlers"));
-	manager.setEventHandlerCount(6);
-	manager.addEventHandler(&ehConnectedStateChange);
-	manager.addEventHandler(&ehDisconnectedStateChange);
-	manager.addEventHandler(&ehFallbackReminder);
-	//ehAlertLed.begin();
-	//manager.addEventHandler(&ehAlertLed);
-	manager.addEventHandler(&ehPersistentLog);
-	manager.addEventHandler(&ehClientConnectionChange);
+	manager.setEventHandlerCount(configVariation.getEventHandlerCount());
+	configVariation.registerEventHandlers(manager.getEventHandlerManager(), carEngineState);
 
 	// alive led
 	Nullable<uint8_t> aliveLedPin = configVariation.getAliveLedPin();

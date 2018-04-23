@@ -30,12 +30,12 @@ You should have received a copy of the GNU General Public License along with thi
 #include "ClientManager.h"
 #include "SensorManager.h"
 #include "TechnicalManager.h"
-#include "IEventHandler.h"
+#include "IEventHandlerManager.h"
 
 // This main class is a singleton
 // http://stackoverflow.com/questions/8811988/can-i-return-a-reference-to-a-static-class-singleton-instance-within-that-clas
 // http://stackoverflow.com/questions/13047526/difference-between-singleton-implemention-using-pointer-and-using-static-object
-class Manager : public IServer, IEventHandlerState, ISensorManagerCallback
+class Manager : public IServer, IEventHandlerState, ISensorManagerCallback, IEventHandlerManager
 {
 public:
 	static Manager& getInstance() {
@@ -47,6 +47,7 @@ public:
 	ClientManager & getClientManager() { return mClientManager; }
 	SensorManager & getSensorManager() { return mSensorManager; }
 	TechnicalManager & getTechnicalManager() { return mTechnicalManager; }
+	IEventHandlerManager & getEventHandlerManager() { return *this; }
 
 	void work();
 
@@ -56,8 +57,8 @@ public:
 	SensorState::e getSeatState(seatCount_t seatId) { return mSensorManager.getSeatState(seatId); }
 
 	// event handlers list
-	void setEventHandlerCount(int count);
-	bool addEventHandler(IEventHandler * handler);
+	virtual void setEventHandlerCount(int count);
+	virtual bool addEventHandler(IEventHandler * handler);
 
 	// sensor manager callback
 	bool eventSeatStateChange(seatCount_t seatId, SensorState::e lastState, SensorState::e newState);

@@ -20,8 +20,13 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "ConfigVariationESP32Base.h"
 #include "SensorCapacitivePressure1PinESP32.h"
+#include "EventHandlerClientConnectionStatePin.h"
 
 #define ADC_6db_REFERENCE 1.9f // not accurate, https://esp32.com/viewtopic.php?f=12&t=1045, TODO
+
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 2
+#endif
 
 // Configuration variations for an ESP32 build
 // Internal BLE module, 2 seat, 2 sensors
@@ -53,6 +58,10 @@ public:
 	virtual uint8_t getBuzzerPin() { return BUZZER_PIN; }
 
 	virtual void registerSensors(SensorManager & sm);
+
+	// event handlers
+	virtual int getEventHandlerCount();
+	virtual void registerEventHandlers(IEventHandlerManager & handlerManager, CalibratedSensor & carEngineState);
 
 	virtual void loop();
 
@@ -101,6 +110,21 @@ void ConfigVariation::registerSensors(SensorManager & sm)
 	sm.addSensor(0, SensorLocation::UnderSeat, capPressure);
 	capPressure2->begin();
 	sm.addSensor(1, SensorLocation::UnderSeat, capPressure2);
+}
+
+int ConfigVariation::getEventHandlerCount()
+{
+	return ConfigVariationESP32Base::getEventHandlerCount()+1;
+}
+
+void ConfigVariation::registerEventHandlers(IEventHandlerManager & handlerManager, CalibratedSensor & carEngineState)
+{
+	ConfigVariationESP32Base::registerEventHandlers(handlerManager, carEngineState);
+
+	// makes a sound notification when an adapter to a client device connects or disconnects.
+	EventHandlerClientConnectionStatePin * ehClientConnectionStatePin = new EventHandlerClientConnectionStatePin(LED_BUILTIN);
+	ehClientConnectionStatePin->begin();
+	handlerManager.addEventHandler(ehClientConnectionStatePin);
 }
 
 void ConfigVariation::loop()

@@ -17,7 +17,51 @@ You should have received a copy of the GNU General Public License along with thi
 
 #include "ConfigVariationBase.h"
 
+#include "EventHandlerNotifyClientConnectionChange.h"
+#include "EventHandlerWriteToPersistentLog.h"
+#include "EventHandlerExternalAlertTrigger.h"
+#include "EventHandlerFallbackReminder.h"
+#include "EventHandlerConnectedSensorStateChange.h"
+#include "EventHandlerDisconnectedStateChange.h"
+#include "EventHandlerConnectedStateChange.h"
+
 ConfigVariationBase::ConfigVariationBase()
 {
 }
 
+int ConfigVariationBase::getEventHandlerCount()
+{
+	return 5;
+}
+
+void ConfigVariationBase::registerEventHandlers(IEventHandlerManager & handlerManager, CalibratedSensor & carEngineState)
+{
+	// event handlers are allocated once on init and never released
+
+	// makes a sound on seat state changes, which are aggregated states, if also connected to client
+	//EventHandlerConnectedStateChange * ehConnectedStateChange=new EventHandlerConnectedStateChange();
+	// makes a sound on sensor changes, which are lower level events, if also connected to client
+	EventHandlerConnectedSensorStateChange * ehConnectedStateChange = new EventHandlerConnectedSensorStateChange();
+	handlerManager.addEventHandler(ehConnectedStateChange);
+
+	EventHandlerDisconnectedStateChange * ehDisconnectedStateChange = new EventHandlerDisconnectedStateChange();
+	handlerManager.addEventHandler(ehDisconnectedStateChange);
+
+	// doesn't work for cars that turn the engine off automatically during stops
+	EventHandlerFallbackReminder * ehFallbackReminder = new EventHandlerFallbackReminder(carEngineState);
+	handlerManager.addEventHandler(ehFallbackReminder);
+
+	// example of an external alert trigger. turn on-board led (13) as an indication of alert. if using, make sure there is no conflict with other uses of pin 13 (alive LED, SPI for SD card, etc).
+	//EventHandlerExternalAlertTrigger * ehAlertLed=new EventHandlerExternalAlertTrigger(carEngineState, 10000, LED_BUILTIN);
+	//ehAlertLed.begin();
+	//handlerManager.addEventHandler(&ehAlertLed);
+
+	// writes events to persistent log
+	EventHandlerWriteToPersistentLog * ehPersistentLog = new EventHandlerWriteToPersistentLog();
+	handlerManager.addEventHandler(ehPersistentLog);
+
+	// makes a sound notification when an adapter to a client device connects or disconnects.
+	EventHandlerNotifyClientConnectionChange * ehClientConnectionChange = new EventHandlerNotifyClientConnectionChange();
+	handlerManager.addEventHandler(ehClientConnectionChange);
+
+}
