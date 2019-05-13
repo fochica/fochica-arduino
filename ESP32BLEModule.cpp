@@ -17,6 +17,11 @@ You should have received a copy of the GNU General Public License along with thi
 
 #ifdef ESP32 // this implementation is ESP32 specific
 
+#include "sdkconfig.h"
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#endif
+
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "bt.h"
@@ -173,20 +178,33 @@ ESP32BLEModule::ESP32BLEModule()
 	}
 
 	// init BLE system
+
+	// From end of 2018, there is a new way to init BT when using Arduino-ESP32
+	ESP_LOGI(TAG, "BT State-pre: %d", btStarted());
+	if (!btStarted() && !btStart()) {
+		log_e("initialize controller failed");
+		return;
+	}
+	ESP_LOGI(TAG, "BT State-post: %d", btStarted());
+
 	esp_err_t ret;
 
+	// From end of 2018 this is done by Arduino-ESP32
 	// Initialize NVS — it is used to store PHY calibration data
+	/*
 	ret = nvs_flash_init();
 	if (ret == ESP_ERR_NVS_NO_FREE_PAGES) {
 		ESP_ERROR_CHECK(nvs_flash_erase());
 		ret = nvs_flash_init();
 	}
 	ESP_ERROR_CHECK(ret);
+	*/
 
 	// release BT classic memory
+	/*
 	ret = esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);
 	if (ret) {
-		ESP_LOGI(tag, "Bluetooth controller release classic bt memory failed");
+		ESP_LOGI(tag, "Bluetooth controller release classic bt memory failed. Error: %d", ret); // 259 -> ESP_ERR_INVALID_STATE (0x103): Invalid state
 		return;
 	}
 
@@ -194,25 +212,26 @@ ESP32BLEModule::ESP32BLEModule()
 	esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
 	ret = esp_bt_controller_init(&bt_cfg);
 	if (ret) {
-		ESP_LOGE(TAG, "%s enable controller failed\n", __func__);
+		ESP_LOGE(TAG, "%s init controller failed. Error: %d\n", __func__, ret);
 		return;
 	}
 
-	ret = esp_bt_controller_enable(/*ESP_BT_MODE_BTDM*/ESP_BT_MODE_BLE);
+	ret = esp_bt_controller_enable(ESP_BT_MODE_BLE); // ESP_BT_MODE_BTDM
 	if (ret) {
-		ESP_LOGE(TAG, "%s enable controller failed\n", __func__);
+		ESP_LOGE(TAG, "%s enable controller failed. Error: %d\n", __func__, ret);
 		return;
 	}
+	*/
 
 	ESP_LOGI(TAG, "%s init bluetooth\n", __func__);
 	ret = esp_bluedroid_init();
 	if (ret) {
-		ESP_LOGE(TAG, "%s init bluetooth failed\n", __func__);
+		ESP_LOGE(TAG, "%s init bluetooth failed. Error: %d\n", __func__, ret);
 		return;
 	}
 	ret = esp_bluedroid_enable();
 	if (ret) {
-		ESP_LOGE(TAG, "%s enable bluetooth failed\n", __func__);
+		ESP_LOGE(TAG, "%s enable bluetooth failed. Error: %d\n", __func__, ret);
 		return;
 	}
 
@@ -399,7 +418,7 @@ bool ESP32BLEModule::isConnected(uint16_t connId)
 bool ESP32BLEModule::sendPacket(uint16_t connId, PacketType::e type, const byte * buf, uint16_t size)
 {
 	clientDevice_t & c = mClients[connId];
-	//printf("ESP32BLEModule::sendPacket: connId %d, connected %d, notify %d, mtu %d, packet type %d, size %d\n", connId, c.isConnected, c.enableNotification, c.mtu, type, size);
+	//printf("ESP32BLEModule::sendPacket: connId %d, connected %d, notify %d, mtu %d, packet type %d, size %d, ms %d\n", connId, c.isConnected, c.enableNotification, c.mtu, type, size, millis());
 	if (c.isConnected && c.enableNotification) {
 		if (size <= (c.mtu - BLE_DATA_OVERHEAD)) {
 			// serialize full packet with header
@@ -413,6 +432,10 @@ bool ESP32BLEModule::sendPacket(uint16_t connId, PacketType::e type, const byte 
 			if (ret != ESP_OK) {
 				printf("ESP32BLEModule::sendPacket: Error sending notification %d\n", ret);
 			}
+			// should we wait between sends (based on /examples/bluetooth/ble_spp_server/main/ble_spp_server_demo.c)
+			// consider to use a queue, ESP_GATTS_CONF_EVT or "time since last send" like with GenericBLEModuleClient
+			//vTaskDelay(20 / portTICK_PERIOD_MS);
+			delay(20);
 		}
 		else {
 			printf("ESP32BLEModule::sendPacket: Can't notify, data too long\n");
@@ -664,6 +687,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 		ESP_LOGI(TAG, "New MTU, mtu %d, connection id %d\n", p_data->mtu.mtu, p_data->mtu.conn_id);
 		break;
 	case ESP_GATTS_CONF_EVT: // receive confirmation event
+		//ESP_LOGI(TAG, "Confirmation event: connection id %d, status %d, len %d, ms %d\n", param->conf.conn_id, param->conf.status, param->conf.len, millis());
 		break;
 	case ESP_GATTS_UNREG_EVT:
 		module.mGattsIf = ESP_GATT_IF_NONE;

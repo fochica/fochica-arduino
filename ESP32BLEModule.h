@@ -24,7 +24,8 @@ You should have received a copy of the GNU General Public License along with thi
 
 #ifdef ESP32 // this implementation is ESP32 specific
 
-#include "btc_dev.h" // for ESP_DEV_DEVICE_NAME_MAX
+//#include "btc_dev.h" // for ESP_DEV_DEVICE_NAME_MAX
+#define ESP_DEV_DEVICE_NAME_MAX 32 // from msys32\home\arik\esp\esp-idf\components\bt\bluedroid\btc\include\btc_dev.h which was not found from VS/vMicro build
 #include "esp_gatts_api.h" // for esp_gatt_if_t, event handler, etc
 #include "esp_gap_ble_api.h" // for esp_gap_ble_cb_event_t, esp_ble_gap_cb_param_t, gap event handler
 
