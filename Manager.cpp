@@ -243,6 +243,11 @@ bool Manager::sendCalibrationParams()
 
 bool Manager::sendCalibrationParamsOnce()
 {
+	if (DebugStream != NULL) {
+		DebugStream->print(F("sendCalibrationParamsOnce, mRepeatSendCalibrationParams="));
+		DebugStream->println(mRepeatSendCalibrationParams);
+	}
+
 	return getSensorManager().sendCalibrationParams();
 }
 
