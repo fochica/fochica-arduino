@@ -28,7 +28,7 @@ HardwareSerial Serial2(2); // Tx2 17, Rx2 16
 
 #define USE_BUILTIN_BLE
 #ifdef USE_BUILTIN_BLE
-#define BLE_USE_SECURITY false
+#define BLE_USE_SECURITY true
 #define DEVICE_NAME "Fochica"
 char deviceNameFull[ESP32BLEModule::MAX_DEVICE_NAME]; // allocate buffer for full name (text+part of address)
 #endif
